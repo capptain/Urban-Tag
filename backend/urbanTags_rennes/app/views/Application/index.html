@@ -1,0 +1,22 @@
+#{extends 'main.html' /}
+#{set title:'urbantags - Rennes' /}
+
+#{set 'moreScripts'}
+<script type="text/javascript" src="@{'/public/javascripts/EventRegistration.js'}"></script>
+<script type="text/javascript" src="@{'/public/javascripts/PlaceManager.js'}"></script>
+<script type="text/javascript">
+placeManager = new PlaceManager();
+</script>
+#{/set}
+
+#{topBar user:user /}
+#{placeList user:user /}
+    
+
+#{map /}
+
+#{set 'moreEndScripts'}
+<script type="text/javascript">
+placeManager.loadData();
+</script>
+#{/set}

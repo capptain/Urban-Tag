@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">UrbanTag</string>
+    <string name="mapKey">0C5w0NLXxjrq_W6OykIu-GWx5_ct8GPuK4xFy7A</string>
+    <string name="menu_preferences">Préférences</string>
+    <string name="menu_tags">Catégories</string>
+    <string name="notify_me_for_tags">Me notifier pour les catégories :</string>
+    <string name="parameters_explain">Pour améliorer le positionnement nous vous conseillons d\'activer le Wi-Fi et le GPS.</string>
+    <string name="active_wifi">Activer la géolocalisation Wi-Fi</string>
+    <string name="active_wifi_summary">Active la géolocalisation Wi-Fi pour améliorer le positionnement</string>
+    <string name="active_gps">Activer le GPS</string>
+    <string name="active_gps_summary">Active le GPS pour améliorer le positionnement</string>
+    <string name="menu_quit">Quitter</string>
+    <string name="preferences_localisation">Localisation</string>
+    <string name="active_network">Activer la géolocalisation réseau</string>
+    <string name="active_network_summary">Active la géolocalisation réseau pour le positionnement</string>
+    <string name="preferences_history">Historique</string>
+    <string name="delete_history">Supprimer l\'historique</string>
+    <string name="delete_history_summary">Supprime l\'historique des lieux visités</string>
+    <string name="delete_history_confirm">Etes-vous sûr de vouloir supprimer l\'historique ?</string>
+    <string name="yes">Oui</string>
+    <string name="no">Non</string>
+    <string name="static_preference">Cette préférence ne peut pas être modifiée.</string>
+    <string name="activate_geoloc">Activer la géolocalisation</string>
+    <string name="activate_geoloc_confirm">Vous devez activer la géolocalisation réseau pour utiliser cette application.</string>
+    <string name="ok">Ok</string>
+
+</resources>

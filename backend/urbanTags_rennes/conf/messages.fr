@@ -1,0 +1,34 @@
+##### Place #####
+name=Nom
+longitude=Longitude
+latitude=Latitude
+radius=Rayon
+accuracy=Seuil de précision (mètres)
+expiration=Seuil de longévité (minutes)
+owner=Propriétaire
+tags=Tags
+mainTag=Tag principal
+
+##### Info #####
+title=Titre
+content=Contenu
+startDate=Date de départ
+endDate=Date de fin
+addedAt=Ajouté le
+place=Lieu
+tags=Tags
+
+##### Tag #####
+name=Nom
+
+##### User #####
+email=E-mail
+password=Mot de passe
+username=Nom d'utilisateur
+role=Rôle
+
+
+##### Top Bar #####
+views.main.topBar.help=Aide
+views.main.topBar.logout=Deconnexion
+views.main.topBar.signin=S'identifier

@@ -1,0 +1,89 @@
+#place-list-container{
+	position: relative;
+	top: 0px;
+	width: 200px;
+    z-index: 1000;
+    background: #FFF;
+    border: 1px solid black;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    padding-bottom: 2px;
+}
+
+#place-list-buttons-container
+{
+    text-align: right;
+}
+
+#place-list-add-button
+{
+	background: #68D95C;
+}
+
+#place-list-add-button:hover
+{
+    background: #3BA830;
+    color: white;
+}
+
+#place-list-save-changes-button
+{
+    width: 100%;
+}
+
+#place-list-container h3{
+	text-align: center;
+	margin-top: 3px;
+}
+
+#place-list-content
+{
+    height: 500px;
+    overflow: auto;
+}
+
+#place-list-content.registered
+{
+    border-bottom: 1px solid black;
+}
+
+#place-list-content table{
+	width: 100%;
+	border-collapse: collapse;
+	margin-bottom: 5px;
+}
+
+#place-list-content tr.title{
+	background: #A8D9F3;
+}
+
+#place-list-content tr.place{
+	cursor: pointer;
+	text-align: center;
+}
+
+#place-list-content tr.alt{
+    background: #E8E8E8;
+}
+
+#place-list-content tr.selected{
+    background: #E9FFE6;
+}
+
+#place-list-content tr.place:hover{
+	background: #D5EEFB;
+}
+
+.button
+{
+    border: 0px;
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    font-size: 12pt;
+    cursor: pointer;
+}
+
+.disabled
+{
+    cursor: default;
+}

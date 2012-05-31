@@ -1,0 +1,46 @@
+# Test data
+
+User(bob):
+    email:          bob@gmail.com
+    password:       secret
+    username:       Bob
+    role:           Admin
+    
+User(jeff):
+    email:          jeff@gmail.com
+    password:       secret
+    username:       Jeff 
+    
+Tag(musique):
+    name:           musique
+
+Tag(architecture):
+    name:           Architecture
+
+Tag(theatre):
+    name:           Théâtre
+
+Tag(insolite):
+    name:           Insolite
+    
+Place(center):
+    name:           Center
+    longitude:      0.0
+    latitude:       0.0
+    radius:         10000
+    accuracy:       1000
+    expiration:     10
+    owner:          bob
+    tags:           [musique, architecture]
+    mainTag:        musique
+    
+Place(france):
+    name:           France
+    longitude:      2.109375
+    latitude:       46.800059446787316
+    radius:         1500
+    accuracy:       1000
+    expiration:     15
+    owner:          bob
+    tags:           [musique, architecture]
+    mainTag:        musique

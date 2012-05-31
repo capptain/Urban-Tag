@@ -1,0 +1,34 @@
+<link rel="stylesheet" type="text/css" href="@{'/public/stylesheets/placeList.css'}" />
+
+<div id="place-list-container">
+	   <h3>Place List</h3>
+	   <div id="place-list-content"></div>
+	
+    #{if _user}
+    <div id="place-list-buttons-container">
+        <input type="button" value="Ajouter" id="place-list-add-button" />
+    </div>
+    <div id="place-list-save-changes-container">
+        <input type="button" disabled="true" value="No changes" id="place-list-save-changes-button" />
+    </div>
+    #{/if}
+</div>
+
+<script type="text/javascript" src="@{'/public/javascripts/PlaceList.js'}"></script>
+<script type="text/javascript">
+placeList = new PlaceList($('#place-list-content'), placeManager);
+placeList.refresh();
+(function()
+{
+    $("input[type='button']").addClass("button");
+    $("input[disabled='true']").addClass("disabled");
+}
+)();
+
+#{if _user}
+(function()
+{
+    $("#place-list-content").addClass("registered");
+})();
+#{/if}
+</script>

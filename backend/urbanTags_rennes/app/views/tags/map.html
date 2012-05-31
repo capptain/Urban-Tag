@@ -1,0 +1,17 @@
+<link rel="stylesheet" type="text/css" href="@{'/public/stylesheets/map.css'}" />
+
+<div id="map">
+</div>
+
+<script type="text/javascript" src="@{'/public/javascripts/Map.js'}"></script>
+<script type="text/javascript" charset="${_response_encoding}">
+map = new Map(placeManager, 'map');
+//map = new OpenLayers.Map('map');
+
+(function(){
+   var layer = new OpenLayers.Layer.OSM();
+   map.osmMap.addLayer
+   map.osmMap.addLayer(layer);
+   map.osmMap.zoomTo(5);
+})();
+</script>
