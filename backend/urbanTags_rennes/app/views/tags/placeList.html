@@ -1,7 +1,7 @@
 <link rel="stylesheet" type="text/css" href="@{'/public/stylesheets/placeList.css'}" />
 
 <div id="place-list-container">
-	   <h3>Place List</h3>
+	   <h3>&{'view.place.list.title'}</h3>
 	   <div id="place-list-content"></div>
 	
     #{if _user}
@@ -9,7 +9,7 @@
         <input type="button" value="Ajouter" id="place-list-add-button" />
     </div>
     <div id="place-list-save-changes-container">
-        <input type="button" disabled="true" value="No changes" id="place-list-save-changes-button" />
+        <input type="button" disabled="true" value="&{'view.place.list.noChange'}" id="place-list-save-changes-button" />
     </div>
     #{/if}
 </div>

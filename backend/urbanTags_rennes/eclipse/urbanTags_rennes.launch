@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/urbanTags_rennes_committed"/>
+<listEntry value="/urbanTags_rennes"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="4"/>
@@ -14,6 +14,6 @@
 </listAttribute>
 <booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="false"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="play.server.Server"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="urbanTags_rennes_committed"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="urbanTags_rennes"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n -Dplay.debug=yes -Dplay.id=server01 -Dapplication.path=&quot;${project_loc:urbanTags_rennes}&quot; -Djava.endorsed.dirs=&quot;/home/guillaume/play-1.2.4/framework/endorsed&quot; -javaagent:&quot;/home/guillaume/play-1.2.4/framework/play-1.2.4.jar&quot;"/>
 </launchConfiguration>

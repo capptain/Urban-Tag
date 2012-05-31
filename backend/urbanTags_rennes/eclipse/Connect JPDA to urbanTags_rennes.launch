@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.eclipse.jdt.launching.remoteJavaApplication">
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/urbanTags_rennes_committed"/>
+<listEntry value="/urbanTags_rennes"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="4"/>
@@ -11,6 +11,6 @@
 <mapEntry key="hostname" value="localhost"/>
 <mapEntry key="port" value="8000"/>
 </mapAttribute>
-<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="urbanTags_rennes_committed"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="urbanTags_rennes"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_CONNECTOR_ID" value="org.eclipse.jdt.launching.socketAttachConnector"/>
 </launchConfiguration>
