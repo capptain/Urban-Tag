@@ -13,8 +13,6 @@
 }
 
 #topBar-rightPart{
-	position: relative;
-	top: 75px;
 	float: right;
 	margin-right: -5px;
 	background-color: #000;

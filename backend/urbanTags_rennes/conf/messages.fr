@@ -27,6 +27,10 @@ password=Mot de passe
 username=Nom d'utilisateur
 role=Rôle
 
+#### Place list ####
+view.place.list.title=Liste des lieux
+view.place.list.noChange=Aucun changement
+
 
 ##### Top Bar #####
 views.main.topBar.help=Aide

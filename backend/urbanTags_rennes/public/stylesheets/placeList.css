@@ -1,13 +1,13 @@
 #place-list-container{
-	position: relative;
-	top: 0px;
-	width: 200px;
+    float: left;
+	width: 15%;
     z-index: 1000;
     background: #FFF;
     border: 1px solid black;
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
     padding-bottom: 2px;
+    margin-left: 0px;
 }
 
 #place-list-buttons-container
