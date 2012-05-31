@@ -19,6 +19,7 @@ import com.google.android.maps.MyLocationOverlay;
 
 public class UrbanTagMainActivity extends SherlockMapActivity
 {
+  private final String ACTIVITY_NAME = "UrbanTagMainActivity";
   /* UI Elements */
 
   /** map view */
@@ -84,7 +85,7 @@ public class UrbanTagMainActivity extends SherlockMapActivity
   {
     super.onResume();
     // Do what we do on every activity
-    Common.onResume(this);
+    Common.onResume(this, ACTIVITY_NAME);
   }
 
   @Override

@@ -8,6 +8,7 @@ import com.actionbarsherlock.view.MenuItem;
 
 public class TagsListActivity extends SherlockListActivity
 {
+  private final String ACTIVITY_NAME = "TagsListActivity";
 
   @Override
   public void onCreate(Bundle savedInstanceState)
@@ -41,6 +42,6 @@ public class TagsListActivity extends SherlockListActivity
   public void onResume()
   {
     super.onResume();
-    Common.onResume(this);
+    Common.onResume(this, ACTIVITY_NAME);
   }
 }

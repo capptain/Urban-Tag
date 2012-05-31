@@ -9,7 +9,7 @@ import android.location.LocationManager;
 public class Common
 {
 
-  public static void onResume(final Context context)
+  public static void onResume(final Context context, String ActivityName)
   {
     LocationManager locationManager = (LocationManager) context.getSystemService(context.LOCATION_SERVICE);
     if (!locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
