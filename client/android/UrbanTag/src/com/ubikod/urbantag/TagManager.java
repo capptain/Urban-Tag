@@ -3,13 +3,11 @@ package com.ubikod.urbantag;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Vector;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -37,36 +35,35 @@ public class TagManager implements OnClickListener
   {
     HashMap<Integer, Tag> tags = loadAllFromDB();
     // Tags maj ou ajoutes
-    for (Tag tag : list)
-    {
-      if (tags.containsKey(tag.getId()))
-      {
-        if (!tag.hasChanged(tags.get(tag.getId())))
-        {
-          update(tag);
-        }
-      }
-      else
-      {
-        insert(tag);
-      }
-    }
+    // for (Tag tag : list)
+    // {
+    // if (tags.containsKey(tag.getId()))
+    // {
+    // if (!tag.hasChanged(tags.get(tag.getId())))
+    // {
+    // update(tag);
+    // }
+    // }
+    // else
+    // {
+    // insert(tag);
+    // }
+    // }
 
-    // Tags n'existant plus
-    Vector<Tag> toDelete = new Vector<Tag>();
-    for (Tag t : tags.values())
-    {
-      if (!list.contains(t))
-      {
-        Log.i("Deleting", t.getValue());
-        toDelete.add(t);
-      }
-    }
-
-    for (Tag t : toDelete)
-    {
-      delete(t);
-    }
+    // // Tags n'existant plus
+    // Vector<Tag> toDelete = new Vector<Tag>();
+    // for (Tag t : tags.values())
+    // {
+    // if (!list.contains(t))
+    // {
+    // toDelete.add(t);
+    // }
+    // }
+    //
+    // for (Tag t : toDelete)
+    // {
+    // delete(t);
+    // }
   }
 
   public void toggleNotification(Tag t)
@@ -183,30 +180,30 @@ public class TagManager implements OnClickListener
   private void dbInsert(Tag t)
   {
     ContentValues values = new ContentValues();
-    values.put(DatabaseHelper.COL_ID, t.getId());
-    values.put(DatabaseHelper.COL_TAG_NAME, t.getValue());
-    values.put(DatabaseHelper.COL_COLOR, t.getColor());
-    values.put(DatabaseHelper.COL_NOTIFY, t.isSelected() ? 1 : 0);
+    values.put(DatabaseHelper.TAG_COL_ID, t.getId());
+    values.put(DatabaseHelper.TAG_COL_NAME, t.getValue());
+    values.put(DatabaseHelper.TAG_COL_COLOR, t.getColor());
+    values.put(DatabaseHelper.TAG_COL_NOTIFY, t.isSelected() ? 1 : 0);
 
-    DB.insert(DatabaseHelper.TABLE_TAGS, DatabaseHelper.COL_ID, values);
+    DB.insert(DatabaseHelper.TABLE_TAGS, DatabaseHelper.TAG_COL_ID, values);
   }
 
   private void dbUpdate(Tag t)
   {
     ContentValues values = new ContentValues();
-    values.put(DatabaseHelper.COL_TAG_NAME, t.getValue());
-    values.put(DatabaseHelper.COL_COLOR, t.getColor());
-    values.put(DatabaseHelper.COL_NOTIFY, t.isSelected() ? 1 : 0);
+    values.put(DatabaseHelper.TAG_COL_NAME, t.getValue());
+    values.put(DatabaseHelper.TAG_COL_COLOR, t.getColor());
+    values.put(DatabaseHelper.TAG_COL_NOTIFY, t.isSelected() ? 1 : 0);
 
-    DB.update(DatabaseHelper.TABLE_TAGS, values, DatabaseHelper.COL_ID + " =? ",
+    DB.update(DatabaseHelper.TABLE_TAGS, values, DatabaseHelper.TAG_COL_ID + " =? ",
       new String[] { String.valueOf(t.getId()) });
   }
 
   private Tag dbGetByID(int id)
   {
-    Cursor c = DB.query(DatabaseHelper.TABLE_TAGS, new String[] { DatabaseHelper.COL_ID,
-      DatabaseHelper.COL_TAG_NAME, DatabaseHelper.COL_COLOR, DatabaseHelper.COL_NOTIFY },
-      DatabaseHelper.COL_ID + "=? ", new String[] { String.valueOf(id) }, null, null, null);
+    Cursor c = DB.query(DatabaseHelper.TABLE_TAGS, new String[] { DatabaseHelper.TAG_COL_ID,
+      DatabaseHelper.TAG_COL_NAME, DatabaseHelper.TAG_COL_COLOR, DatabaseHelper.TAG_COL_NOTIFY },
+      DatabaseHelper.TAG_COL_ID + "=? ", new String[] { String.valueOf(id) }, null, null, null);
     c.moveToFirst();
     Tag t = cursorToTag(c);
     c.close();
@@ -215,7 +212,7 @@ public class TagManager implements OnClickListener
 
   private void dbDelete(Tag t)
   {
-    DB.delete(DatabaseHelper.TABLE_TAGS, DatabaseHelper.COL_ID + "=?",
+    DB.delete(DatabaseHelper.TABLE_TAGS, DatabaseHelper.TAG_COL_ID + "=?",
       new String[] { String.valueOf(t.getId()) });
   }
 
@@ -223,9 +220,9 @@ public class TagManager implements OnClickListener
   {
     open();
 
-    Cursor c = DB.query(DatabaseHelper.TABLE_TAGS, new String[] { DatabaseHelper.COL_ID,
-      DatabaseHelper.COL_TAG_NAME, DatabaseHelper.COL_COLOR, DatabaseHelper.COL_NOTIFY }, null,
-      null, null, null, null);
+    Cursor c = DB.query(DatabaseHelper.TABLE_TAGS, new String[] { DatabaseHelper.TAG_COL_ID,
+      DatabaseHelper.TAG_COL_NAME, DatabaseHelper.TAG_COL_COLOR, DatabaseHelper.TAG_COL_NOTIFY },
+      null, null, null, null, null);
     HashMap<Integer, Tag> tags = new HashMap<Integer, Tag>();
 
     if (c.getCount() == 0)
@@ -250,9 +247,9 @@ public class TagManager implements OnClickListener
 
   private Tag cursorToTag(Cursor c)
   {
-    Tag t = new Tag(c.getInt(DatabaseHelper.NUM_COL_ID),
-      c.getString(DatabaseHelper.NUM_COL_TAG_NAME), c.getInt(DatabaseHelper.NUM_COL_COLOR));
-    t.setSelected(c.getInt(DatabaseHelper.NUM_COL_NOTIFY) == 1);
+    Tag t = new Tag(c.getInt(DatabaseHelper.TAG_NUM_COL_ID),
+      c.getString(DatabaseHelper.TAG_NUM_COL_NAME), c.getInt(DatabaseHelper.TAG_NUM_COL_COLOR));
+    t.setSelected(c.getInt(DatabaseHelper.TAG_NUM_COL_NOTIFY) == 1);
     return t;
   }
 

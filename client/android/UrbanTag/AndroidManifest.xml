@@ -4,22 +4,36 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
-    <uses-sdk android:minSdkVersion="7" android:targetSdkVersion="15"/>
+    <uses-sdk
+        android:minSdkVersion="7"
+        android:targetSdkVersion="15" />
+    <!-- Some of the following permissions are needed by Capptain SDK. See documentation on https://app.capptain.com/doc -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.UPDATE_DEVICE_STATS" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_GPS" />
     <uses-permission android:name="android.permission.LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />  
-	<uses-permission android:name="android.permission.UPDATE_DEVICE_STATS" />  
-	<uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />  
-	<uses-permission android:name="android.permission.WAKE_LOCK" /> 
-    
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+	<uses-permission android:name="com.ubikod.urbantag.permission.C2D_MESSAGE" />
+	<permission android:name="com.ubikod.urbantag.permission.C2D_MESSAGE" android:protectionLevel="signature" />
+
     <application
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/Theme.Sherlock.Light.ForceOverflow" >
-        <uses-library android:name="com.google.android.maps" required="true"/>
+        <uses-library
+            android:name="com.google.android.maps"
+            required="true" />
+
         <activity
             android:name=".UrbanTagMainActivity"
             android:label="@string/app_name" >
@@ -31,8 +45,128 @@
         </activity>
         <activity android:name=".TagsListActivity" />
         <activity android:name=".PreferencesActivity" />
+
+        <service
+            android:name="com.ubikod.capptain.android.service.CapptainService"
+            android:label="UrbanTagService"
+            android:process=":Capptain" >
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <action android:name="com.ubikod.capptain.ICapptainService" />
+
+                <data android:scheme="capptain" />
+            </intent-filter>
+
+            <meta-data
+                android:name="capptain:api:level"
+                android:value="14" />
+            <meta-data
+                android:name="capptain:api:id"
+                android:value="b6a5b1113175bf391e442a8653876b84" />
+
+            <!-- Capptain test -->
+            <meta-data
+                android:name="capptain:log:test"
+                android:value="true" />
+        </service>
+
+        <activity
+            android:name="com.ubikod.capptain.android.sdk.reach.activity.CapptainTextAnnouncementActivity"
+            android:theme="@android:style/Theme.Light" >
+            <intent-filter>
+                <action android:name="com.ubikod.capptain.intent.action.ANNOUNCEMENT" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+
+            <meta-data
+                android:name="capptain:track:browser:enabled"
+                android:value="false" />
+        </activity>
+        <activity
+            android:name="com.ubikod.capptain.android.sdk.reach.activity.CapptainWebAnnouncementActivity"
+            android:theme="@android:style/Theme.Light" >
+            <intent-filter>
+                <action android:name="com.ubikod.capptain.intent.action.ANNOUNCEMENT" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="text/html" />
+            </intent-filter>
+
+            <meta-data
+                android:name="capptain:track:browser:enabled"
+                android:value="false" />
+        </activity>
+        <activity
+            android:name="com.ubikod.capptain.android.sdk.reach.activity.CapptainPollActivity"
+            android:theme="@android:style/Theme.Light" >
+            <intent-filter>
+                <action android:name="com.ubikod.capptain.intent.action.POLL" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+            <meta-data
+                android:name="capptain:track:browser:enabled"
+                android:value="false" />
+        </activity>
+
+        <receiver android:name="com.ubikod.capptain.android.sdk.reach.CapptainReachReceiver" >
+            <intent-filter>
+                <action android:name="com.ubikod.capptain.intent.action.AGENT_CREATED" />
+                <action android:name="com.ubikod.capptain.intent.action.MESSAGE" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name="DataPushHandler" >
+            <intent-filter>
+                <action android:name="com.ubikod.capptain.intent.action.DATA_PUSH" />
+            </intent-filter>
+        </receiver>
+
+        <meta-data
+            android:name="capptain:reportLocation"
+            android:value="true" />
+        <meta-data
+            android:name="capptain:locationReport:realTime"
+            android:value="true" />
+        <meta-data
+            android:name="capptain:locationReport:realTime:fine"
+            android:value="true" />
+        <meta-data
+            android:name="capptain:locationReport:realTime:background"
+            android:value="true" />
+        <meta-data
+            android:name="capptain:reach:ticker:icon"
+            android:value="capptain_blank" />
+        <meta-data
+            android:name="capptain:reach:ticker:icon:blank"
+            android:value="capptain_blank" />
+
+        <uses-permission android:name="android.permission.VIBRATE" />
+        
+        <receiver android:name="com.ubikod.capptain.android.sdk.c2dm.CapptainC2DMEnabler" >
+            <intent-filter>
+                <action android:name="com.ubikod.capptain.intent.action.AGENT_CREATED" />
+            </intent-filter>
+        </receiver>
+
+        <meta-data
+            android:name="capptain:c2dm:sender"
+            android:value="capptain_app@ubikod.com" />
+        
+        <receiver android:name="com.ubikod.capptain.android.sdk.c2dm.CapptainC2DMReceiver" android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+
+                <category android:name="com.ubikod.urbantag" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
-
-    
 </manifest>

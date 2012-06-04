@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">UrbanTag</string>
-    <string name="mapKey">0C5w0NLXxjrq_W6OykIu-GWx5_ct8GPuK4xFy7A</string>
+    <string name="mapKey">06XxQRbdBHJ-2-yW4NCcviDPun_3h6BYoaCpT4w</string>
     <string name="menu_preferences">Préférences</string>
     <string name="menu_tags">Catégories</string>
     <string name="notify_me_for_tags">Me notifier pour les catégories :</string>

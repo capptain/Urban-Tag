@@ -19,7 +19,6 @@ import com.actionbarsherlock.view.MenuItem;
 
 public class PreferencesActivity extends SherlockPreferenceActivity
 {
-  private final String ACTIVITY_NAME = "PreferencesActivity";
 
   @SuppressWarnings("deprecation")
   @Override
@@ -109,7 +108,7 @@ public class PreferencesActivity extends SherlockPreferenceActivity
   public void onResume()
   {
     super.onResume();
-    Common.onResume(this, ACTIVITY_NAME);
+    Common.onResume(this);
 
     // Display preference accordingly to current system state
     CheckBoxPreference active_wifi = (CheckBoxPreference) findPreference("active_wifi");
@@ -131,6 +130,13 @@ public class PreferencesActivity extends SherlockPreferenceActivity
     active_wifi.setChecked(wifiChecked);
     active_gps.setChecked(gpsChecked);
     active_network.setChecked(network_checked);
+  }
+
+  @Override
+  public void onPause()
+  {
+    super.onPause();
+    Common.onPause(this);
   }
 
   @Override

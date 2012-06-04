@@ -6,6 +6,7 @@ import java.util.List;
 import android.content.Intent;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockMapActivity;
@@ -16,10 +17,10 @@ import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.MyLocationOverlay;
+import com.google.android.maps.OverlayItem;
 
 public class UrbanTagMainActivity extends SherlockMapActivity
 {
-  private final String ACTIVITY_NAME = "UrbanTagMainActivity";
   /* UI Elements */
 
   /** map view */
@@ -37,6 +38,9 @@ public class UrbanTagMainActivity extends SherlockMapActivity
 
   /** LocationOverlay */
   private MyLocationOverlay locationOverlay;
+
+  /** PlaceOverlay */
+  private PlaceOverlay placeOverlay;
 
   /** Called when the activity is first created. */
   @Override
@@ -74,18 +78,35 @@ public class UrbanTagMainActivity extends SherlockMapActivity
       public void run()
       {
         GeoPoint curPosition = locationOverlay.getMyLocation();
+        Log.i("Position", "" + curPosition);
         mapController.animateTo(curPosition);
         mapController.setCenter(curPosition);
       }
     });
+
+    placeOverlay = new PlaceOverlay(this, this.getResources().getDrawable(R.drawable.ic_launcher));
+    mapView.getOverlays().add(placeOverlay);
+    OverlayItem ubu = new OverlayItem(new GeoPoint(48107976, -1673387), "Ubu", "Concert"), tnb = new OverlayItem(
+      new GeoPoint(48107789, -1672701), "TNB", "Thêatre");
+    ubu.setMarker(new TextDrawable("Ubu"));
+    tnb.setMarker(new TextDrawable("TNB"));
+    placeOverlay.addOverlay(ubu);
+    placeOverlay.addOverlay(tnb);
+
   }
 
   @Override
   public void onResume()
   {
     super.onResume();
-    // Do what we do on every activity
-    Common.onResume(this, ACTIVITY_NAME);
+    Common.onResume(this);
+  }
+
+  @Override
+  public void onPause()
+  {
+    super.onPause();
+    Common.onPause(this);
   }
 
   @Override
