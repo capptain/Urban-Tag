@@ -1,11 +1,16 @@
 "use strict";
 
-function PlaceList(_container, _manager) {
-    this.container = _container;
+function PlaceList(_manager) {
     this.manager = _manager;
     
-    this.placeAddedRegistration = this.manager.addPlaceAddedListener(this.onPlaceAdded.bind(this));
-    this.placeEditedRegistration = this.manager.addPlaceSelectedListener(this.onPlaceSelected.bind(this));
+    this.placeAddedRegistration = this.manager.register("placeAdded", this.onPlaceAdded.bind(this));
+    this.placeEditedRegistration = this.manager.register("placeSelected", this.onPlaceSelected.bind(this));
+    this.placeUnselectedRegistration = this.manager.register("placeUnselected", this.onPlaceUnselected.bind(this));
+    
+    $.get(jsRoutes.place.list.view.item(), function(data)
+    {
+        this.templateView = data;
+    }.bind(this));
 }
 
 /**
@@ -13,43 +18,36 @@ function PlaceList(_container, _manager) {
  */
 PlaceList.prototype.refresh = function()
 {
-    var obj = this;
+    $("tr.place-list-item", "#place-list-table").remove();
+    // Generate HTML for each place
     jQuery.each(this.manager.places, function(i, place)
     {
-        obj.addPlace(this);
-    });
-    
-    this.display();
+        var html = $(this.templateView);
+        $("td.place-name", html).html(place.name);
+        $("td.place-type", html).html(place.mainTag.name);
+        $("#place-list-table").append(html);
+        
+        // Add Click handler
+        var obj = this;
+        html.click(function() {
+            var row = $(this).parent().children("tr.place-list-item").index($(this));
+            obj.manager.selectPlaceByIndex(row);
+        });
+    }.bind(this));
 };
+
+PlaceList.prototype.addItem = function(place)
+{
+    var html = $(this.templateView);
+    $("td.place-name", html).html(place.name);
+    $("td.place-type", html).html(place.mainTag.name);
+    $("#place-list-table").append(html);
     
-/**
- * Display the current PlaceList's object in its container
- */
-PlaceList.prototype.display = function()
-{            
-    var table = "<table><tr class='title'><th>Name</th><th>Actions</th></tr>";
-    jQuery.each(this.manager.places, function(i, place)
-    {
-        var subclass = (i%2 === 0)?'':'alt';
-        table += "<tr class='place";
-        if(subclass !== '')
-        {
-            table += " " + subclass;
-        }
-        
-        table += "'>";
-        
-        table += "<td>" + place.name + "</td><td></td></tr>";
-    });    
-    
-    table += "</table>";
-    
-    this.container.html(table);
-    
+    // Add Click handler
     var obj = this;
-    $(this.container).find('tr.place').click(function(){
-        var row = $(this).parent().children("tr.place").index($(this));
-        obj.manager.selectPlace(row);
+    html.click(function() {
+        var row = $(this).parent().children("tr.place-list-item").index($(this));
+        obj.manager.selectPlaceByIndex(row);
     });
 };
 
@@ -58,18 +56,28 @@ PlaceList.prototype.display = function()
  */
 PlaceList.prototype.onPlaceAdded = function(place)
 {
-    this.display();
+    this.addItem(place);
 };
 
 /**
  * Change the background of the row corresponding to the selected place 
  */
+
 PlaceList.prototype.onPlaceSelected = function(place)
 {
     var selectedIndex = this.manager.places.indexOf(place);
     if(selectedIndex !== -1)
     {
-        jQuery('tr.selected', this.container).removeClass('selected');
-        jQuery('tr.place:eq(' + selectedIndex + ')', this.container).addClass('selected');
+        jQuery('tr.place-list-item.selected', "#place-list-table").removeClass('selected');
+        jQuery('tr.place-list-item:eq(' + selectedIndex + ')', "#place-list-table").addClass('selected');
     }
+    $('#place-list-delete-button').removeClass("disabled");
+    $('#place-list-edit-button').removeClass("disabled");
 };
+
+PlaceList.prototype.onPlaceUnselected = function()
+{
+    jQuery('tr.selected', "#place-list-table").removeClass('selected');
+    $('#place-list-delete-button').addClass("disabled");
+    $('#place-list-edit-button').addClass("disabled");
+}

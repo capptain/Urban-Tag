@@ -1,89 +1,117 @@
+/*************************************
+*            PLACE LIST
+*************************************/
+
 #place-list-container{
-	position: relative;
-	top: 0px;
-	width: 200px;
-    z-index: 1000;
-    background: #FFF;
-    border: 1px solid black;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
-    padding-bottom: 2px;
+    height: 600px;
+    border: 3px solid white;
+    display: table-cell;
+    width: 20%;
 }
 
-#place-list-buttons-container
+#place-list-container h3
 {
-    text-align: right;
-}
-
-#place-list-add-button
-{
-	background: #68D95C;
-}
-
-#place-list-add-button:hover
-{
-    background: #3BA830;
-    color: white;
-}
-
-#place-list-save-changes-button
-{
-    width: 100%;
-}
-
-#place-list-container h3{
-	text-align: center;
-	margin-top: 3px;
+    text-align: center;
+    height: 30px;
+    margin: 0px;
 }
 
 #place-list-content
 {
-    height: 500px;
+    background: #F1F1F1;
+    border-right: 2px solid #E2E2E2;
+    border-left: 2px solid #E2E2E2;
+    border-top: 2px solid #E2E2E2;
+    height: 510px;
     overflow: auto;
 }
 
 #place-list-content.registered
 {
-    border-bottom: 1px solid black;
+    border-bottom: 1px solid #8D8D8D;
 }
 
 #place-list-content table{
 	width: 100%;
-	border-collapse: collapse;
+/* 	border-collapse: collapse; */
 	margin-bottom: 5px;
 }
-
-#place-list-content tr.title{
-	background: #A8D9F3;
-}
-
+    
 #place-list-content tr.place{
 	cursor: pointer;
-	text-align: center;
+	text-align: left;
+	height: 40px;
+	font-size: 11pt;
 }
 
-#place-list-content tr.alt{
-    background: #E8E8E8;
+#place-list-content tr.place td{
+    padding-left: 5px;
+    background: rgba(245, 245, 245, 0.8);
+    background: -webkit-gradient(linear, left top, right bottom, from(rgba(245, 245, 245, 0.8)), to(rgba(245, 245, 245, 0.5)));
 }
 
-#place-list-content tr.selected{
-    background: #E9FFE6;
+#place-list-content tr.place.alt td{
+    background: rgba(235, 235, 235, 0.8);
+    background: -webkit-gradient(linear, left top, right bottom, from(rgba(235, 235, 235, 0.8)), to(rgba(235, 235, 235, 0.5)));
 }
 
-#place-list-content tr.place:hover{
-	background: #D5EEFB;
-}
-
-.button
+#place-list-content tr.place td.type
 {
-    border: 0px;
-    -moz-border-radius: 2px;
-    -webkit-border-radius: 2px;
-    font-size: 12pt;
-    cursor: pointer;
+    background: rgba(245, 245, 245, 0.5) !important;
 }
 
-.disabled
+#place-list-content tr.place.alt td.type
 {
-    cursor: default;
+    background: rgba(235, 235, 235, 0.5) !important;
+}
+
+#place-list-content tr.place:hover td
+{
+    background: rgba(245, 245, 245, 0.5);
+    background: -webkit-gradient(linear, left top, right bottom, from(rgba(245, 245, 245, 0.7)), to(rgba(245, 245, 245, 0.3)));
+}
+
+#place-list-content tr.place.alt:hover td
+{
+    background: rgba(235, 235, 235, 0.5);
+    background: -webkit-gradient(linear, left top, right bottom, from(rgba(235, 235, 235, 0.7)), to(rgba(235, 235, 235, 0.3)));
+}
+
+#place-list-content tr.place:hover td.type
+{
+    background: rgba(245, 245, 245, 0.3) !important;
+}
+
+#place-list-content tr.place.alt:hover td.type
+{
+    background: rgba(235, 235, 235, 0.3) !important;
+}
+
+#place-list-content tr.place.selected td, #place-list-content tr.place.selected td.type, #place-list-content tr.place.alt.selected td.type{
+    background: transparent !important;
+}
+
+
+/*************************************
+*            BUTTONS
+*************************************/
+
+#place-list-container .button-container
+{
+    padding: 0px;
+    background: #F1F1F1;
+    border-bottom: 1px solid #8D8D8D;
+    text-align: center;
+    padding: 2px 0px 2px 0px;
+}
+
+#place-list-container .button-container input.button
+{
+    width: 30%;
+}
+
+#place-list-save-changes-button
+{
+    height: 30px;
+    width: 100%;
 }

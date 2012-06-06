@@ -33,7 +33,7 @@ public class TagTest extends UnitTest
     // Create a new Place
     Place place = new Place(user, "Eiffel Tower", 2.294444, 48.858333, 50).save();
 
-    new Tag("Music").save();
+    new Tag("Music", "#6DB9DF").save();
 
     try
     {

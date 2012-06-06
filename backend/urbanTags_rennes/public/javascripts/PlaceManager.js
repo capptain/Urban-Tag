@@ -2,14 +2,12 @@
 
 function PlaceManager()
 {
+    CanFireEvents.call(this, ["placeAdded", "placeEdited", "placeSelected", "placeUnselected"]);
 	this.places = new Array();
 	this.selectedPlace = null;
-	this.listeners = {
-			"placeAdded": new Array(),
-			"placeEdited": new Array(),
-			"placeSelected": new Array()
-	};
 };
+
+extend(PlaceManager.prototype, CanFireEvents.prototype);
 
 /**
  * Load places from the server
@@ -18,13 +16,36 @@ PlaceManager.prototype.loadData = function()
 {
     this.places = new Array();
     var obj = this;
-    $.get(getPlaceListAction(), function(data){
+    $.get(jsRoutes.getPlaceListAction(), function(data){
         jQuery.each(data, function(i, place)
         {
             obj.addPlace(this);
         });
     });
 };
+
+PlaceManager.prototype.getPlaceByName = function(name)
+{
+    var found = false;
+    var cpt = 0;
+    while(!found && cpt < this.places.length)
+    {
+        found = (this.places[cpt].name === name);
+        if(!found)
+        {
+            cpt++;
+        }
+    }
+    
+    if(found)
+    {
+        return this.places[cpt];
+    }
+    else
+    {
+        return null;
+    }
+}
 
 /**
  * Add a place to the place list and fire a placeAddedEvent
@@ -36,7 +57,22 @@ PlaceManager.prototype.addPlace = function(place)
 };
 
 
-PlaceManager.prototype.selectPlace = function(index)
+PlaceManager.prototype.selectPlaceByName = function(name)
+{
+    var place = this.getPlaceByName(name);
+    this.selectPlace(place);
+};
+
+PlaceManager.prototype.selectPlace = function(place)
+{
+    var index = this.places.indexOf(place);
+    if(index > -1)
+    {
+        this.selectPlaceByIndex(index);
+    }
+};
+
+PlaceManager.prototype.selectPlaceByIndex = function(index)
 {
     if(index >= 0 && index < this.places.length)
     {
@@ -45,67 +81,8 @@ PlaceManager.prototype.selectPlace = function(index)
     }
 };
 
-/**
- * Register an object to the placeAddedEvent
- */
-PlaceManager.prototype.addPlaceAddedListener = function(action)
+PlaceManager.prototype.unselectPlace = function()
 {
-    this.listeners["placeAdded"].push(action);
-    return new EventRegistration(this, 'placeAdded', action);
+    this.selectedPlace = null;
+    this.fireEvent("placeUnselected");
 };
-
-/**
- * Register an object to the placeEditedEvent
- */
-PlaceManager.prototype.addPlaceEditedListener = function(action)
-{
-    this.listeners["placeEdited"].push(action);
-    return new EventRegistration(this, 'placeEdited', action);
-};
-
-/**
- * Register an object to the placeSelectedEvent
- */
-PlaceManager.prototype.addPlaceSelectedListener = function(action)
-{
-    this.listeners["placeSelected"].push(action);
-    return new EventRegistration(this, 'placeSelected', action);
-};
-
-PlaceManager.prototype.removeHandler = function(eventName, handler)
-{           
-    var found = false;
-    var handlers = this.listeners[eventName];
-    var cptHandler = 0;
-    while(!found && cptHandler < handlers.length)
-    {
-        found = handlers[cptHandler] == handler;
-        
-        if(found)
-        {
-            if(handlers.length > 1)
-            {
-                for(var i = handlers.length - 1; i > cptHandlers; i--)
-                {
-                    this.listeners[eventName][i-1] = handlers[i];
-                }
-            }
-            else
-            {
-                this.listeners[eventName] = new Array();
-            }
-        }
-    }
-};
-
-/**
- * Fire an event of the given name with the given param
- */
-PlaceManager.prototype.fireEvent = function(eventName, param)
-{
-    for(var i = 0; i < this.listeners[eventName].length; i++)
-    {
-        var handler = this.listeners[eventName][i];
-        handler(param);
-    }
-}

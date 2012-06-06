@@ -1,10 +1,9 @@
 #map{
-	position: absolute;
-	top: 75px;
-	left: 0px;
-	height: 700px;
-	width: 100%;
-	padding: 5px;
-	border: 1px solid black;
+    display: table-cell;
+	height: 600px;
+	border: 0;
+	border-left: 0px;
 	background: #B5D0D0;
+	padding-left: 10px;
+	padding-right: 10px;
 }

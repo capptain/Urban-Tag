@@ -1,4 +1,21 @@
 <script type="text/javascript">
-var getLoginFormAction = #{jsAction @Secure.login() /}
-var getPlaceListAction = #{jsAction @PlacesApi.getPlaceList() /}
+jsRoutes = new Object();
+jsRoutes.getLoginFormAction = #{jsAction @Secure.login() /};
+jsRoutes.getPlaceListAction = #{jsAction @PlacesApi.getPlaceList() /};
+jsRoutes.getPlaceContentAction = #{jsAction @ContentApi.getPlaceContent(':idPlace', ':from', ':to') /};
+jsRoutes.showInfo = #{jsAction @Application.showInfo(':id') /};
+
+jsRoutes.place = {};
+jsRoutes.place.list = {};
+jsRoutes.place.list.view = {};
+jsRoutes.place.list.view.item = #{jsAction @PlaceList.item() /};
+
+jsRoutes.info = {};
+jsRoutes.info.list = {};
+jsRoutes.info.list.view = {};
+jsRoutes.info.list.view.item = #{jsAction @InfoList.item() /};
+jsRoutes.info.list.view.empty = #{jsAction @InfoList.empty() /};
+
+jsRoutes.placeWizardRoutes;
+jsRoutes.placeWizardRoutes.firstStep = #{jsAction @PlaceWizard.firstStep() /};
 </script>

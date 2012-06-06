@@ -4,7 +4,7 @@ $(function(){
 
 function login()
 {	
-	$('#loginDiv .popup-content').load( getLoginFormAction(),
+	$('#loginDiv .popup-content').load( jsRoutes.getLoginFormAction(),
 	   function() {
         $('#loginDiv').css('z-index', 10000)
         $('#loginDiv').fadeIn(300)

@@ -19,9 +19,13 @@ public class Tag extends Model implements Comparable<Tag>
   @Required
   public String name;
 
-  public Tag(String name)
+  @Required
+  public String color;
+
+  public Tag(String name, String color)
   {
     this.name = name;
+    this.color = color;
   }
 
   @Override

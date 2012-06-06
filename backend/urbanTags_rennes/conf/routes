@@ -5,6 +5,9 @@
 # Home page
 GET     /                                       Application.index
 
+# Info page
+GET     /info/{id}/show                              Application.showInfo
+
 # Ignore favicon requests
 GET     /favicon.ico                            404
 
@@ -17,9 +20,22 @@ GET     /public/                                staticDir:public
 # Import secure module routes
 *       /                                       module:secure
 
+# Info views
+GET     /info/list/item/view                    InfoList.item
+GET     /info/list/empty                        InfoList.empty
+
+# Place views
+GET     /place/list/item/view                   PlaceList.item
+
 # Place API
-GET     /place/getAll                           api.PlacesApi.getPlaceList
-GET     /place/get/{id}                         api.PlacesApi.getPlace
+GET     /place/getAll                           PlacesApi.getPlaceList
+GET     /place/get/{id}                         PlacesApi.getPlace
+
+# Place wizard
+GET     /wizard/place/step/1                    PlaceWizard.firstStep
+
+# Content API
+GET     /place/{id}/content/get/{from}/{to}     ContentApi.getPlaceContent
 
 # Catch all
 *       /{controller}/{action}                  {controller}.{action}

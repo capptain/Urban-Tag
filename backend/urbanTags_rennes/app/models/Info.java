@@ -28,6 +28,8 @@ public class Info extends Model
 
   public Date startDate;
   public Date endDate;
+
+  @Required
   public Date addedAt;
 
   @Required

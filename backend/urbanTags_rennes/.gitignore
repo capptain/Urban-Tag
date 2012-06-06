@@ -5,3 +5,5 @@ test-result
 lib
 modules
 init
+/secure
+/crud

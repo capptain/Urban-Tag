@@ -13,34 +13,183 @@ User(jeff):
     
 Tag(musique):
     name:           musique
+    color:          "#6DB9DF"
 
 Tag(architecture):
     name:           Architecture
+    color:          "#DFDF6D"
 
 Tag(theatre):
     name:           Théâtre
+    color:          "#6DDF90"
 
 Tag(insolite):
     name:           Insolite
+    color:          "#DF6DD8"
     
-Place(center):
-    name:           Center
-    longitude:      0.0
-    latitude:       0.0
-    radius:         10000
-    accuracy:       1000
-    expiration:     10
-    owner:          bob
-    tags:           [musique, architecture]
-    mainTag:        musique
+Tag(cinema):
+    name:           Cinéma
+    color:          "#DF896D"
     
-Place(france):
-    name:           France
-    longitude:      2.109375
-    latitude:       46.800059446787316
-    radius:         1500
-    accuracy:       1000
+Place(ubu):
+    name:           UBU
+    longitude:      -1.6733282804489136
+    latitude:       48.1079326681493
+    radius:         50
+    accuracy:       300
     expiration:     15
     owner:          bob
     tags:           [musique, architecture]
     mainTag:        musique
+    
+Place(gaumont):
+    name:           "Gaumont Rennes"
+    longitude:      -1.6756725311279297
+    latitude:       48.10602701937586
+    radius:         100
+    accuracy:       300
+    expiration:     15
+    owner:          bob
+    tags:           [cinema]
+    mainTag:        cinema
+    
+Place(tnb):
+    name:           TNB
+    longitude:      -1.6727650165557861
+    latitude:       48.10787535643479
+    radius:         50
+    accuracy:       300
+    expiration:     15
+    owner:          bob
+    tags:           [theatre]
+    mainTag:        theatre
+    
+Place(tnb2):
+    name:           TNB2
+    longitude:      -1.6727650165557861
+    latitude:       48.10787535643479
+    radius:         50
+    accuracy:       300
+    expiration:     15
+    owner:          bob
+    tags:           [theatre]
+    mainTag:        theatre
+    
+Place(tnb3):
+    name:           TNB3
+    longitude:      -1.6727650165557861
+    latitude:       48.10787535643479
+    radius:         50
+    accuracy:       300
+    expiration:     15
+    owner:          bob
+    tags:           [theatre]
+    mainTag:        theatre
+    
+Place(tnb4):
+    name:           TNB4
+    longitude:      -1.6727650165557861
+    latitude:       48.10787535643479
+    radius:         50
+    accuracy:       300
+    expiration:     15
+    owner:          bob
+    tags:           [theatre]
+    mainTag:        theatre
+    
+Place(tnb5):
+    name:           TNB5
+    longitude:      -1.6727650165557861
+    latitude:       48.10787535643479
+    radius:         50
+    accuracy:       300
+    expiration:     15
+    owner:          bob
+    tags:           [theatre]
+    mainTag:        theatre
+    
+Place(tnb6):
+    name:           TNB6
+    longitude:      -1.6727650165557861
+    latitude:       48.10787535643479
+    radius:         50
+    accuracy:       300
+    expiration:     15
+    owner:          bob
+    tags:           [theatre]
+    mainTag:        theatre
+    
+Place(tnb7):
+    name:           TNB7
+    longitude:      -1.6727650165557861
+    latitude:       48.10787535643479
+    radius:         50
+    accuracy:       300
+    expiration:     15
+    owner:          bob
+    tags:           [theatre]
+    mainTag:        theatre
+    
+Place(tnb8):
+    name:           TNB8
+    longitude:      -1.6727650165557861
+    latitude:       48.10787535643479
+    radius:         50
+    accuracy:       300
+    expiration:     15
+    owner:          bob
+    tags:           [theatre]
+    mainTag:        theatre
+    
+Place(tnb9):
+    name:           TNB9
+    longitude:      -1.6727650165557861
+    latitude:       48.10787535643479
+    radius:         50
+    accuracy:       300
+    expiration:     15
+    owner:          bob
+    tags:           [insolite]
+    mainTag:        insolite
+    
+Place(tnb10):
+    name:           TNB10
+    longitude:      -1.6727650165557861
+    latitude:       48.10787535643479
+    radius:         50
+    accuracy:       300
+    expiration:     15
+    owner:          bob
+    tags:           [theatre]
+    mainTag:        theatre
+    
+Place(tnb11):
+    name:           TNB11
+    longitude:      -1.6727650165557861
+    latitude:       48.10787535643479
+    radius:         50
+    accuracy:       300
+    expiration:     15
+    owner:          bob
+    tags:           [theatre]
+    mainTag:        theatre
+    
+Place(tnb12):
+    name:           TNB12
+    longitude:      -1.6727650165557861
+    latitude:       48.10787535643479
+    radius:         50
+    accuracy:       300
+    expiration:     15
+    owner:          bob
+    tags:           [architecture]
+    mainTag:        architecture
+    
+Info(info1):
+    title:           "Bienvenue à l'UBU !"
+    content:        "L'UBU est une salle de concerts bien connue à Rennes, ..."
+    addedAt:        2012-06-04
+    place:          ubu
+    tags:           [musique]
+    maintag:        musique
+    

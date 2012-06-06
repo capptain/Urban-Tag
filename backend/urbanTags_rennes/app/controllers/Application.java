@@ -1,5 +1,7 @@
 package controllers;
 
+import models.Info;
+import models.Place;
 import models.User;
 import play.mvc.Before;
 import play.mvc.Controller;
@@ -20,6 +22,16 @@ public class Application extends Controller
   public static void index()
   {
     render();
+  }
+
+  public static void showInfo(long id)
+  {
+    Info info = Info.findById(id);
+    Place place = info.place;
+    if (info != null)
+    {
+      render(place, info);
+    }
   }
 
 }

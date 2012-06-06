@@ -1,18 +1,23 @@
 <script type="text/javascript" src="@{'/public/javascripts/topBar.js'}"></script>
 <link rel="stylesheet" href="@{'/public/stylesheets/topBar.css'}" />
 
-<div id="topBar">
-    <span id="topBar-leftPart">
-        Urban Tags - Rennes
-    </span>
-    <span id="topBar-rightPart">
-    #{if _user}
-        <a href="#">${_user}</a> | <a href="@{Secure.logout()}">&{'views.main.topBar.logout'}</a> | <a href="#">&{'views.main.topBar.help'}</a>
-    #{/if}
-    #{else}
-        <a id="loginButton" href="#">&{'views.main.topBar.signin'}</a>
-    #{/else}
-    </span>
+<div class="navbar">
+    <div class="navbar-inner">
+        <div class="container">
+            <ul class="nav">
+                #{if _user}
+                    <li><a href="#">${_user}</a></li>
+                    <li><a href="@{Secure.logout()}">&{'views.main.topBar.logout'}</a></li>
+                    <li><a href="#">&{'views.main.topBar.help'}</a></li>
+                #{/if}
+                #{else}
+                    <li>
+                        <a id="loginButton" href="#">&{'views.main.topBar.signin'}</a>
+                    </li>
+                #{/else}
+            </ul>
+        </div>
+    </div>
 </div>
 
 #{popup id:'loginDiv', title:'login' /}

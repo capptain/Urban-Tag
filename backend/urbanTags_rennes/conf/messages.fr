@@ -27,8 +27,23 @@ password=Mot de passe
 username=Nom d'utilisateur
 role=Rôle
 
+#### Place list ####
+view.place.list.title=Liste des lieux
+view.place.list.noChange=Aucun changement
+view.list.delete=Supprimer
+view.list.add=Ajouter
+view.list.edit=Modifier
+
+#### Info list ####
+view.info.list.title=Liste des infos
+view.place.list.add=Ajouter
+
 
 ##### Top Bar #####
 views.main.topBar.help=Aide
 views.main.topBar.logout=Deconnexion
 views.main.topBar.signin=S'identifier
+
+#### Wizard ####
+views.wizard.presentation.title=Présentation
+views.wizard.place.firstStep.title="Première étape: informations générales"

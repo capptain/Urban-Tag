@@ -2,18 +2,26 @@
 #{set title:'urbantags - Rennes' /}
 
 #{set 'moreScripts'}
+<script type="text/javascript" src="@{'/public/javascripts/Class.js'}"></script>
+<script type="text/javascript" src="@{'/public/javascripts/CanFireEvents.js'}"></script>
 <script type="text/javascript" src="@{'/public/javascripts/EventRegistration.js'}"></script>
 <script type="text/javascript" src="@{'/public/javascripts/PlaceManager.js'}"></script>
+<script type="text/javascript" src="@{'/public/javascripts/InfoManager.js'}"></script>
 <script type="text/javascript">
 placeManager = new PlaceManager();
+infoManager = new InfoManager(placeManager);
 </script>
+#{jsRoutes /}
 #{/set}
 
 #{topBar user:user /}
-#{placeList user:user /}
-    
-
-#{map /}
+<div style="display:table; width: 100%;">
+<div style="display: table-row; width: 100%;">
+    #{placeList user:user /}
+    #{map /}
+    #{infoList user:user /}
+</div>
+</div>
 
 #{set 'moreEndScripts'}
 <script type="text/javascript">

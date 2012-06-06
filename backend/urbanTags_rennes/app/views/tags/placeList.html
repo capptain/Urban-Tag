@@ -1,29 +1,32 @@
 <link rel="stylesheet" type="text/css" href="@{'/public/stylesheets/placeList.css'}" />
 
-<div id="place-list-container">
-	   <h3>Place List</h3>
-	   <div id="place-list-content"></div>
+<div id="place-list-container" class="container list-container">
+	   <h3>&{'view.place.list.title'}</h3>
+	   <div id="place-list-content">
+        <table class="table" id="place-list-table">
+            <tr>
+                <th>Nom</th>
+                <th>Type</th>
+            </tr>
+        </table>
+       </div>
 	
     #{if _user}
-    <div id="place-list-buttons-container">
-        <input type="button" value="Ajouter" id="place-list-add-button" />
+    <div class="button-container">
+        <input type="button" value="&{'view.list.add'}" class="btn btn-success" id="place-list-add-button" />
+        <input type="button" value="&{'view.list.edit'}" class="btn btn-warning" id="place-list-edit-button" />
+        <input type="button" value="&{'view.list.delete'}" class="btn btn-danger" id="place-list-delete-button" />
     </div>
     <div id="place-list-save-changes-container">
-        <input type="button" disabled="true" value="No changes" id="place-list-save-changes-button" />
+        <input type="button" class="button disabled" value="&{'view.place.list.noChange'}" id="place-list-save-changes-button" />
     </div>
     #{/if}
 </div>
 
 <script type="text/javascript" src="@{'/public/javascripts/PlaceList.js'}"></script>
 <script type="text/javascript">
-placeList = new PlaceList($('#place-list-content'), placeManager);
+placeList = new PlaceList(placeManager);
 placeList.refresh();
-(function()
-{
-    $("input[type='button']").addClass("button");
-    $("input[disabled='true']").addClass("disabled");
-}
-)();
 
 #{if _user}
 (function()
