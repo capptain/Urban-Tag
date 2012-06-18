@@ -1,69 +1,64 @@
-package com.ubikod.urbantag;
+package com.ubikod.urbantag.model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Vector;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.TextView;
 
-public class TagManager implements OnClickListener
+public class TagManager
 {
-  private SQLiteDatabase DB;
+  private static SQLiteDatabase DB;
 
-  private DatabaseHelper dbHelper;
+  private static DatabaseHelper dbHelper;
 
-  private BaseAdapter adapter = null;
+  private static Context context;
 
-  private Context context;
+  private static HashMap<Integer, Tag> tags = new HashMap<Integer, Tag>();
 
   public TagManager(Context context)
   {
-    this.context = context;
+    context = context;
     dbHelper = new DatabaseHelper(context, null);
+    tags = loadAllFromDB();
   }
 
   public void update(List<Tag> list)
   {
-    HashMap<Integer, Tag> tags = loadAllFromDB();
     // Tags maj ou ajoutes
-    // for (Tag tag : list)
-    // {
-    // if (tags.containsKey(tag.getId()))
-    // {
-    // if (!tag.hasChanged(tags.get(tag.getId())))
-    // {
-    // update(tag);
-    // }
-    // }
-    // else
-    // {
-    // insert(tag);
-    // }
-    // }
+    for (Tag tag : list)
+    {
+      if (tags.containsKey(tag.getId()))
+      {
+        if (!tag.hasChanged(tags.get(tag.getId())))
+        {
+          update(tag);
+        }
+      }
+      else
+      {
+        insert(tag);
+      }
+    }
 
-    // // Tags n'existant plus
-    // Vector<Tag> toDelete = new Vector<Tag>();
-    // for (Tag t : tags.values())
-    // {
-    // if (!list.contains(t))
-    // {
-    // toDelete.add(t);
-    // }
-    // }
-    //
-    // for (Tag t : toDelete)
-    // {
-    // delete(t);
-    // }
+    // Tags n'existant plus
+    Vector<Tag> toDelete = new Vector<Tag>();
+    for (Tag t : tags.values())
+    {
+      if (!list.contains(t))
+      {
+        toDelete.add(t);
+      }
+    }
+
+    for (Tag t : toDelete)
+    {
+      delete(t);
+    }
   }
 
   public void toggleNotification(Tag t)
@@ -74,80 +69,22 @@ public class TagManager implements OnClickListener
 
   public List<Tag> getAll()
   {
-    return new ArrayList<Tag>(loadAllFromDB().values());
+    return new ArrayList<Tag>(tags.values());
   }
 
-  @Override
-  public void onClick(View v)
+  public Tag getByID(int id)
   {
-    Tag t = (Tag) v.getTag();
-    t.setSelected(!t.isSelected());
-    v.findViewById(R.id.color_bar).setBackgroundColor(
-      t.isSelected() ? t.getColor() : R.color.bar_unselected);
-    ((TextView) v.findViewById(R.id.label)).setTextColor(t.isSelected() ? context.getResources()
-      .getColor(R.color.label_selected) : context.getResources().getColor(R.color.label_unselected));
-    update(t);
+    return tags.get(id);
   }
 
-  public BaseAdapter getAdapter()
+  public List<Tag> getAllForPlace(int idPlace)
   {
-    if (adapter == null)
-      adapter = createAdapter(context, this);
-    return adapter;
-  }
-
-  private BaseAdapter createAdapter(final Context context, final TagManager tagManager)
-  {
-    return new BaseAdapter()
-    {
-      List<Tag> tagsList = getAll();
-
-      @Override
-      public View getView(int position, View convertView, ViewGroup parent)
-      {
-        LayoutInflater inflater = LayoutInflater.from(context);
-
-        convertView = inflater.inflate(R.layout.tag_row, null);
-
-        Tag t = tagsList.get(position);
-        convertView.setTag(t);
-        convertView.setOnClickListener(tagManager);
-
-        TextView label = (TextView) convertView.findViewById(R.id.label);
-
-        TextView colorBar = (TextView) convertView.findViewById(R.id.color_bar);
-
-        label.setText(t.getValue());
-
-        colorBar.setBackgroundColor(t.isSelected() ? t.getColor() : R.color.bar_unselected);
-        label.setTextColor(t.isSelected() ? context.getResources().getColor(R.color.label_selected)
-          : context.getResources().getColor(R.color.label_unselected));
-
-        return convertView;
-      }
-
-      @Override
-      public long getItemId(int position)
-      {
-        return position;
-      }
-
-      @Override
-      public Object getItem(int position)
-      {
-        return tagsList.get(position);
-      }
-
-      @Override
-      public int getCount()
-      {
-        return tagsList.size();
-      }
-    };
+    return dbGetAllForPlace(idPlace);
   }
 
   private void update(Tag t)
   {
+    tags.put(t.getId(), t);
     open();
     dbUpdate(t);
     close();
@@ -155,6 +92,7 @@ public class TagManager implements OnClickListener
 
   private void insert(Tag t)
   {
+    tags.put(t.getId(), t);
     open();
     dbInsert(t);
     close();
@@ -162,19 +100,10 @@ public class TagManager implements OnClickListener
 
   private void delete(Tag t)
   {
+    tags.remove(t.getId());
     open();
     dbDelete(t);
     close();
-  }
-
-  private void open()
-  {
-    DB = dbHelper.getWritableDatabase();
-  }
-
-  private void close()
-  {
-    DB.close();
   }
 
   private void dbInsert(Tag t)
@@ -204,6 +133,13 @@ public class TagManager implements OnClickListener
     Cursor c = DB.query(DatabaseHelper.TABLE_TAGS, new String[] { DatabaseHelper.TAG_COL_ID,
       DatabaseHelper.TAG_COL_NAME, DatabaseHelper.TAG_COL_COLOR, DatabaseHelper.TAG_COL_NOTIFY },
       DatabaseHelper.TAG_COL_ID + "=? ", new String[] { String.valueOf(id) }, null, null, null);
+
+    if (c.getCount() == 0)
+    {
+      c.close();
+      return null;
+    }
+
     c.moveToFirst();
     Tag t = cursorToTag(c);
     c.close();
@@ -243,6 +179,49 @@ public class TagManager implements OnClickListener
     c.close();
     close();
     return tags;
+  }
+
+  private List<Tag> dbGetAllForPlace(int id)
+  {
+    open();
+    String query = "SELECT " + DatabaseHelper.TAG_COL_ID + ", " + DatabaseHelper.TAG_COL_NAME
+      + ", " + DatabaseHelper.TAG_COL_COLOR + ", " + DatabaseHelper.TAG_COL_NOTIFY + " FROM "
+      + DatabaseHelper.TABLE_TAGS + " tags INNER JOIN " + DatabaseHelper.TABLE_PLACES_TAGS
+      + " pivot ON tags." + DatabaseHelper.TAG_COL_ID + "=pivot."
+      + DatabaseHelper.PLACE_TAG_COL_TAG + " WHERE pivot." + DatabaseHelper.PLACE_TAG_COL_PLACE
+      + "=?";
+
+    Cursor c = DB.rawQuery(query, new String[] { String.valueOf(id) });
+    List<Tag> tags = new ArrayList<Tag>();
+
+    if (c.getCount() == 0)
+    {
+      c.close();
+      close();
+      return tags;
+    }
+
+    c.moveToFirst();
+    do
+    {
+      Tag t = cursorToTag(c);
+      tags.add(t);
+    }
+    while (c.moveToNext());
+
+    c.close();
+    close();
+    return tags;
+  }
+
+  private void open()
+  {
+    DB = dbHelper.getWritableDatabase();
+  }
+
+  private void close()
+  {
+    DB.close();
   }
 
   private Tag cursorToTag(Cursor c)

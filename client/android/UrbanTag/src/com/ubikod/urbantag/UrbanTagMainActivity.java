@@ -3,9 +3,13 @@ package com.ubikod.urbantag;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.LocationManager;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -17,7 +21,10 @@ import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.MyLocationOverlay;
-import com.google.android.maps.OverlayItem;
+import com.ubikod.urbantag.model.Place;
+import com.ubikod.urbantag.model.PlaceManager;
+import com.ubikod.urbantag.model.Tag;
+import com.ubikod.urbantag.model.TagManager;
 
 public class UrbanTagMainActivity extends SherlockMapActivity
 {
@@ -42,6 +49,9 @@ public class UrbanTagMainActivity extends SherlockMapActivity
   /** PlaceOverlay */
   private PlaceOverlay placeOverlay;
 
+  /** PlaceManager */
+  private PlaceManager placeManager;
+
   /** Called when the activity is first created. */
   @Override
   public void onCreate(Bundle savedInstanceState)
@@ -49,15 +59,18 @@ public class UrbanTagMainActivity extends SherlockMapActivity
     super.onCreate(savedInstanceState);
     setContentView(R.layout.main);
 
-    TagManager tagManager = new TagManager(this);
+    WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 
-    List<Tag> tagsList = new ArrayList<Tag>();
-    tagsList.add(new Tag(0, "Musique", 0xff79D438));
-    tagsList.add(new Tag(1, "Architecture", 0xffF86883));
-    tagsList.add(new Tag(2, "Insolite", 0xff56B2E1));
-    tagsList.add(new Tag(3, "Bla", 0xffF9D424));
+    boolean wifiChecked = wifiManager.isWifiEnabled()
+      || wifiManager.getWifiState() == WifiManager.WIFI_STATE_ENABLING;
+    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
+    pref.edit().putBoolean("notifiedWifi", wifiChecked).commit();
 
-    tagManager.update(tagsList);
+    placeOverlay = new PlaceOverlay(this, this.getResources().getDrawable(R.drawable.ic_launcher));
+    placeManager = new PlaceManager(this);
+
+    // Temp !!!!!!
+    loadData();
 
     /* Initiate Map */
     mapView = (MapView) this.findViewById(R.id.mapView);
@@ -83,16 +96,71 @@ public class UrbanTagMainActivity extends SherlockMapActivity
         mapController.setCenter(curPosition);
       }
     });
-
-    placeOverlay = new PlaceOverlay(this, this.getResources().getDrawable(R.drawable.ic_launcher));
+    /* Show places */
+    placeOverlay.setPlaces(placeManager.getVisiblePlaces());
     mapView.getOverlays().add(placeOverlay);
-    OverlayItem ubu = new OverlayItem(new GeoPoint(48107976, -1673387), "Ubu", "Concert"), tnb = new OverlayItem(
-      new GeoPoint(48107789, -1672701), "TNB", "Thêatre");
-    ubu.setMarker(new TextDrawable("Ubu"));
-    tnb.setMarker(new TextDrawable("TNB"));
-    placeOverlay.addOverlay(ubu);
-    placeOverlay.addOverlay(tnb);
 
+  }
+
+  public void onMapTap(ArrayList<Integer> placesId)
+  {
+    if (placesId.size() > 0)
+    {
+      Intent intent = new Intent(this, PlaceListActivity.class);
+      int[] array = new int[placesId.size()];
+      for (int i = 0; i < placesId.size(); i++)
+      {
+        array[i] = placesId.get(i);
+      }
+      intent.putExtra("placesId", array);
+      startActivity(intent);
+    }
+
+  }
+
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data)
+  {
+    switch (requestCode)
+    {
+      case PreferencesActivity.CODE:
+        switch (resultCode)
+        {
+          case 1:
+            placeOverlay.clear();
+            mapView = (MapView) this.findViewById(R.id.mapView);
+            mapView.invalidate();
+            break;
+        }
+
+      case TagsListActivity.CODE:
+        switch (resultCode)
+        {
+          case 1:
+            placeOverlay.setPlaces(placeManager.getVisiblePlaces());
+            break;
+        }
+    }
+  }
+
+  private void loadData()
+  {
+    Tag t0 = new Tag(0, "Musique", 0xff79D438), t1 = new Tag(1, "Architecture", 0xffF86883), t2 = new Tag(
+      2, "Insolite", 0xff56B2E1), t3 = new Tag(3, "Bla", 0xffF9D424);
+    List<Tag> tagsList = new ArrayList<Tag>();
+    tagsList.add(t1);
+    tagsList.add(t2);
+    tagsList.add(t3);
+    tagsList.add(t0);
+    TagManager tagManager = new TagManager(this);
+    tagManager.update(tagsList);
+    PlaceManager placeManager = new PlaceManager(this);
+    Place p = new Place(1, "Ubikod", t3, new GeoPoint(48107096, -1672014), tagsList);
+    placeManager.save(p);
+    p = new Place(2, "Ubu", t0, new GeoPoint(48107976, -1673387), tagsList);
+    placeManager.save(p);
+    p = new Place(3, "Thêatre National de Bretagne", t1, new GeoPoint(48107789, -1672701), tagsList);
+    placeManager.save(p);
   }
 
   @Override
@@ -129,12 +197,12 @@ public class UrbanTagMainActivity extends SherlockMapActivity
 
       case R.id.menu_tags:
         intent = new Intent(this, TagsListActivity.class);
-        startActivity(intent);
+        startActivityForResult(intent, TagsListActivity.CODE);
         break;
 
       case R.id.menu_preferences:
         intent = new Intent(this, PreferencesActivity.class);
-        startActivity(intent);
+        startActivityForResult(intent, PreferencesActivity.CODE);
         break;
 
       case R.id.menu_quit:

@@ -1,4 +1,4 @@
-package com.ubikod.urbantag;
+package com.ubikod.urbantag.model;
 
 public class Tag
 {

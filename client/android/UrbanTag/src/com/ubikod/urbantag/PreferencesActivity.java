@@ -4,7 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences.Editor;
+import android.content.SharedPreferences;
 import android.location.LocationManager;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -12,13 +12,16 @@ import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
-import android.widget.Toast;
+import android.preference.PreferenceManager;
 
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.actionbarsherlock.view.MenuItem;
+import com.ubikod.urbantag.model.PlaceManager;
 
 public class PreferencesActivity extends SherlockPreferenceActivity
 {
+
+  public static final int CODE = 1;
 
   @SuppressWarnings("deprecation")
   @Override
@@ -56,6 +59,8 @@ public class PreferencesActivity extends SherlockPreferenceActivity
         CheckBoxPreference cb = (CheckBoxPreference) preference;
         WifiManager wifiManager = (WifiManager) PreferencesActivity.this.getSystemService(Context.WIFI_SERVICE);
         wifiManager.setWifiEnabled(cb.isChecked());
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(PreferencesActivity.this);
+        pref.edit().putBoolean("notifiedWifi", cb.isChecked()).commit();
         return true;
       }
     });
@@ -75,10 +80,12 @@ public class PreferencesActivity extends SherlockPreferenceActivity
             @Override
             public void onClick(DialogInterface dialog, int which)
             {
-              Toast.makeText(PreferencesActivity.this, "A implementer !", Toast.LENGTH_SHORT)
-                .show();
-              return;
+              PlaceManager placeManager = new PlaceManager(getApplicationContext());
+              placeManager.clear();
+              // Notify main activity it needs to clean the map
+              setResult(1);
             }
+
           })
           .setNegativeButton(R.string.no, null)
           .show();
@@ -86,22 +93,6 @@ public class PreferencesActivity extends SherlockPreferenceActivity
       }
     });
 
-    // Always enable telephony location
-    // final CheckBoxPreference buyPref = (CheckBoxPreference) findPreference("active_telephony");
-    // buyPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener()
-    // {
-    // @Override
-    // public boolean onPreferenceChange(final Preference preference, final Object newValue)
-    // {
-    // Toast.makeText(PreferencesActivity.this, R.string.static_preference, Toast.LENGTH_SHORT)
-    // .show();
-    // // set condition true or false here according to your needs.
-    // Editor edit = preference.getEditor();
-    // edit.putBoolean("active_telephony", true);
-    // edit.commit();
-    // return false;
-    // }
-    // });
   }
 
   @Override
@@ -111,9 +102,9 @@ public class PreferencesActivity extends SherlockPreferenceActivity
     Common.onResume(this);
 
     // Display preference accordingly to current system state
-    CheckBoxPreference active_wifi = (CheckBoxPreference) findPreference("active_wifi");
-    CheckBoxPreference active_gps = (CheckBoxPreference) findPreference("active_gps");
-    CheckBoxPreference active_network = (CheckBoxPreference) findPreference("active_network");
+    final CheckBoxPreference active_wifi = (CheckBoxPreference) findPreference("active_wifi");
+    final CheckBoxPreference active_gps = (CheckBoxPreference) findPreference("active_gps");
+    final CheckBoxPreference active_network = (CheckBoxPreference) findPreference("active_network");
     WifiManager wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
     LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
@@ -121,15 +112,11 @@ public class PreferencesActivity extends SherlockPreferenceActivity
       || wifiManager.getWifiState() == WifiManager.WIFI_STATE_ENABLING;
     boolean gpsChecked = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     boolean network_checked = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-    Editor edit = active_wifi.getEditor();
-    edit.putBoolean("active_gps", gpsChecked);
-    edit.putBoolean("active_wifi", wifiChecked);
-    edit.putBoolean("active_network", network_checked);
-    edit.commit();
 
     active_wifi.setChecked(wifiChecked);
     active_gps.setChecked(gpsChecked);
     active_network.setChecked(network_checked);
+
   }
 
   @Override
@@ -142,12 +129,10 @@ public class PreferencesActivity extends SherlockPreferenceActivity
   @Override
   public boolean onOptionsItemSelected(MenuItem item)
   {
-    Intent intent;
     switch (item.getItemId())
     {
       case android.R.id.home:
-        intent = new Intent(this, UrbanTagMainActivity.class);
-        startActivity(intent);
+        finish();
         break;
     }
     return false;
