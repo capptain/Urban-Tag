@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Vector;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
@@ -16,14 +15,11 @@ public class TagManager
 
   private static DatabaseHelper dbHelper;
 
-  private static Context context;
-
   private static HashMap<Integer, Tag> tags = new HashMap<Integer, Tag>();
 
-  public TagManager(Context context)
+  public TagManager(DatabaseHelper databaseHelper)
   {
-    context = context;
-    dbHelper = new DatabaseHelper(context, null);
+    dbHelper = databaseHelper;
     tags = loadAllFromDB();
   }
 
@@ -80,6 +76,11 @@ public class TagManager
   public List<Tag> getAllForPlace(int idPlace)
   {
     return dbGetAllForPlace(idPlace);
+  }
+
+  public List<Tag> getAllForContent(int idPlace)
+  {
+    return dbGetAllForContent(idPlace);
   }
 
   private void update(Tag t)
@@ -190,6 +191,39 @@ public class TagManager
       + " pivot ON tags." + DatabaseHelper.TAG_COL_ID + "=pivot."
       + DatabaseHelper.PLACE_TAG_COL_TAG + " WHERE pivot." + DatabaseHelper.PLACE_TAG_COL_PLACE
       + "=?";
+
+    Cursor c = DB.rawQuery(query, new String[] { String.valueOf(id) });
+    List<Tag> tags = new ArrayList<Tag>();
+
+    if (c.getCount() == 0)
+    {
+      c.close();
+      close();
+      return tags;
+    }
+
+    c.moveToFirst();
+    do
+    {
+      Tag t = cursorToTag(c);
+      tags.add(t);
+    }
+    while (c.moveToNext());
+
+    c.close();
+    close();
+    return tags;
+  }
+
+  private List<Tag> dbGetAllForContent(int id)
+  {
+    open();
+    String query = "SELECT " + DatabaseHelper.TAG_COL_ID + ", " + DatabaseHelper.TAG_COL_NAME
+      + ", " + DatabaseHelper.TAG_COL_COLOR + ", " + DatabaseHelper.TAG_COL_NOTIFY + " FROM "
+      + DatabaseHelper.TABLE_TAGS + " tags INNER JOIN " + DatabaseHelper.TABLE_CONTENTS_TAGS
+      + " pivot ON tags." + DatabaseHelper.TAG_COL_ID + "=pivot."
+      + DatabaseHelper.CONTENT_TAG_COL_TAG + " WHERE pivot."
+      + DatabaseHelper.CONTENT_TAG_COL_CONTENT + "=?";
 
     Cursor c = DB.rawQuery(query, new String[] { String.valueOf(id) });
     List<Tag> tags = new ArrayList<Tag>();

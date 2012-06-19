@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListActivity;
 import com.actionbarsherlock.view.MenuItem;
+import com.ubikod.urbantag.model.DatabaseHelper;
 import com.ubikod.urbantag.model.Tag;
 import com.ubikod.urbantag.model.TagManager;
 
@@ -20,6 +21,7 @@ public class TagsListActivity extends SherlockListActivity implements OnClickLis
 {
   public static final int CODE = 2;
 
+  private DatabaseHelper dbHelper;
   private TagManager tagManager = null;
 
   private final int VIEWTAG_TAG = 0;
@@ -32,7 +34,8 @@ public class TagsListActivity extends SherlockListActivity implements OnClickLis
     com.actionbarsherlock.app.ActionBar actionBar = this.getSupportActionBar();
     actionBar.setDisplayHomeAsUpEnabled(true);
 
-    tagManager = new TagManager(this);
+    dbHelper = new DatabaseHelper(this, null);
+    tagManager = new TagManager(dbHelper);
 
     setListAdapter(createAdapter());
 

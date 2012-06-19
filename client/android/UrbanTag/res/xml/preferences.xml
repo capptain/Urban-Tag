@@ -3,13 +3,6 @@
 
    <PreferenceCategory
             android:title="@string/preferences_localisation">
-            
-         <CheckBoxPreference
-                android:key="active_network"
-                android:title="@string/active_network"
-                android:summary="@string/active_network_summary">
-         </CheckBoxPreference>
-         
          <CheckBoxPreference
                 android:key="active_wifi"
                 android:title="@string/active_wifi"

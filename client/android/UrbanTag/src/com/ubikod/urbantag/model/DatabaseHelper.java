@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DatabaseHelper extends SQLiteOpenHelper
 {
-  public static final int VERSION_BDD = 3;
+  public static final int VERSION_BDD = 5;
   public static final String DB_NAME = "urbantag.db";
 
   // Common
@@ -141,7 +141,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
     + "THEN RAISE (ABORT, 'Foreign Key Violation') END; END;";
 
   private static final String CREATE_TRIGGER_PLACE_IN_CONTENT = "CREATE TRIGGER "
-    + CONSTRAINT_CONTENT_PLACE + " BEFORE INSERT ON " + TABLE_CONTENTS_TAGS + " FOR EACH ROW BEGIN"
+    + CONSTRAINT_CONTENT_PLACE + " BEFORE INSERT ON " + TABLE_CONTENTS + " FOR EACH ROW BEGIN"
     + " SELECT CASE WHEN " + "((SELECT " + PLACE_COL_ID + " FROM " + TABLE_PLACES + " WHERE "
     + PLACE_COL_ID + "=new." + CONTENT_COL_PLACE + " ) IS NULL)"
     + "THEN RAISE (ABORT, 'Foreign Key Violation') END; END;";

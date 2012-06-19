@@ -21,6 +21,9 @@ import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.MyLocationOverlay;
+import com.ubikod.urbantag.model.Content;
+import com.ubikod.urbantag.model.ContentManager;
+import com.ubikod.urbantag.model.DatabaseHelper;
 import com.ubikod.urbantag.model.Place;
 import com.ubikod.urbantag.model.PlaceManager;
 import com.ubikod.urbantag.model.Tag;
@@ -52,12 +55,16 @@ public class UrbanTagMainActivity extends SherlockMapActivity
   /** PlaceManager */
   private PlaceManager placeManager;
 
+  private DatabaseHelper dbHelper;
+
   /** Called when the activity is first created. */
   @Override
   public void onCreate(Bundle savedInstanceState)
   {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.main);
+
+    dbHelper = new DatabaseHelper(this, null);
 
     WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 
@@ -67,7 +74,7 @@ public class UrbanTagMainActivity extends SherlockMapActivity
     pref.edit().putBoolean("notifiedWifi", wifiChecked).commit();
 
     placeOverlay = new PlaceOverlay(this, this.getResources().getDrawable(R.drawable.ic_launcher));
-    placeManager = new PlaceManager(this);
+    placeManager = new PlaceManager(dbHelper);
 
     // Temp !!!!!!
     loadData();
@@ -104,7 +111,7 @@ public class UrbanTagMainActivity extends SherlockMapActivity
 
   public void onMapTap(ArrayList<Integer> placesId)
   {
-    if (placesId.size() > 0)
+    if (placesId.size() > 1)
     {
       Intent intent = new Intent(this, PlaceListActivity.class);
       int[] array = new int[placesId.size()];
@@ -113,6 +120,12 @@ public class UrbanTagMainActivity extends SherlockMapActivity
         array[i] = placesId.get(i);
       }
       intent.putExtra("placesId", array);
+      startActivity(intent);
+    }
+    else if (placesId.size() == 1)
+    {
+      Intent intent = new Intent(this, ContentsListActivity.class);
+      intent.putExtra("placeId", placesId.get(0));
       startActivity(intent);
     }
 
@@ -152,15 +165,20 @@ public class UrbanTagMainActivity extends SherlockMapActivity
     tagsList.add(t2);
     tagsList.add(t3);
     tagsList.add(t0);
-    TagManager tagManager = new TagManager(this);
+    TagManager tagManager = new TagManager(dbHelper);
     tagManager.update(tagsList);
-    PlaceManager placeManager = new PlaceManager(this);
+    PlaceManager placeManager = new PlaceManager(dbHelper);
     Place p = new Place(1, "Ubikod", t3, new GeoPoint(48107096, -1672014), tagsList);
     placeManager.save(p);
     p = new Place(2, "Ubu", t0, new GeoPoint(48107976, -1673387), tagsList);
     placeManager.save(p);
     p = new Place(3, "Thêatre National de Bretagne", t1, new GeoPoint(48107789, -1672701), tagsList);
     placeManager.save(p);
+
+    ContentManager contentManager = new ContentManager(dbHelper);
+    Content c = new Content(0, "l'arche de Noé", 1111111, 122222222, p, t3, tagsList);
+    // contentManager.insert(c);
+
   }
 
   @Override
@@ -203,6 +221,11 @@ public class UrbanTagMainActivity extends SherlockMapActivity
       case R.id.menu_preferences:
         intent = new Intent(this, PreferencesActivity.class);
         startActivityForResult(intent, PreferencesActivity.CODE);
+        break;
+
+      case R.id.menu_search:
+        intent = new Intent(this, SearchActivity.class);
+        startActivity(intent);
         break;
 
       case R.id.menu_quit:

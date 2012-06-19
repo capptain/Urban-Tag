@@ -46,6 +46,9 @@
         <activity android:name=".TagsListActivity" />
         <activity android:name=".PreferencesActivity" />
         <activity android:name=".PlaceListActivity" />
+        <activity android:name=".ContentsListActivity" />
+        <activity android:name=".ContentViewerActivity" />
+        <activity android:name=".SearchActivity" />
 
         <service
             android:name="com.ubikod.capptain.android.service.CapptainService"

@@ -16,6 +16,7 @@ import android.preference.PreferenceManager;
 
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.actionbarsherlock.view.MenuItem;
+import com.ubikod.urbantag.model.DatabaseHelper;
 import com.ubikod.urbantag.model.PlaceManager;
 
 public class PreferencesActivity extends SherlockPreferenceActivity
@@ -44,9 +45,7 @@ public class PreferencesActivity extends SherlockPreferenceActivity
     };
 
     Preference active_gps = (Preference) findPreference("active_gps");
-    Preference active_network = (Preference) findPreference("active_network");
     active_gps.setOnPreferenceChangeListener(goToSettings);
-    active_network.setOnPreferenceChangeListener(goToSettings);
 
     // Enable/Disable Wifi
     Preference active_wifi = (Preference) findPreference("active_wifi");
@@ -80,7 +79,9 @@ public class PreferencesActivity extends SherlockPreferenceActivity
             @Override
             public void onClick(DialogInterface dialog, int which)
             {
-              PlaceManager placeManager = new PlaceManager(getApplicationContext());
+
+              PlaceManager placeManager = new PlaceManager(new DatabaseHelper(
+                getApplicationContext(), null));
               placeManager.clear();
               // Notify main activity it needs to clean the map
               setResult(1);
@@ -104,19 +105,15 @@ public class PreferencesActivity extends SherlockPreferenceActivity
     // Display preference accordingly to current system state
     final CheckBoxPreference active_wifi = (CheckBoxPreference) findPreference("active_wifi");
     final CheckBoxPreference active_gps = (CheckBoxPreference) findPreference("active_gps");
-    final CheckBoxPreference active_network = (CheckBoxPreference) findPreference("active_network");
     WifiManager wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
     LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
     boolean wifiChecked = wifiManager.isWifiEnabled()
       || wifiManager.getWifiState() == WifiManager.WIFI_STATE_ENABLING;
     boolean gpsChecked = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-    boolean network_checked = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
     active_wifi.setChecked(wifiChecked);
     active_gps.setChecked(gpsChecked);
-    active_network.setChecked(network_checked);
-
   }
 
   @Override
