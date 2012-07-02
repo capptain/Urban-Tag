@@ -15,7 +15,10 @@ public class Application extends Controller
     {
       User user = User.find("byEmail", Security.connected()).first();
       if (user != null)
+      {
         renderArgs.put("user", user.username);
+        renderArgs.put("userId", user.id);
+      }
     }
   }
 

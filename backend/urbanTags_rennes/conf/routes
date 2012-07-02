@@ -5,9 +5,6 @@
 # Home page
 GET     /                                       Application.index
 
-# Info page
-GET     /info/{id}/show                              Application.showInfo
-
 # Ignore favicon requests
 GET     /favicon.ico                            404
 
@@ -21,7 +18,9 @@ GET     /public/                                staticDir:public
 *       /                                       module:secure
 
 # Info views
-GET     /info/list/item/view                    InfoList.item
+GET     /info/{id}/show                         Application.showInfo
+POST    /info/list/item/view                    InfoList.item
+GET     /info/list/template                     InfoList.getTemplate
 GET     /info/list/empty                        InfoList.empty
 
 # Place views
@@ -30,12 +29,32 @@ GET     /place/list/item/view                   PlaceList.item
 # Place API
 GET     /place/getAll                           PlacesApi.getPlaceList
 GET     /place/get/{id}                         PlacesApi.getPlace
+POST	/place/add								PlacesApi.savePlace
+GET		/place/delete/{id}						PlacesApi.deletePlace
 
 # Place wizard
-GET     /wizard/place/step/1                    PlaceWizard.firstStep
+GET     /wizard/place/getTemplate               PlaceWizard.getTemplate
+GET     /wizard/place/step/1/getTemplate        PlaceWizard.firstStep
+POST	/wizard/place/step/1/validate			PlaceWizard.validateFirstStep
 
-# Content API
+GET     /wizard/place/step/2/getTemplate        PlaceWizard.secondStep
+POST	/wizard/place/step/2/validate			PlaceWizard.validateSecondStep
+
+GET     /wizard/place/step/3/getTemplate        PlaceWizard.thirdStep
+
+# Info API
 GET     /place/{id}/content/get/{from}/{to}     ContentApi.getPlaceContent
+GET     /info/{id}/delete                       ContentApi.deleteInfo
+
+# Tags API
+GET     /tag/{id}                               TagApi.getTag
+POST     /tag/get/array                          TagApi.getTags
+
+# Geocoding
+GET     /geocode/{query}                        Geocoding.geocode
+
+# I18n
+GET     /message                                MessagesController.getMessage
 
 # Catch all
 *       /{controller}/{action}                  {controller}.{action}

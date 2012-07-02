@@ -10,12 +10,33 @@ jsRoutes.place.list = {};
 jsRoutes.place.list.view = {};
 jsRoutes.place.list.view.item = #{jsAction @PlaceList.item() /};
 
+jsRoutes.place.add = #{jsAction @PlacesApi.savePlace(':json') /};
+jsRoutes.place.remove = #{jsAction @PlacesApi.deletePlace(':id') /};
+
 jsRoutes.info = {};
 jsRoutes.info.list = {};
 jsRoutes.info.list.view = {};
-jsRoutes.info.list.view.item = #{jsAction @InfoList.item() /};
+jsRoutes.info.list.view.item = #{jsAction @InfoList.item(':info') /};
+jsRoutes.info.list.view.getTemplate = #{jsAction @InfoList.getTemplate() /};
 jsRoutes.info.list.view.empty = #{jsAction @InfoList.empty() /};
 
-jsRoutes.placeWizardRoutes;
+jsRoutes.tag = {};
+jsRoutes.tag.getById = #{jsAction @TagApi.getTag(':id') /};
+jsRoutes.tag.getArray = #{jsAction @TagApi.getTags(':json') /};
+
+jsRoutes.placeWizardRoutes = {};
+jsRoutes.placeWizardRoutes.getTemplate = #{jsAction @PlaceWizard.getTemplate() /};
 jsRoutes.placeWizardRoutes.firstStep = #{jsAction @PlaceWizard.firstStep() /};
+jsRoutes.placeWizardRoutes.secondStep = #{jsAction @PlaceWizard.secondStep() /};
+jsRoutes.placeWizardRoutes.thirdStep = #{jsAction @PlaceWizard.thirdStep() /};
+
+jsRoutes.placeWizardRoutes.validation = {};
+jsRoutes.placeWizardRoutes.validation.firstStep = #{jsAction @PlaceWizard.validateFirstStep(':id', ':name', ':accuracy', ':expiration', ':tags', ':mainTag') /};
+jsRoutes.placeWizardRoutes.validation.secondStep = #{jsAction @PlaceWizard.validateSecondStep(':longitude', ':latitude', ':radius') /};
+
+jsRoutes.geocoding = {};
+jsRoutes.geocoding.geocode = #{jsAction @Geocoding.geocode(':query') /};
+
+jsRoutes.messages = {};
+jsRoutes.messages.getMessage = #{jsAction @MessagesController.getMessage(':messageName') /};
 </script>

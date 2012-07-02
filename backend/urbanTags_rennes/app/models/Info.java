@@ -6,6 +6,8 @@ import java.util.TreeSet;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
@@ -14,37 +16,56 @@ import models.Tag.TagNotFoundException;
 import models.check.attribute.MainTagCheck;
 import play.data.validation.CheckWith;
 import play.data.validation.Required;
-import play.db.jpa.Model;
+import play.db.jpa.GenericModel;
+
+import com.google.gson.annotations.Expose;
 
 @Entity
-public class Info extends Model
+public class Info extends GenericModel
 {
+  @Id
+  @GeneratedValue
+  @Expose
+  public Long id;
+
   @Required
+  @Expose
   public String title;
 
   @Required
   @Lob
+  @Expose
   public String content;
 
+  @Expose
   public Date startDate;
+  @Expose
   public Date endDate;
 
   @Required
+  @Expose
   public Date addedAt;
 
   @Required
-  @ManyToOne
+  @ManyToOne(cascade = CascadeType.PERSIST)
+  @Expose
   public Place place;
 
   @ManyToMany(cascade = CascadeType.PERSIST)
+  @Expose
   public Set<Tag> tags;
 
   @CheckWith(MainTagCheck.class)
+  @Expose
   public Tag mainTag;
 
   public Info(Place place, String title, String content)
   {
     this(place, title, content, null, null);
+  }
+
+  public Info()
+  {
   }
 
   public Info(Place place, String title, String content, Date startDate, Date endDate)

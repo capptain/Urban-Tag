@@ -9,5 +9,5 @@ function EventRegistration(_target, _eventName, _handler)
 
 EventRegistration.prototype.removeHandler = function()
 {
-	this.target.removeHandler(this.eventName, this.handler);
+	this.target.unregister(this.eventName, this.handler);
 };

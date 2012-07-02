@@ -1,5 +1,65 @@
-# You can specialize this file for each language.
-# For example, for French create a messages.fr file
-#
+#### Buttons ####
+add=Ajouter
+edit=Modifier
+delete=Supprimer
+cancel=Annuler
+ok=Valider
+save=Enregistrer
+undo=Rétablir
+next=Suivant
+previous=Précédent
+map=Carte
+
+##### Place #####
+placeName=Nom du lieu
+placeType=Type
+name=Nom
 longitude=Longitude
 latitude=Latitude
+radius=Rayon
+accuracy=Seuil de précision (mètres)
+expiration=Seuil de longévité (minutes)
+owner=Propriétaire
+tags=Tags
+mainTag=Tag principal
+
+##### Info #####
+title=Titre
+content=Contenu
+startDate=Date de départ
+endDate=Date de fin
+addedAt=Ajouté le
+place=Lieu
+tags=Tags
+
+##### Tag #####
+name=Nom
+
+##### User #####
+email=E-mail
+password=Mot de passe
+username=Nom d'utilisateur
+role=Rôle
+
+#### Place list ####
+view.place.list.title=Liste des lieux
+view.place.list.noChange=Aucun changement
+
+#### Info list ####
+view.info.list.title=Liste des infos
+view.info.list.add=Ajouter une info 
+
+
+##### Top Bar #####
+views.main.topBar.help=Aide
+views.main.topBar.logout=Deconnexion
+views.main.topBar.signin=S'identifier
+
+#### Wizard ####
+place.wizard.title.edit=Editer un lieu
+place.wizard.title.add=Ajouter un lieu
+views.wizard.presentation.title=Présentation
+views.wizard.place.firstStep.title=Première étape: informations générales
+views.wizard.place.firstStep.name=1. Informations
+views.wizard.place.secondStep.name=2. Dessin
+views.wizard.place.thirdStep.name=3. Résumé

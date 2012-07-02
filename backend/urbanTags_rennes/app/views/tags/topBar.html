@@ -1,10 +1,33 @@
 <script type="text/javascript" src="@{'/public/javascripts/topBar.js'}"></script>
-<link rel="stylesheet" href="@{'/public/stylesheets/topBar.css'}" />
 
-<div class="navbar">
+<script type="text/javascript">
+    #{if _user}
+    myName = "${_user}";
+    myId = ${_userId};
+    #{/if}
+    #{else}
+    myName = "";
+    myId = -1;
+    #{/else}
+</script>
+
+<div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
         <div class="container">
-            <ul class="nav">
+            <ul class="nav pull-left">
+                <li><a class="brand" href="#">Urban Tag !</a></li>
+            </ul>
+            
+            #{if _user}
+<!-- For future use (when changes will be stored on client) -->
+<!--                 <ul class="nav"> -->
+<!--                     <li> -->
+<!--                         <input type="button" class="btn" value="&{'view.place.list.noChange'}" id="place-list-save-changes-button" disabled="disabled"/> -->
+<!--                     </li> -->
+<!--                 </ul> -->
+            #{/if}
+            
+            <ul class="nav pull-right">
                 #{if _user}
                     <li><a href="#">${_user}</a></li>
                     <li><a href="@{Secure.logout()}">&{'views.main.topBar.logout'}</a></li>
@@ -12,7 +35,7 @@
                 #{/if}
                 #{else}
                     <li>
-                        <a id="loginButton" href="#">&{'views.main.topBar.signin'}</a>
+                        <a href="#" id="loginButton">&{'views.main.topBar.signin'}</a>
                     </li>
                 #{/else}
             </ul>

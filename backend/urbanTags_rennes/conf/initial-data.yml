@@ -17,11 +17,11 @@ Tag(musique):
 
 Tag(architecture):
     name:           Architecture
-    color:          "#DFDF6D"
+    color:          "#F3B256"
 
 Tag(theatre):
     name:           Théâtre
-    color:          "#6DDF90"
+    color:          "#5DBB5D"
 
 Tag(insolite):
     name:           Insolite

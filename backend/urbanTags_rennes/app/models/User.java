@@ -1,6 +1,8 @@
 package models;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 
 import models.check.security.UserRoleCheck;
 import play.data.validation.CheckWith;
@@ -8,15 +10,22 @@ import play.data.validation.Email;
 import play.data.validation.Password;
 import play.data.validation.Required;
 import play.data.validation.Unique;
-import play.db.jpa.Model;
+import play.db.jpa.GenericModel;
+
+import com.google.gson.annotations.Expose;
 
 /**
  * A User object represents an account. It contains login, access and display informations.
  * @author Guillaume PANNETIER
  */
 @Entity
-public class User extends Model
+public class User extends GenericModel
 {
+  @Id
+  @GeneratedValue
+  @Expose
+  public Long id;
+
   /**
    * Email of the user. The email is used to log in.
    */
@@ -37,6 +46,7 @@ public class User extends Model
    */
   @Required
   @Unique
+  @Expose
   public String username;
 
   /**

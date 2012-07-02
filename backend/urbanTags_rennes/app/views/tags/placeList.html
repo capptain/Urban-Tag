@@ -1,37 +1,28 @@
 <link rel="stylesheet" type="text/css" href="@{'/public/stylesheets/placeList.css'}" />
 
-<div id="place-list-container" class="container list-container">
-	   <h3>&{'view.place.list.title'}</h3>
-	   <div id="place-list-content">
-        <table class="table" id="place-list-table">
-            <tr>
-                <th>Nom</th>
-                <th>Type</th>
-            </tr>
-        </table>
-       </div>
-	
-    #{if _user}
-    <div class="button-container">
-        <input type="button" value="&{'view.list.add'}" class="btn btn-success" id="place-list-add-button" />
-        <input type="button" value="&{'view.list.edit'}" class="btn btn-warning" id="place-list-edit-button" />
-        <input type="button" value="&{'view.list.delete'}" class="btn btn-danger" id="place-list-delete-button" />
-    </div>
-    <div id="place-list-save-changes-container">
-        <input type="button" class="button disabled" value="&{'view.place.list.noChange'}" id="place-list-save-changes-button" />
-    </div>
-    #{/if}
+<div id="place-list-content">
+<table class="table table-striped table-bordered" id="place-list-table">
+    <thead>
+    <tr>
+        <th>&{'placeName'}</th>
+        <th>&{'placeType'}</th>
+    </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
 </div>
+
+#{if _user}
+<div class="button-container">
+    <input type="button" value="&{'add'}" class="btn btn-success" id="place-list-add-button" />
+    <input type="button" value="&{'edit'}" class="btn btn-warning" id="place-list-edit-button" disabled="disabled" />
+    <input type="button" value="&{'delete'}" class="btn btn-danger" id="place-list-delete-button" disabled="disabled" />
+</div>
+#{/if}
 
 <script type="text/javascript" src="@{'/public/javascripts/PlaceList.js'}"></script>
 <script type="text/javascript">
-placeList = new PlaceList(placeManager);
+placeList = new PlaceList(placeManager, placeWizard);
 placeList.refresh();
-
-#{if _user}
-(function()
-{
-    $("#place-list-content").addClass("registered");
-})();
-#{/if}
 </script>

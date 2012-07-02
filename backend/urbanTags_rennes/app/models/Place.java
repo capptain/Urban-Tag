@@ -1,18 +1,27 @@
 package models;
 
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
 import models.Tag.TagNotFoundException;
 import models.check.attribute.MainTagCheck;
 import play.data.validation.CheckWith;
+import play.data.validation.Max;
+import play.data.validation.Min;
 import play.data.validation.Required;
-import play.db.jpa.Model;
+import play.data.validation.Unique;
+import play.db.jpa.GenericModel;
+
+import com.google.gson.annotations.Expose;
 
 /**
  * A place is a circular area to which pushed informations are connected. It can have an device
@@ -21,37 +30,57 @@ import play.db.jpa.Model;
  * @author Guillaume PANNETIER
  */
 @Entity
-public class Place extends Model
+public class Place extends GenericModel
 {
+  @Id
+  @GeneratedValue
+  @Expose
+  public Long id;
+
   @Required
+  @Expose
+  @Unique
   public String name;
 
   /**
    * Longitude of the center of the circular area. (EPSG = 4326)
    */
   @Required
+  @Expose
+  @Max(180)
+  @Min(-180)
   public double longitude;
 
   /**
    * Latitude of the center of the circular area. (EPSG = 4326)
    */
   @Required
+  @Expose
+  @Max(90)
+  @Min(-90)
   public double latitude;
 
   /**
    * Radius (in meters) of the circular area
    */
   @Required
+  @Expose
+  @Max(300)
+  @Min(10)
   public int radius;
 
   /**
    * Optional device location threshold (in meters).
    */
+  @Expose
+  @Min(0)
   public int accuracy;
 
   /**
    * Optional device location time (in minutes).
    */
+  @Expose
+  @Min(0)
   public int expiration;
 
   /**
@@ -59,12 +88,17 @@ public class Place extends Model
    */
   @Required
   @ManyToOne
+  @Expose
   public User owner;
+
+  @OneToMany(cascade = CascadeType.ALL)
+  public List<Info> infos;
 
   /**
    * Tags of the place.
    */
   @ManyToMany(cascade = CascadeType.PERSIST)
+  @Expose
   public Set<Tag> tags;
 
   /**
@@ -72,6 +106,7 @@ public class Place extends Model
    */
   @CheckWith(MainTagCheck.class)
   @ManyToOne(cascade = CascadeType.PERSIST)
+  @Expose
   public Tag mainTag;
 
   /**
@@ -115,6 +150,21 @@ public class Place extends Model
     this.expiration = expiration;
   }
 
+  public Place removeTag(String tag)
+  {
+    if (tags.contains(tag))
+      tags.remove(tag);
+
+    return this;
+  }
+
+  public Place removeAllTags()
+  {
+    tags = new TreeSet<Tag>();
+
+    return this;
+  }
+
   /**
    * Basic tag function, try to add a new tag to the object without making it the main tag.
    * @param tag Desired tag value.
@@ -125,6 +175,19 @@ public class Place extends Model
   public Place tagItWith(String tag) throws TagNotFoundException
   {
     return tagItWith(tag, false);
+  }
+
+  public Place tagItWith(Tag tag, boolean isMainTag)
+  {
+    if (!tags.contains(tag))
+    {
+      tags.add(tag);
+
+      if (isMainTag || mainTag == null)
+        mainTag = tag;
+    }
+
+    return this;
   }
 
   /**

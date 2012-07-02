@@ -1,4 +1,18 @@
+#### Buttons ####
+add=Ajouter
+edit=Modifier
+delete=Supprimer
+cancel=Annuler
+ok=Valider
+save=Enregistrer
+undo=Rétablir
+next=Suivant
+previous=Précédent
+map=Carte
+
 ##### Place #####
+placeName=Nom du lieu
+placeType=Type
 name=Nom
 longitude=Longitude
 latitude=Latitude
@@ -30,13 +44,10 @@ role=Rôle
 #### Place list ####
 view.place.list.title=Liste des lieux
 view.place.list.noChange=Aucun changement
-view.list.delete=Supprimer
-view.list.add=Ajouter
-view.list.edit=Modifier
 
 #### Info list ####
 view.info.list.title=Liste des infos
-view.place.list.add=Ajouter
+view.info.list.add=Ajouter une info 
 
 
 ##### Top Bar #####
@@ -45,5 +56,10 @@ views.main.topBar.logout=Deconnexion
 views.main.topBar.signin=S'identifier
 
 #### Wizard ####
+place.wizard.title.edit=Editer un lieu
+place.wizard.title.add=Ajouter un lieu
 views.wizard.presentation.title=Présentation
-views.wizard.place.firstStep.title="Première étape: informations générales"
+views.wizard.place.firstStep.title=Première étape: informations générales
+views.wizard.place.firstStep.name=1. Informations
+views.wizard.place.secondStep.name=2. Dessin
+views.wizard.place.thirdStep.name=3. Résumé

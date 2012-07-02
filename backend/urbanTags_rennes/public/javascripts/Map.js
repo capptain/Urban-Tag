@@ -39,6 +39,8 @@ function Map(_placeManager, _infoManager, name, options)
     // Register the Map to PlaceManager's events
     this.placeSelectedRegistration = this.placeManager.register("placeSelected", this.onPlaceSelected.bind(this));
     this.placeAddedRegistration = this.placeManager.register("placeAdded", this.onPlaceAdded.bind(this));
+    this.placeEditedRegistration = this.placeManager.register("placeEdited", this.onPlaceEdited.bind(this));
+    this.placeDeletedRegistration = this.placeManager.register("placeDeleted", this.onPlaceDeleted.bind(this));
     
     // Draw current places
     for(var i = 0; i < this.placeManager.places.length; i++)
@@ -131,7 +133,7 @@ Map.prototype.selectFeatureHandler = function(feature)
 Map.prototype.onPlaceSelected = function(place)
 {
     // Retrieve the shape corresponding to the selected place
-    var circle = this.shapes[place.name];
+    var circle = this.shapes[place.id];
     var bounds = circle.geometry.bounds;
     
     // Disable unselect handler which dispatch event to the manager
@@ -166,8 +168,29 @@ Map.prototype.onPlaceAdded = function(place)
   var circle = this.drawPlace(place);
   
   // Add the circle to datastructure
-  this.shapes[place.name] = circle;
+  this.shapes[place.id] = circle;
   this.places[circle.id] = place;
+};
+
+Map.prototype.onPlaceEdited = function(place)
+{
+    var circle = this.shapes[place.id];
+    this.placeLayer.removeFeatures([circle]);
+    
+    circle = this.drawPlace(place);
+    this.shapes[place.id] = circle;
+    this.places[circle.id] = place;
+    
+    this.onPlaceSelected(place);
+};
+
+Map.prototype.onPlaceDeleted = function(place)
+{
+	var circle = this.shapes[place.id];
+	this.placeLayer.removeFeatures([circle]);
+	
+	delete this.places[circle.id];
+	delete this.shapes[place.id];
 };
 
 /**

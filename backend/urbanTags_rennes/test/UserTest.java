@@ -50,7 +50,7 @@ public class UserTest extends UnitTest
     User user = new User("bob@gmail.com", "secret", "bob", "basic").save();
 
     // Save bob's ID
-    long id = user.getId();
+    long id = user.id;
 
     // Retrieve profile with Bob's ID
     User savedUser = User.findById(id);
