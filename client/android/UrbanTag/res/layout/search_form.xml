@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView     android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    >
+<LinearLayout 
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+        android:padding="15dp">
+<LinearLayout 
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_weight="0">
+    
+    <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/search_a"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+             />
+    
+    <RadioGroup
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:orientation="horizontal"
+	    android:id="@+id/searchType"   
+	    >
+	    <RadioButton
+	        android:id="@+id/place"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="@string/a_place"
+	        android:checked="true" />
+	    	
+	    <RadioButton
+	        android:id="@+id/content"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="@string/a_content" />
+	</RadioGroup>
+	
+    <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="?android:attr/listPreferredItemHeight"
+            android:text="@string/in_category"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+             />
+
+   </LinearLayout>
+	
+     
+     <com.ubikod.urbantag.FlowLayout 
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:id="@+id/tag_container" />     
+
+    <LinearLayout 
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_weight="0">   
+      
+       <Spinner
+        android:id="@+id/spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+      
+             <Button
+              android:id="@+id/addCategory"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+             android:text="@string/add_category"
+              android:layout_gravity="center_horizontal|center"
+               />
+
+        </LinearLayout>
+             <Button
+              android:id="@+id/submit"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+             android:text="@string/menu_search"
+              android:layout_gravity="center_horizontal|center"
+               />
+</LinearLayout>
+</ScrollView>
