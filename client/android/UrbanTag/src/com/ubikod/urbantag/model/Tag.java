@@ -1,4 +1,4 @@
-package com.ubikod.urbantag;
+package com.ubikod.urbantag.model;
 
 public class Tag
 {
@@ -60,5 +60,10 @@ public class Tag
     }
     else
       return false;
+  }
+
+  public String toString()
+  {
+    return this.value;
   }
 }
