@@ -158,13 +158,19 @@ public class UrbanTagMainActivity extends SherlockMapActivity
 
   private void loadData()
   {
+    Log.i("Loading data", "Dooooo");
     Tag t0 = new Tag(0, "Musique", 0xff79D438), t1 = new Tag(1, "Architecture", 0xffF86883), t2 = new Tag(
-      2, "Insolite", 0xff56B2E1), t3 = new Tag(3, "Bla", 0xffF9D424);
+      2, "Insolite", 0xff56B2E1), t3 = new Tag(3, "Bla", 0xffF9D424), t4 = new Tag(4, "Poney",
+      0xffEB0066), t5 = new Tag(5, "Horlogerie", 0xffD7E60E), t6 = new Tag(6, "Equitation",
+      0xffF119B6);
     List<Tag> tagsList = new ArrayList<Tag>();
     tagsList.add(t1);
     tagsList.add(t2);
     tagsList.add(t3);
+    tagsList.add(t6);
     tagsList.add(t0);
+    tagsList.add(t4);
+    tagsList.add(t5);
     TagManager tagManager = new TagManager(dbHelper);
     tagManager.update(tagsList);
     PlaceManager placeManager = new PlaceManager(dbHelper);
@@ -172,11 +178,11 @@ public class UrbanTagMainActivity extends SherlockMapActivity
     placeManager.save(p);
     p = new Place(2, "Ubu", t0, new GeoPoint(48107976, -1673387), tagsList);
     placeManager.save(p);
-    p = new Place(3, "Thêatre National de Bretagne", t1, new GeoPoint(48107789, -1672701), tagsList);
+    p = new Place(3, "Thêatre National de Bretagne", t6, new GeoPoint(48107789, -1672701), tagsList);
     placeManager.save(p);
 
     ContentManager contentManager = new ContentManager(dbHelper);
-    Content c = new Content(0, "l'arche de Noé", 1111111, 122222222, p, t3, tagsList);
+    Content c = new Content(0, "l'arche de Noé", 1, 1, p, t3, tagsList);
     // contentManager.insert(c);
 
   }

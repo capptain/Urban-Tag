@@ -61,4 +61,9 @@ public class Tag
     else
       return false;
   }
+
+  public String toString()
+  {
+    return this.value;
+  }
 }

@@ -12,7 +12,6 @@ import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
-import android.preference.PreferenceManager;
 
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.actionbarsherlock.view.MenuItem;
@@ -58,7 +57,8 @@ public class PreferencesActivity extends SherlockPreferenceActivity
         CheckBoxPreference cb = (CheckBoxPreference) preference;
         WifiManager wifiManager = (WifiManager) PreferencesActivity.this.getSystemService(Context.WIFI_SERVICE);
         wifiManager.setWifiEnabled(cb.isChecked());
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(PreferencesActivity.this);
+        SharedPreferences pref = getApplicationContext().getSharedPreferences("URBAN_TAG_PREF",
+          Context.MODE_PRIVATE);
         pref.edit().putBoolean("notifiedWifi", cb.isChecked()).commit();
         return true;
       }

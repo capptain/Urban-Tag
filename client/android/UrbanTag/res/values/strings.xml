@@ -31,5 +31,13 @@
     <string name="dont_want">Je ne veux pas</string>
     <string name="menu_select_place">Sélectionner un lieu</string>
     <string name="no_contents_for_place">Il n\'y a pas de contenu pour ce lieu</string>
+    <string name="a_place">un lieu</string>
+    <string name="place">Lieu</string>
+    <string name="place_dashed">Lieu :</string>
+    <string name="a_content">un contenu</string>
+    <string name="search_a">Rechercher :</string>
+    <string name="in_category">Dans la catégorie :</string>
+    <string name="add_category">Ajouter une catégorie</string>
+    <string name="category_needed">Vous devez sélectionner au moins une catégorie.</string>
 
 </resources>

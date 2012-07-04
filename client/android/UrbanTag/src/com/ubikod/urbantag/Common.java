@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.location.LocationManager;
 import android.net.wifi.WifiManager;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.ubikod.capptain.android.sdk.CapptainAgent;
 import com.ubikod.capptain.android.sdk.CapptainAgentUtils;
@@ -27,8 +28,9 @@ public class Common
       || wifiManager.getWifiState() == WifiManager.WIFI_STATE_ENABLING;
     boolean networkChecked = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
-    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(activity);
+    SharedPreferences pref = activity.getSharedPreferences("URBAN_TAG_PREF", Context.MODE_PRIVATE);
     boolean notifiedWifi = pref.getBoolean("notifiedWifi", false);
+    Log.i("notfiedwifi", "" + notifiedWifi);
 
     if (!networkChecked)
     {
