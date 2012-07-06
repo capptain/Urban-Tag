@@ -43,12 +43,12 @@ POST	/wizard/place/step/2/validate			PlaceWizard.validateSecondStep
 GET     /wizard/place/step/3/getTemplate        PlaceWizard.thirdStep
 
 # Info API
-GET     /place/{id}/content/get/{from}/{to}     ContentApi.getPlaceContent
-GET     /info/{id}/delete                       ContentApi.deleteInfo
+GET     /place/{id}/info/get/{from}/{to}     InfoApi.getPlaceContent
+GET     /info/{id}/delete                       InfoApi.deleteInfo
 
 # Tags API
 GET     /tag/{id}                               TagApi.getTag
-POST     /tag/get/array                          TagApi.getTags
+POST     /tag/get/array                         TagApi.getTags
 
 # Geocoding
 GET     /geocode/{query}                        Geocoding.geocode

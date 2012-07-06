@@ -33,4 +33,14 @@ public class Security extends Secure.Security
 
     return false;
   }
+
+  public static boolean getIsConnected()
+  {
+    return isConnected();
+  }
+
+  public static String getConnected()
+  {
+    return connected();
+  }
 }

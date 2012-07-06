@@ -1,0 +1,39 @@
+#{extends 'main.html' /}
+#{set title:'urbantags - Rennes' /}
+
+#{set 'moreScripts'}
+    <script type="text/javascript">
+    (function()
+    {
+        
+    })();
+    </script>
+#{/set}
+
+#{set 'moreStyles'}
+<link rel="stylesheet" type="text/css" href="@{'/public/stylesheets/showInfo.css'}" />
+#{/set}
+
+<h1>${place.name}</h1>
+
+<div class="tag-list">
+    #{list items:place.tags, as:'tag'}
+        <span class='tag' style='background:${tag.color}'>${tag.name}</span>&nbsp;
+    #{/list}
+</div>
+
+<hr />
+
+<h2>${info.title}</h2>
+
+<div class="tag-list">
+    #{list items:info.tags, as:'tag'}
+        <span class='tag' style='background:${tag.color}'>${tag.name}</span>&nbsp;
+    #{/list}
+</div>
+
+<div id="content">
+    ${info.content}
+</div>
+
+<div id="map"></div>

@@ -55,7 +55,7 @@ views.main.topBar.help=Aide
 views.main.topBar.logout=Deconnexion
 views.main.topBar.signin=S'identifier
 
-#### Wizard ####
+#### Place Wizard ####
 place.wizard.title.edit=Editer un lieu
 place.wizard.title.add=Ajouter un lieu
 views.wizard.presentation.title=Présentation
@@ -63,3 +63,11 @@ views.wizard.place.firstStep.title=Première étape: informations générales
 views.wizard.place.firstStep.name=1. Informations
 views.wizard.place.secondStep.name=2. Dessin
 views.wizard.place.thirdStep.name=3. Résumé
+
+#### Info Wizard ####
+info.wizard.title.edit=Editer une info
+info.wizard.title.add=Ajouter une info
+views.wizard.info.firstStep.title=Première étape: informations générales
+views.wizard.info.firstStep.name=1. Informations
+views.wizard.info.secondStep.name=2. Contenu
+views.wizard.info.thirdStep.name=3. Prévisualisation

@@ -1,5 +1,6 @@
 package models;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -14,6 +15,7 @@ import javax.persistence.OneToMany;
 
 import models.Tag.TagNotFoundException;
 import models.check.attribute.MainTagCheck;
+import models.data.PlaceData;
 import play.data.validation.CheckWith;
 import play.data.validation.Max;
 import play.data.validation.Min;
@@ -108,6 +110,10 @@ public class Place extends GenericModel
   @ManyToOne(cascade = CascadeType.PERSIST)
   @Expose
   public Tag mainTag;
+
+  public Place()
+  {
+  }
 
   /**
    * Basic constructor of the class, doesn't define thresholds.
@@ -230,5 +236,58 @@ public class Place extends GenericModel
   public String toString()
   {
     return name;
+  }
+
+  public Place setData(PlaceData data)
+  {
+    this.name = data.getName();
+    this.longitude = data.getLongitude();
+    this.latitude = data.getLatitude();
+    this.radius = data.getRadius();
+    this.accuracy = data.getAccuracy();
+    this.expiration = data.getExpiration();
+    this.owner = User.findById(data.getIdOwner());
+    if (this.id != null)
+      this.infos = Info.find("byPlace", this).fetch();
+    else
+      this.infos = new ArrayList<Info>();
+
+    this.removeAllTags();
+    for (int i = 0; i < data.getTags().length; i++)
+    {
+      long tagId = data.getTags()[i];
+      boolean isMain = (tagId == data.getMainTag());
+      Tag tag = Tag.findById(tagId);
+      this.tagItWith(tag, isMain);
+    }
+
+    return this;
+  }
+
+  @Override
+  public Place save()
+  {
+    Place result = super.save();
+
+    if (id != null)
+    {
+      for (Info info : infos)
+      {
+        info.save();
+      }
+    }
+
+    return result;
+  }
+
+  @Override
+  public Place delete()
+  {
+    for (Info info : infos)
+    {
+      info.delete();
+    }
+
+    return super.delete();
   }
 }

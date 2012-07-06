@@ -1,0 +1,60 @@
+#### Buttons ####
+add=Add
+edit=Edit
+delete=Delete
+cancel=Cancel
+ok=Validate
+save=Save
+undo=Undo
+next=Next
+previous=Previous
+map=Map
+
+##### Place #####
+placeName=Place name
+placeType=Type
+name=Name
+longitude=Longitude
+latitude=Latitude
+radius=Radius
+accuracy=Accuracy threshold (meters)
+expiration=Expiration time (minutes)
+owner=Owner
+tags=Tags
+mainTag=Main tag
+
+##### Info #####
+title=Title
+content=Content
+startDate=Start date
+endDate=End date
+addedAt=Added at
+place=Place
+
+##### User #####
+email=E-mail
+password=Password
+username=Username
+role=Role
+
+#### Place list ####
+view.place.list.title=Place list
+view.place.list.noChange=No change
+
+#### Info list ####
+view.info.list.title=Info list
+view.info.list.add=Add an info 
+
+
+##### Top Bar #####
+views.main.topBar.help=Help
+views.main.topBar.logout=Disconnect
+views.main.topBar.signin=Login
+
+#### Wizard ####
+place.wizard.title.add=Add a place
+views.wizard.presentation.title=Presentation
+views.wizard.place.firstStep.title=First step: general informations
+views.wizard.place.firstStep.name=1. Informations
+views.wizard.place.secondStep.name=2. Drawing
+views.wizard.place.thirdStep.name=3. Summary

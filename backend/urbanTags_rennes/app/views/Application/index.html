@@ -10,6 +10,7 @@
 <!-- <script type="text/javascript" src="@{'/public/javascripts/ChangeManager.js'}"></script> -->
 <script type="text/javascript" src="@{'/public/javascripts/Map.js'}"></script>
 <script type="text/javascript" src="@{'/public/javascripts/PlaceWizard.js'}"></script>
+<script type="text/javascript" src="@{'/public/javascripts/InfoWizard.js'}"></script>
 <script type="text/javascript" src="@{'/public/javascripts/MapBox.js'}"></script>
 
 
@@ -19,6 +20,7 @@
 placeManager = new PlaceManager();
 infoManager = new InfoManager(placeManager);
 placeWizard = new PlaceWizard(placeManager);
+infoWizard = new InfoWizard(infoManager);
 
 // For future uses 
 //changeManager = new ChangeManager(placeManager, infoManager);
@@ -28,7 +30,7 @@ placeWizard = new PlaceWizard(placeManager);
 
 #{topBar user:user, userId:userId /}
     
-    <div class="fluid-container">
+    <div class="fluid-container" id="main-container">
         <div class="row-fluid">
             <div class="span3" id="place-list-container">
                 #{placeList user:user /}

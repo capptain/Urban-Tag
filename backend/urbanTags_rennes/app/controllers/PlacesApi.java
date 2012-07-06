@@ -2,11 +2,10 @@ package controllers;
 
 import java.util.List;
 
-import models.Info;
 import models.Place;
-import models.Tag;
 import models.User;
 import models.data.PlaceData;
+import play.data.validation.Validation;
 import play.mvc.Controller;
 
 import com.google.gson.Gson;
@@ -41,6 +40,7 @@ public class PlacesApi extends Controller
       User user = User.find("byEmail", Security.connected()).first();
       if (user != null)
       {
+        data.setIdOwner(user.id);
         long id = data.getId();
 
         Place place;
@@ -55,38 +55,23 @@ public class PlacesApi extends Controller
           {
             badRequest();
           }
-
-          place.name = data.getName();
-          place.expiration = data.getExpiration();
-          place.accuracy = data.getAccuracy();
-          place.longitude = data.getLongitude();
-          place.latitude = data.getLatitude();
-          place.radius = data.getRadius();
-
-          place.removeAllTags();
         }
         else
         {
-          place = new Place(user, data.getName(), data.getLongitude(), data.getLatitude(),
-            data.getRadius(), data.getAccuracy(), data.getExpiration());
+          place = new Place();
         }
 
-        for (int i = 0; i < data.getTags().length; i++)
-        {
-          long tagId = data.getTags()[i];
-          boolean isMain = (tagId == data.getMainTag());
-          Tag tag = Tag.findById(tagId);
-          place.tagItWith(tag, isMain);
-        }
+        place.setData(data);
 
-        if (place.validateAndSave())
+        /* Save if valid */
+        if (Validation.current().valid(place).ok)
         {
+          place.save();
           Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
           renderJSON(gson.toJson(place));
         }
       }
     }
-
     badRequest();
   }
 
@@ -102,14 +87,7 @@ public class PlacesApi extends Controller
         {
           if (place.owner.id == user.id)
           {
-            List<Info> infos = Info.find("byPlace", place).fetch();
-            for (Info info : infos)
-            {
-              info.delete();
-            }
-
             place.delete();
-
             ok();
           }
         }

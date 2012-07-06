@@ -1,0 +1,19 @@
+<link rel="stylesheet" type="text/css" href="@{'/public/stylesheets/infoList.css'}" />
+
+<div id="info-list-container" class="hero-unit">
+    <h1 id="info-list-title"></h1>
+    <h4 id="info-list-place-owner"></h4>
+    <p class="tag-list"></p>
+    
+    #{if _user}
+        <input id="button-add-info" type="button" class="btn btn-success" value="&{'view.info.list.add'}" />
+    #{/if}
+    
+    <div id="info-list-content" class="row-fluid">
+    </div>
+</div>
+
+<script type="text/javascript" src="@{'/public/javascripts/InfoList.js'}"></script>
+<script type="text/javascript">
+infoList = new InfoList($('#info-list-container'), infoManager, infoWizard);
+</script>

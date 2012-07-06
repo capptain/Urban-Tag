@@ -2,6 +2,7 @@ package models.check.attribute;
 
 import java.util.Set;
 
+import models.Info;
 import models.Place;
 import models.Tag;
 import play.data.validation.Check;
@@ -14,21 +15,34 @@ public class MainTagCheck extends Check
 {
 
   @Override
-  public boolean isSatisfied(Object place, Object mainTag)
+  public boolean isSatisfied(Object object, Object mainTag)
   {
-    // Check there is a main tag to check
-    if (mainTag != null)
+    try
     {
-      // Cast the place to the correct class
-      Place castedPlace = (Place) place;
+      // Check there is a main tag to check
+      if (mainTag != null)
+      {
+        // Get the tagSet of the object
+        Set<Tag> tagSet = null;
 
-      // Get the tagSet of the place
-      Set<Tag> tagSet = castedPlace.tags;
+        if (object instanceof Place)
+        {
+          tagSet = ((Place) object).tags;
+        }
+        else if (object instanceof Info)
+        {
+          tagSet = ((Info) object).tags;
+        }
 
-      // Test the tag set contains the main tag of the place
-      return tagSet != null && tagSet.contains(mainTag);
+        // Test the tag set contains the main tag of the place
+        return tagSet != null && tagSet.contains(mainTag);
+      }
+
+      return true;
     }
-
-    return true;
+    catch (Throwable t)
+    {
+      return false;
+    }
   }
 }
