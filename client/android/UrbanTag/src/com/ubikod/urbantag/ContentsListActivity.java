@@ -33,7 +33,7 @@ public class ContentsListActivity extends SherlockListActivity
     super.onCreate(savedInstanceState);
     Bundle extras = getIntent().getExtras();
     PlaceManager placeManager = new PlaceManager(new DatabaseHelper(this, null));
-    this.place = placeManager.getById(extras.getInt("placeId"));
+    this.place = placeManager.get(extras.getInt("placeId"));
     setTitle(place.getName());
     com.actionbarsherlock.app.ActionBar actionBar = this.getSupportActionBar();
     actionBar.setDisplayHomeAsUpEnabled(true);

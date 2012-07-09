@@ -39,5 +39,6 @@
     <string name="in_category">Dans la catégorie :</string>
     <string name="add_category">Ajouter une catégorie</string>
     <string name="category_needed">Vous devez sélectionner au moins une catégorie.</string>
+    <string name="content">Contenu</string>
 
 </resources>

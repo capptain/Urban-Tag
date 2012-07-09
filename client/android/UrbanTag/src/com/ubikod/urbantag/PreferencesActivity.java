@@ -15,6 +15,7 @@ import android.preference.Preference.OnPreferenceClickListener;
 
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.actionbarsherlock.view.MenuItem;
+import com.ubikod.urbantag.model.ContentManager;
 import com.ubikod.urbantag.model.DatabaseHelper;
 import com.ubikod.urbantag.model.PlaceManager;
 
@@ -79,10 +80,11 @@ public class PreferencesActivity extends SherlockPreferenceActivity
             @Override
             public void onClick(DialogInterface dialog, int which)
             {
-
-              PlaceManager placeManager = new PlaceManager(new DatabaseHelper(
-                getApplicationContext(), null));
+              DatabaseHelper dbHelper = new DatabaseHelper(getApplicationContext(), null);
+              PlaceManager placeManager = new PlaceManager(dbHelper);
+              ContentManager contentManager = new ContentManager(dbHelper);
               placeManager.clear();
+              contentManager.clear();
               // Notify main activity it needs to clean the map
               setResult(1);
             }

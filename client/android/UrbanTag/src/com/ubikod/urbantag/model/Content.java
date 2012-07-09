@@ -58,4 +58,27 @@ public class Content
   {
     return this.mainTag;
   }
+
+  public boolean equals(Object o)
+  {
+    if (o instanceof Content)
+    {
+      Content c = (Content) o;
+      return this.id == c.id;
+    }
+    return false;
+  }
+
+  public boolean hasChanged(Object o)
+  {
+    if (o instanceof Content)
+    {
+      Content c = (Content) o;
+      return !this.name.equals(c.name) || this.startDate != c.startDate
+        || this.endDate != c.endDate || !this.mainTag.equals(c.mainTag)
+        || !this.allTags.equals(c.allTags) || !this.place.equals(c.place);
+    }
+    else
+      return false;
+  }
 }

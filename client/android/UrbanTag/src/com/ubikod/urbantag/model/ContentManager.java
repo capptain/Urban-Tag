@@ -1,6 +1,7 @@
 package com.ubikod.urbantag.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import android.content.ContentValues;
@@ -14,78 +15,139 @@ public class ContentManager
 
   private DatabaseHelper dbHelper;
 
+  private HashMap<Integer, Content> contents = new HashMap<Integer, Content>();
+
   public ContentManager(DatabaseHelper databaseHelper)
   {
     dbHelper = databaseHelper;
   }
 
-  public List<Content> getAllForPlace(int placeId)
+  public Content get(int id)
   {
-    return this.dbGetAllForPlace(placeId);
+    if (contents.containsKey(id))
+    {
+      return contents.get(id);
+    }
+    else
+    {
+      Content c = this.dbGet(id);
+      if (c != null)
+        contents.put(id, c);
+      return c;
+    }
   }
 
-  public Content getById(int id)
+  public List<Content> getAll()
   {
-    Content c = null;
-    open();
-    c = this.dbGetById(id);
-    close();
-    return c;
+    contents = this.dbGetAll();
+    return new ArrayList<Content>(contents.values());
+  }
+
+  public List<Content> getAllForTags(int[] ids)
+  {
+    List<Content> res = this.dbGetAllForTags(ids);
+    for (Content c : res)
+    {
+      contents.put(c.getId(), c);
+    }
+    return res;
+  }
+
+  public List<Content> getAllForPlace(int id)
+  {
+    List<Content> res = this.dbGetAllForPlace(id);
+    for (Content c : res)
+    {
+      contents.put(c.getId(), c);
+    }
+    return res;
+  }
+
+  public boolean exists(Content c)
+  {
+    return contents.containsKey(c.getId()) || this.get(c.getId()) != null;
+  }
+
+  public void save(Content c)
+  {
+    if (this.exists(c))
+    {
+      this.alter(c);
+    }
+    else
+    {
+      this.insert(c);
+    }
   }
 
   public void insert(Content c)
   {
-    open();
-    dbInsert(c);
-    close();
-  }
-
-  public List<Content> getAllForTags(int[] tagsId)
-  {
-    return this.dbGetAllForTags(tagsId);
-  }
-
-  private void delete(Content c)
-  {
-    open();
-    dbDelete(c);
-    close();
-  }
-
-  private void update(Content c)
-  {
-    open();
-    dbUpdate(c);
-    close();
-  }
-
-  private void dbInsert(Content c)
-  {
-    DB.insert(DatabaseHelper.TABLE_CONTENTS, DatabaseHelper.CONTENT_COL_ID, prepare(c, false));
-
-    // insert in place-tag table
-    String req = "INSERT INTO '" + DatabaseHelper.TABLE_CONTENTS_TAGS + "' ";
-    boolean first = true;
-    for (Tag t : c.getAllTags())
+    if (!this.exists(c))
     {
-      if (first)
-      {
-        first = false;
-        req += "SELECT " + c.getId() + " AS '" + DatabaseHelper.CONTENT_TAG_COL_CONTENT + "', "
-          + t.getId() + " AS '" + DatabaseHelper.CONTENT_TAG_COL_TAG + "'";
-      }
-      else
-      {
-        req += " UNION SELECT " + c.getId() + ", " + t.getId() + "";
-      }
+      contents.put(c.getId(), c);
+      this.dbInsert(c);
     }
-    req += ";";
-    DB.execSQL(req);
+  }
 
+  public void supress(Content c)
+  {
+    if (this.exists(c))
+    {
+      contents.remove(c.getId());
+      this.dbDelete(c);
+    }
+  }
+
+  public void alter(Content c)
+  {
+    if (this.exists(c))
+    {
+      contents.put(c.getId(), c);
+      this.dbUpdate(c);
+    }
+  }
+
+  public void clear()
+  {
+    this.dbClear();
+  }
+
+  private Content dbGet(int id)
+  {
+    this.open();
+    Cursor c = DB.query(DatabaseHelper.TABLE_CONTENTS, new String[] {
+      DatabaseHelper.CONTENT_COL_ID, DatabaseHelper.CONTENT_COL_NAME,
+      DatabaseHelper.CONTENT_COL_PLACE, DatabaseHelper.CONTENT_COL_START_DATE,
+      DatabaseHelper.CONTENT_COL_END_DATE, DatabaseHelper.CONTENT_COL_TAG },
+      DatabaseHelper.CONTENT_COL_ID + "=? ", new String[] { String.valueOf(id) }, null, null, null);
+
+    if (c.getCount() == 0)
+    {
+      c.close();
+      return null;
+    }
+
+    c.moveToFirst();
+    Content p = cursorToContent(c);
+    c.close();
+    this.close();
+    return p;
+  }
+
+  private void dbDelete(Content c)
+  {
+    this.open();
+    DB.delete(DatabaseHelper.TABLE_CONTENTS, DatabaseHelper.CONTENT_COL_ID + "=?",
+      new String[] { String.valueOf(c.getId()) });
+
+    DB.delete(DatabaseHelper.TABLE_CONTENTS, DatabaseHelper.CONTENT_TAG_COL_CONTENT + "=?",
+      new String[] { String.valueOf(c.getId()) });
+    this.close();
   }
 
   private void dbUpdate(Content c)
   {
+    this.open();
     DB.update(DatabaseHelper.TABLE_CONTENTS, prepare(c, true), DatabaseHelper.CONTENT_COL_ID
       + " =? ", new String[] { String.valueOf(c.getId()) });
 
@@ -111,36 +173,70 @@ public class ContentManager
       }
     }
     DB.execSQL(req);
+    this.close();
   }
 
-  private void dbDelete(Content c)
+  private void dbInsert(Content c)
   {
-    DB.delete(DatabaseHelper.TABLE_CONTENTS, DatabaseHelper.CONTENT_COL_ID + "=?",
-      new String[] { String.valueOf(c.getId()) });
+    this.open();
+    DB.insert(DatabaseHelper.TABLE_CONTENTS, DatabaseHelper.CONTENT_COL_ID, prepare(c, false));
 
-    DB.delete(DatabaseHelper.TABLE_CONTENTS, DatabaseHelper.CONTENT_TAG_COL_CONTENT + "=?",
-      new String[] { String.valueOf(c.getId()) });
-  }
-
-  private ContentValues prepare(Content c, boolean update)
-  {
-    ContentValues values = new ContentValues();
-    if (!update)
+    // insert in place-tag table
+    String req = "INSERT INTO '" + DatabaseHelper.TABLE_CONTENTS_TAGS + "' ";
+    boolean first = true;
+    for (Tag t : c.getAllTags())
     {
-      values.put(DatabaseHelper.CONTENT_COL_ID, c.getId());
+      if (first)
+      {
+        first = false;
+        req += "SELECT " + c.getId() + " AS '" + DatabaseHelper.CONTENT_TAG_COL_CONTENT + "', "
+          + t.getId() + " AS '" + DatabaseHelper.CONTENT_TAG_COL_TAG + "'";
+      }
+      else
+      {
+        req += " UNION SELECT " + c.getId() + ", " + t.getId() + "";
+      }
     }
-    values.put(DatabaseHelper.CONTENT_COL_NAME, c.getName());
-    values.put(DatabaseHelper.CONTENT_COL_PLACE, c.getPlace().getId());
-    values.put(DatabaseHelper.CONTENT_COL_TAG, c.getTag().getId());
-    values.put(DatabaseHelper.CONTENT_COL_START_DATE, c.getStartDate());
-    values.put(DatabaseHelper.CONTENT_COL_END_DATE, c.getEndDate());
-    return values;
+    req += ";";
+    DB.execSQL(req);
+    this.close();
+
+  }
+
+  private HashMap<Integer, Content> dbGetAll()
+  {
+    open();
+    Cursor c = DB.query(DatabaseHelper.TABLE_CONTENTS, new String[] {
+      DatabaseHelper.CONTENT_COL_ID, DatabaseHelper.CONTENT_COL_NAME,
+      DatabaseHelper.CONTENT_COL_PLACE, DatabaseHelper.CONTENT_COL_START_DATE,
+      DatabaseHelper.CONTENT_COL_END_DATE, DatabaseHelper.CONTENT_COL_TAG }, null, null, null,
+      null, null);
+    HashMap<Integer, Content> contents = new HashMap<Integer, Content>();
+
+    if (c.getCount() == 0)
+    {
+      c.close();
+      close();
+      return contents;
+    }
+
+    c.moveToFirst();
+    do
+    {
+      Content p = this.cursorToContent(c);
+      contents.put(p.getId(), p);
+    }
+    while (c.moveToNext());
+
+    c.close();
+    close();
+    return contents;
   }
 
   private List<Content> dbGetAllForPlace(int placeId)
   {
     List<Content> res = new ArrayList<Content>();
-    open();
+    this.open();
     Cursor c = DB.query(DatabaseHelper.TABLE_CONTENTS, new String[] {
       DatabaseHelper.CONTENT_COL_ID, DatabaseHelper.CONTENT_COL_NAME,
       DatabaseHelper.CONTENT_COL_PLACE, DatabaseHelper.CONTENT_COL_START_DATE,
@@ -163,7 +259,7 @@ public class ContentManager
     while (c.moveToNext());
 
     c.close();
-    close();
+    this.close();
     return res;
   }
 
@@ -188,7 +284,7 @@ public class ContentManager
         sql += " OR pivot." + DatabaseHelper.CONTENT_TAG_COL_TAG + "=?";
       }
 
-      open();
+      this.open();
       Cursor c = DB.rawQuery(sql, selectionArgs);
       if (c.getCount() > 0)
       {
@@ -200,29 +296,17 @@ public class ContentManager
         while (c.moveToNext());
       }
       c.close();
-      close();
+      this.close();
     }
     return res;
   }
 
-  private Content dbGetById(int id)
+  private void dbClear()
   {
-    Cursor c = DB.query(DatabaseHelper.TABLE_CONTENTS, new String[] {
-      DatabaseHelper.CONTENT_COL_ID, DatabaseHelper.CONTENT_COL_NAME,
-      DatabaseHelper.CONTENT_COL_PLACE, DatabaseHelper.CONTENT_COL_START_DATE,
-      DatabaseHelper.CONTENT_COL_END_DATE, DatabaseHelper.CONTENT_COL_TAG },
-      DatabaseHelper.CONTENT_COL_ID + "=? ", new String[] { String.valueOf(id) }, null, null, null);
-
-    if (c.getCount() == 0)
-    {
-      c.close();
-      return null;
-    }
-
-    c.moveToFirst();
-    Content p = cursorToContent(c);
-    c.close();
-    return p;
+    this.open();
+    DB.delete(DatabaseHelper.TABLE_CONTENTS, null, null);
+    DB.delete(DatabaseHelper.TABLE_CONTENTS_TAGS, null, null);
+    this.close();
   }
 
   private void open()
@@ -243,9 +327,24 @@ public class ContentManager
       c.getString(DatabaseHelper.CONTENT_NUM_COL_NAME),
       c.getInt(DatabaseHelper.CONTENT_NUM_COL_START_DATE),
       c.getInt(DatabaseHelper.CONTENT_NUM_COL_END_DATE),
-      placeManager.getById(c.getInt(DatabaseHelper.CONTENT_NUM_COL_PLACE)),
-      tagManager.getByID(c.getInt(DatabaseHelper.CONTENT_NUM_COL_TAG)),
+      placeManager.get(c.getInt(DatabaseHelper.CONTENT_NUM_COL_PLACE)),
+      tagManager.get(c.getInt(DatabaseHelper.CONTENT_NUM_COL_TAG)),
       tagManager.getAllForContent(c.getInt(DatabaseHelper.CONTENT_NUM_COL_ID)));
     return res;
+  }
+
+  private ContentValues prepare(Content c, boolean update)
+  {
+    ContentValues values = new ContentValues();
+    if (!update)
+    {
+      values.put(DatabaseHelper.CONTENT_COL_ID, c.getId());
+    }
+    values.put(DatabaseHelper.CONTENT_COL_NAME, c.getName());
+    values.put(DatabaseHelper.CONTENT_COL_PLACE, c.getPlace().getId());
+    values.put(DatabaseHelper.CONTENT_COL_TAG, c.getTag().getId());
+    values.put(DatabaseHelper.CONTENT_COL_START_DATE, c.getStartDate());
+    values.put(DatabaseHelper.CONTENT_COL_END_DATE, c.getEndDate());
+    return values;
   }
 }

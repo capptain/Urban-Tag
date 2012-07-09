@@ -70,4 +70,18 @@ public class Place
     }
     return false;
   }
+
+  public boolean hasChanged(Object o)
+  {
+    if (o instanceof Place)
+    {
+      Place p = (Place) o;
+
+      return !this.name.equals(p.name) || !this.pos.equals(p.pos)
+        || !this.mainTag.equals(p.mainTag) || !this.allTags.equals(p.allTags);
+    }
+    else
+      return false;
+  }
+
 }

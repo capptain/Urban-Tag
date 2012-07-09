@@ -20,7 +20,7 @@ public class ContentViewerActivity extends SherlockActivity
     Bundle extras = getIntent().getExtras();
     ContentManager contentManager = new ContentManager(new DatabaseHelper(this, null));
     int bla = extras.getInt("contentId");
-    this.content = contentManager.getById(extras.getInt("contentId"));
+    this.content = contentManager.get(extras.getInt("contentId"));
     setTitle(content.getName());
     com.actionbarsherlock.app.ActionBar actionBar = this.getSupportActionBar();
     actionBar.setDisplayHomeAsUpEnabled(true);

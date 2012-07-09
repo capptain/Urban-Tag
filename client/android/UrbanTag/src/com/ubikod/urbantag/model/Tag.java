@@ -56,7 +56,8 @@ public class Tag
     if (o instanceof Tag)
     {
       Tag t = (Tag) o;
-      return t.getValue().equals(this.value) && t.getColor() == this.color;
+      return !t.getValue().equals(this.value) || t.getColor() != this.color
+        || t.selected != this.selected;
     }
     else
       return false;

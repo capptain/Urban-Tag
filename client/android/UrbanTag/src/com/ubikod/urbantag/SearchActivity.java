@@ -212,8 +212,8 @@ public class SearchActivity extends SherlockActivity
     TagManager tagManager = new TagManager(new DatabaseHelper(this, null));
     for (int i = 0; i < selectedTagsArray.length; i++)
     {
-      selectedTags.add(tagManager.getByID(selectedTagsArray[i]));
-      selectableTags.remove(tagManager.getByID(selectedTagsArray[i]));
+      selectedTags.add(tagManager.get(selectedTagsArray[i]));
+      selectableTags.remove(tagManager.get(selectedTagsArray[i]));
     }
     updateTagList();
   }

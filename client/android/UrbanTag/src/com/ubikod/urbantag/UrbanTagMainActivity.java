@@ -1,7 +1,6 @@
 package com.ubikod.urbantag;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import android.content.Context;
 import android.content.Intent;
@@ -21,16 +20,12 @@ import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.MyLocationOverlay;
-import com.ubikod.urbantag.model.Content;
-import com.ubikod.urbantag.model.ContentManager;
 import com.ubikod.urbantag.model.DatabaseHelper;
-import com.ubikod.urbantag.model.Place;
 import com.ubikod.urbantag.model.PlaceManager;
-import com.ubikod.urbantag.model.Tag;
-import com.ubikod.urbantag.model.TagManager;
 
 public class UrbanTagMainActivity extends SherlockMapActivity
 {
+  private static UrbanTagMainActivity instance;
   /* UI Elements */
 
   /** map view */
@@ -76,9 +71,6 @@ public class UrbanTagMainActivity extends SherlockMapActivity
     placeOverlay = new PlaceOverlay(this, this.getResources().getDrawable(R.drawable.ic_launcher));
     placeManager = new PlaceManager(dbHelper);
 
-    // Temp !!!!!!
-    loadData();
-
     /* Initiate Map */
     mapView = (MapView) this.findViewById(R.id.mapView);
     mapView.setBuiltInZoomControls(true);
@@ -92,21 +84,17 @@ public class UrbanTagMainActivity extends SherlockMapActivity
     locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 10000, 0,
       locationOverlay);
     mapView.getOverlays().add(locationOverlay);
+    mapView.getOverlays().add(placeOverlay);
     locationOverlay.enableMyLocation();
     locationOverlay.runOnFirstFix(new Runnable()
     {
       public void run()
       {
         GeoPoint curPosition = locationOverlay.getMyLocation();
-        Log.i("Position", "" + curPosition);
         mapController.animateTo(curPosition);
         mapController.setCenter(curPosition);
       }
     });
-    /* Show places */
-    placeOverlay.setPlaces(placeManager.getVisiblePlaces());
-    mapView.getOverlays().add(placeOverlay);
-
   }
 
   public void onMapTap(ArrayList<Integer> placesId)
@@ -156,42 +144,14 @@ public class UrbanTagMainActivity extends SherlockMapActivity
     }
   }
 
-  private void loadData()
-  {
-    Log.i("Loading data", "Dooooo");
-    Tag t0 = new Tag(0, "Musique", 0xff79D438), t1 = new Tag(1, "Architecture", 0xffF86883), t2 = new Tag(
-      2, "Insolite", 0xff56B2E1), t3 = new Tag(3, "Bla", 0xffF9D424), t4 = new Tag(4, "Poney",
-      0xffEB0066), t5 = new Tag(5, "Horlogerie", 0xffD7E60E), t6 = new Tag(6, "Equitation",
-      0xffF119B6);
-    List<Tag> tagsList = new ArrayList<Tag>();
-    tagsList.add(t1);
-    tagsList.add(t2);
-    tagsList.add(t3);
-    tagsList.add(t6);
-    tagsList.add(t0);
-    tagsList.add(t4);
-    tagsList.add(t5);
-    TagManager tagManager = new TagManager(dbHelper);
-    tagManager.update(tagsList);
-    PlaceManager placeManager = new PlaceManager(dbHelper);
-    Place p = new Place(1, "Ubikod", t3, new GeoPoint(48107096, -1672014), tagsList);
-    placeManager.save(p);
-    p = new Place(2, "Ubu", t0, new GeoPoint(48107976, -1673387), tagsList);
-    placeManager.save(p);
-    p = new Place(3, "Thêatre National de Bretagne", t6, new GeoPoint(48107789, -1672701), tagsList);
-    placeManager.save(p);
-
-    ContentManager contentManager = new ContentManager(dbHelper);
-    Content c = new Content(0, "l'arche de Noé", 1, 1, p, t3, tagsList);
-    // contentManager.insert(c);
-
-  }
-
   @Override
   public void onResume()
   {
     super.onResume();
     Common.onResume(this);
+    instance = this;
+
+    drawPlaces();
   }
 
   @Override
@@ -199,6 +159,8 @@ public class UrbanTagMainActivity extends SherlockMapActivity
   {
     super.onPause();
     Common.onPause(this);
+
+    instance = null;
   }
 
   @Override
@@ -248,4 +210,17 @@ public class UrbanTagMainActivity extends SherlockMapActivity
     return false;
   }
 
+  private void drawPlaces()
+  {
+    Log.i(UrbanTag.TAG, "drawing places");
+    /* Show places */
+    placeOverlay.clear();
+    placeOverlay.setPlaces(placeManager.getVisiblePlaces());
+  }
+
+  public static void notifyNewPlace()
+  {
+    if (instance != null)
+      instance.drawPlaces();
+  }
 }

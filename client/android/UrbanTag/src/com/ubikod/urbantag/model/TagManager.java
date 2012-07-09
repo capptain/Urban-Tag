@@ -8,6 +8,7 @@ import java.util.Vector;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 public class TagManager
 {
@@ -20,7 +21,11 @@ public class TagManager
   public TagManager(DatabaseHelper databaseHelper)
   {
     dbHelper = databaseHelper;
-    tags = loadAllFromDB();
+  }
+
+  public void renewList()
+  {
+
   }
 
   public void update(List<Tag> list)
@@ -28,17 +33,7 @@ public class TagManager
     // Tags maj ou ajoutes
     for (Tag tag : list)
     {
-      if (tags.containsKey(tag.getId()))
-      {
-        if (!tag.hasChanged(tags.get(tag.getId())))
-        {
-          update(tag);
-        }
-      }
-      else
-      {
-        insert(tag);
-      }
+      this.save(tag);
     }
 
     // Tags n'existant plus
@@ -53,62 +48,112 @@ public class TagManager
 
     for (Tag t : toDelete)
     {
-      delete(t);
+      this.supress(t);
     }
   }
 
   public void toggleNotification(Tag t)
   {
     t.setSelected(!t.isSelected());
-    update(t);
+    this.alter(t);
+  }
+
+  public Tag get(int id)
+  {
+    return this.get(id, true);
+  }
+
+  private Tag get(int id, boolean first)
+  {
+    if (tags.containsKey(id))
+    {
+      return tags.get(id);
+    }
+    else
+    {
+      if (!first)
+        return null;
+
+      Tag t = this.dbGet(id);
+      if (t == null)
+      {
+        this.renewList();
+        t = this.get(id, false);
+      }
+      else
+      {
+        tags.put(id, t);
+      }
+      return t;
+    }
   }
 
   public List<Tag> getAll()
   {
+    tags = this.dbGetAll();
     return new ArrayList<Tag>(tags.values());
   }
 
-  public Tag getByID(int id)
+  public boolean exists(Tag t)
   {
-    return tags.get(id);
+    return tags.containsKey(t.getId()) || this.get(t.getId()) != null;
   }
 
-  public List<Tag> getAllForPlace(int idPlace)
+  public void save(Tag t)
   {
-    return dbGetAllForPlace(idPlace);
+    if (this.exists(t))
+    {
+      this.alter(t);
+    }
+    else
+    {
+      this.insert(t);
+    }
   }
 
-  public List<Tag> getAllForContent(int idPlace)
+  public void insert(Tag t)
   {
-    return dbGetAllForContent(idPlace);
+    if (!this.exists(t))
+    {
+      tags.put(t.getId(), t);
+      this.dbInsert(t);
+    }
   }
 
-  private void update(Tag t)
+  public void supress(Tag t)
   {
-    tags.put(t.getId(), t);
-    open();
-    dbUpdate(t);
-    close();
+    if (this.exists(t))
+    {
+      tags.remove(t.getId());
+      this.dbDelete(t);
+    }
   }
 
-  private void insert(Tag t)
+  public void alter(Tag t)
   {
-    tags.put(t.getId(), t);
-    open();
-    dbInsert(t);
-    close();
+    if (this.exists(t))
+    {
+      Log.i("UrbanTag", "Altering tag");
+      tags.put(t.getId(), t);
+      this.dbUpdate(t);
+    }
   }
 
-  private void delete(Tag t)
+  public List<Tag> getAllForContent(int id)
   {
-    tags.remove(t.getId());
-    open();
-    dbDelete(t);
-    close();
+    return this.dbGetAllFor(DatabaseHelper.TABLE_CONTENTS_TAGS,
+      DatabaseHelper.CONTENT_TAG_COL_CONTENT, id);
+  }
+
+  public List<Tag> getAllForPlace(int id)
+  {
+    return this.dbGetAllFor(DatabaseHelper.TABLE_PLACES_TAGS, DatabaseHelper.PLACE_TAG_COL_PLACE,
+      id);
   }
 
   private void dbInsert(Tag t)
   {
+    this.open();
     ContentValues values = new ContentValues();
     values.put(DatabaseHelper.TAG_COL_ID, t.getId());
     values.put(DatabaseHelper.TAG_COL_NAME, t.getValue());
@@ -116,21 +161,20 @@ public class TagManager
     values.put(DatabaseHelper.TAG_COL_NOTIFY, t.isSelected() ? 1 : 0);
 
     DB.insert(DatabaseHelper.TABLE_TAGS, DatabaseHelper.TAG_COL_ID, values);
+    this.close();
   }
 
-  private void dbUpdate(Tag t)
+  private void dbDelete(Tag t)
   {
-    ContentValues values = new ContentValues();
-    values.put(DatabaseHelper.TAG_COL_NAME, t.getValue());
-    values.put(DatabaseHelper.TAG_COL_COLOR, t.getColor());
-    values.put(DatabaseHelper.TAG_COL_NOTIFY, t.isSelected() ? 1 : 0);
-
-    DB.update(DatabaseHelper.TABLE_TAGS, values, DatabaseHelper.TAG_COL_ID + " =? ",
+    this.open();
+    DB.delete(DatabaseHelper.TABLE_TAGS, DatabaseHelper.TAG_COL_ID + "=?",
       new String[] { String.valueOf(t.getId()) });
+    this.close();
   }
 
-  private Tag dbGetByID(int id)
+  private Tag dbGet(int id)
   {
+    this.open();
     Cursor c = DB.query(DatabaseHelper.TABLE_TAGS, new String[] { DatabaseHelper.TAG_COL_ID,
       DatabaseHelper.TAG_COL_NAME, DatabaseHelper.TAG_COL_COLOR, DatabaseHelper.TAG_COL_NOTIFY },
       DatabaseHelper.TAG_COL_ID + "=? ", new String[] { String.valueOf(id) }, null, null, null);
@@ -142,18 +186,26 @@ public class TagManager
     }
 
     c.moveToFirst();
-    Tag t = cursorToTag(c);
+    Tag t = this.cursorToTag(c);
     c.close();
+    this.close();
     return t;
   }
 
-  private void dbDelete(Tag t)
+  private void dbUpdate(Tag t)
   {
-    DB.delete(DatabaseHelper.TABLE_TAGS, DatabaseHelper.TAG_COL_ID + "=?",
+    this.open();
+    ContentValues values = new ContentValues();
+    values.put(DatabaseHelper.TAG_COL_NAME, t.getValue());
+    values.put(DatabaseHelper.TAG_COL_COLOR, t.getColor());
+    values.put(DatabaseHelper.TAG_COL_NOTIFY, t.isSelected() ? 1 : 0);
+
+    DB.update(DatabaseHelper.TABLE_TAGS, values, DatabaseHelper.TAG_COL_ID + " =? ",
       new String[] { String.valueOf(t.getId()) });
+    this.close();
   }
 
-  private HashMap<Integer, Tag> loadAllFromDB()
+  private HashMap<Integer, Tag> dbGetAll()
   {
     open();
 
@@ -172,7 +224,7 @@ public class TagManager
     c.moveToFirst();
     do
     {
-      Tag t = cursorToTag(c);
+      Tag t = this.cursorToTag(c);
       tags.put(t.getId(), t);
     }
     while (c.moveToNext());
@@ -182,15 +234,14 @@ public class TagManager
     return tags;
   }
 
-  private List<Tag> dbGetAllForPlace(int id)
+  private List<Tag> dbGetAllFor(String pivotTable, String pivotColumn, int id)
   {
     open();
     String query = "SELECT " + DatabaseHelper.TAG_COL_ID + ", " + DatabaseHelper.TAG_COL_NAME
       + ", " + DatabaseHelper.TAG_COL_COLOR + ", " + DatabaseHelper.TAG_COL_NOTIFY + " FROM "
-      + DatabaseHelper.TABLE_TAGS + " tags INNER JOIN " + DatabaseHelper.TABLE_PLACES_TAGS
-      + " pivot ON tags." + DatabaseHelper.TAG_COL_ID + "=pivot."
-      + DatabaseHelper.PLACE_TAG_COL_TAG + " WHERE pivot." + DatabaseHelper.PLACE_TAG_COL_PLACE
-      + "=?";
+      + DatabaseHelper.TABLE_TAGS + " tags INNER JOIN " + pivotTable + " pivot ON tags."
+      + DatabaseHelper.TAG_COL_ID + "=pivot." + DatabaseHelper.CONTENT_TAG_COL_TAG
+      + " WHERE pivot." + pivotColumn + "=?";
 
     Cursor c = DB.rawQuery(query, new String[] { String.valueOf(id) });
     List<Tag> tags = new ArrayList<Tag>();
@@ -215,37 +266,12 @@ public class TagManager
     return tags;
   }
 
-  private List<Tag> dbGetAllForContent(int id)
+  private Tag cursorToTag(Cursor c)
   {
-    open();
-    String query = "SELECT " + DatabaseHelper.TAG_COL_ID + ", " + DatabaseHelper.TAG_COL_NAME
-      + ", " + DatabaseHelper.TAG_COL_COLOR + ", " + DatabaseHelper.TAG_COL_NOTIFY + " FROM "
-      + DatabaseHelper.TABLE_TAGS + " tags INNER JOIN " + DatabaseHelper.TABLE_CONTENTS_TAGS
-      + " pivot ON tags." + DatabaseHelper.TAG_COL_ID + "=pivot."
-      + DatabaseHelper.CONTENT_TAG_COL_TAG + " WHERE pivot."
-      + DatabaseHelper.CONTENT_TAG_COL_CONTENT + "=?";
-
-    Cursor c = DB.rawQuery(query, new String[] { String.valueOf(id) });
-    List<Tag> tags = new ArrayList<Tag>();
-
-    if (c.getCount() == 0)
-    {
-      c.close();
-      close();
-      return tags;
-    }
-
-    c.moveToFirst();
-    do
-    {
-      Tag t = cursorToTag(c);
-      tags.add(t);
-    }
-    while (c.moveToNext());
-
-    c.close();
-    close();
-    return tags;
+    Tag t = new Tag(c.getInt(DatabaseHelper.TAG_NUM_COL_ID),
+      c.getString(DatabaseHelper.TAG_NUM_COL_NAME), c.getInt(DatabaseHelper.TAG_NUM_COL_COLOR));
+    t.setSelected(c.getInt(DatabaseHelper.TAG_NUM_COL_NOTIFY) == 1);
+    return t;
   }
 
   private void open()
@@ -257,13 +283,4 @@ public class TagManager
   {
     DB.close();
   }
-
-  private Tag cursorToTag(Cursor c)
-  {
-    Tag t = new Tag(c.getInt(DatabaseHelper.TAG_NUM_COL_ID),
-      c.getString(DatabaseHelper.TAG_NUM_COL_NAME), c.getInt(DatabaseHelper.TAG_NUM_COL_COLOR));
-    t.setSelected(c.getInt(DatabaseHelper.TAG_NUM_COL_NOTIFY) == 1);
-    return t;
-  }
-
 }

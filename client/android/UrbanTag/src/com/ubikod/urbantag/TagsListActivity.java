@@ -2,7 +2,6 @@ package com.ubikod.urbantag;
 
 import java.util.List;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,8 +23,6 @@ public class TagsListActivity extends SherlockListActivity implements OnClickLis
   private DatabaseHelper dbHelper;
   private TagManager tagManager = null;
 
-  private final int VIEWTAG_TAG = 0;
-
   @Override
   public void onCreate(Bundle savedInstanceState)
   {
@@ -44,7 +41,6 @@ public class TagsListActivity extends SherlockListActivity implements OnClickLis
   @Override
   public boolean onOptionsItemSelected(MenuItem item)
   {
-    Intent intent;
     switch (item.getItemId())
     {
       case android.R.id.home:

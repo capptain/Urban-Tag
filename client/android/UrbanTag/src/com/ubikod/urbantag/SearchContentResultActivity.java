@@ -27,7 +27,7 @@ public class SearchContentResultActivity extends SherlockListActivity
   public void onCreate(Bundle savedInstanceState)
   {
     super.onCreate(savedInstanceState);
-    setTitle(R.string.place);
+    setTitle(R.string.content);
     com.actionbarsherlock.app.ActionBar actionBar = this.getSupportActionBar();
     actionBar.setDisplayHomeAsUpEnabled(true);
 
