@@ -1,5 +1,6 @@
 package com.ubikod.urbantag.model;
 
+
 public class Tag
 {
   private int mId;
