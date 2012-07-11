@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListActivity;
 import com.actionbarsherlock.view.MenuItem;
+import com.ubikod.urbantag.layout.FlowLayout;
 import com.ubikod.urbantag.model.DatabaseHelper;
 import com.ubikod.urbantag.model.Place;
 import com.ubikod.urbantag.model.PlaceManager;
@@ -22,6 +23,24 @@ import com.ubikod.urbantag.model.Tag;
 public class PlaceListActivity extends SherlockListActivity
 {
 
+  private DatabaseHelper mDbHelper;
+  private PlaceManager mPlaceManager;
+  private LayoutInflater mInflater;
+
+  private int[] mPlacesId;
+
+  private static class ViewHolder
+  {
+    FlowLayout tagContainer;
+    TextView nameView;
+  }
+
+  private static class TagBundle
+  {
+    ViewHolder viewHolder;
+    Place place;
+  }
+
   @Override
   public void onCreate(Bundle savedInstanceState)
   {
@@ -29,6 +48,15 @@ public class PlaceListActivity extends SherlockListActivity
     setTitle(R.string.menu_select_place);
     com.actionbarsherlock.app.ActionBar actionBar = this.getSupportActionBar();
     actionBar.setDisplayHomeAsUpEnabled(true);
+
+    Bundle extras = getIntent().getExtras();
+    mPlacesId = extras.getIntArray("placesId");
+
+    mDbHelper = new DatabaseHelper(this, null);
+    mPlaceManager = new PlaceManager(mDbHelper);
+    mInflater = LayoutInflater.from(this);
+
+    setListAdapter(createAdapter());
   }
 
   @Override
@@ -43,31 +71,43 @@ public class PlaceListActivity extends SherlockListActivity
     return false;
   }
 
-  @Override
-  public void onResume()
+  private BaseAdapter createAdapter()
   {
-    super.onResume();
-    Common.onResume(this);
-    Bundle extras = getIntent().getExtras();
-    final int[] placesId = extras.getIntArray("placesId");
-    final PlaceManager placeManager = new PlaceManager(new DatabaseHelper(getApplicationContext(),
-      null));
-    BaseAdapter adapter = new BaseAdapter()
+    return new BaseAdapter()
     {
-      List<Place> places = placeManager.get(placesId);
+      List<Place> places = mPlaceManager.get(mPlacesId);
 
       @Override
       public View getView(int position, View convertView, ViewGroup parent)
       {
-        LayoutInflater inflater = LayoutInflater.from(getApplicationContext());
+        ViewHolder holder;
+        TagBundle tagBundle;
+
         Place p = places.get(position);
 
-        convertView = inflater.inflate(R.layout.place_row, null);
-        TextView nameView = (TextView) convertView.findViewById(R.id.name);
-        nameView.setText(p.getName());
-        convertView.setTag(p);
+        if (convertView == null)
+        {
+          convertView = mInflater.inflate(R.layout.place_row, null);
 
-        FlowLayout tagContainer = (FlowLayout) convertView.findViewById(R.id.tag_container);
+          holder = new ViewHolder();
+          holder.nameView = (TextView) convertView.findViewById(R.id.name);
+          holder.tagContainer = (FlowLayout) convertView.findViewById(R.id.tag_container);
+
+          tagBundle = new TagBundle();
+          tagBundle.viewHolder = holder;
+
+          convertView.setTag(tagBundle);
+        }
+        else
+        {
+          tagBundle = (TagBundle) convertView.getTag();
+          holder = tagBundle.viewHolder;
+        }
+
+        tagBundle.place = p;
+
+        holder.nameView.setText(p.getName());
+
         for (Tag t : p.getAllTags())
         {
           TextView tag = new TextView(getApplicationContext());
@@ -75,7 +115,7 @@ public class PlaceListActivity extends SherlockListActivity
           tag.setBackgroundColor(t.getColor());
           tag.setText(t.getValue());
           tag.setPadding(5, 5, 5, 5);
-          tagContainer.addView(tag, new FlowLayout.LayoutParams(10, 10));
+          holder.tagContainer.addView(tag, new FlowLayout.LayoutParams(10, 10));
         }
         return convertView;
       }
@@ -98,9 +138,13 @@ public class PlaceListActivity extends SherlockListActivity
         return places.size();
       }
     };
+  }
 
-    setListAdapter(adapter);
-
+  @Override
+  public void onResume()
+  {
+    super.onResume();
+    Common.onResume(this);
   }
 
   @Override
@@ -113,9 +157,8 @@ public class PlaceListActivity extends SherlockListActivity
   @Override
   public void onListItemClick(ListView l, View v, int position, long id)
   {
-
     Intent intent = new Intent(this, ContentsListActivity.class);
-    intent.putExtra("placeId", ((Place) v.getTag()).getId());
+    intent.putExtra("placeId", ((TagBundle) v.getTag()).place.getId());
     startActivity(intent);
   }
 }

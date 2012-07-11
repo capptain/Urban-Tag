@@ -20,8 +20,21 @@ public class TagsListActivity extends SherlockListActivity implements OnClickLis
 {
   public static final int CODE = 2;
 
-  private DatabaseHelper dbHelper;
-  private TagManager tagManager = null;
+  private DatabaseHelper mDbHelper;
+  private TagManager mTagManager = null;
+  private LayoutInflater mInflater;
+
+  private static class ViewHolder
+  {
+    TextView label;
+    TextView colorBar;
+  }
+
+  private static class TagBundle
+  {
+    Tag tag;
+    ViewHolder viewHolder;
+  }
 
   @Override
   public void onCreate(Bundle savedInstanceState)
@@ -31,11 +44,11 @@ public class TagsListActivity extends SherlockListActivity implements OnClickLis
     com.actionbarsherlock.app.ActionBar actionBar = this.getSupportActionBar();
     actionBar.setDisplayHomeAsUpEnabled(true);
 
-    dbHelper = new DatabaseHelper(this, null);
-    tagManager = new TagManager(dbHelper);
+    mDbHelper = new DatabaseHelper(this, null);
+    mTagManager = new TagManager(mDbHelper);
+    mInflater = LayoutInflater.from(this);
 
     setListAdapter(createAdapter());
-
   }
 
   @Override
@@ -67,15 +80,17 @@ public class TagsListActivity extends SherlockListActivity implements OnClickLis
   @Override
   public void onClick(View v)
   {
-    Tag t = (Tag) v.getTag();
-    // update in model
-    tagManager.toggleNotification(t);
-    // update screen
+    /* update in model */
+    Tag t = ((TagBundle) v.getTag()).tag;
+    mTagManager.toggleNotification(t);
+
+    /* update screen */
     v.findViewById(R.id.color_bar).setBackgroundColor(
       t.isSelected() ? t.getColor() : R.color.bar_unselected);
     ((TextView) v.findViewById(R.id.label)).setTextColor(t.isSelected() ? getResources().getColor(
       R.color.label_selected) : getResources().getColor(R.color.label_unselected));
 
+    /* Notify changes to map view */
     setResult(1);
   }
 
@@ -83,27 +98,42 @@ public class TagsListActivity extends SherlockListActivity implements OnClickLis
   {
     return new BaseAdapter()
     {
-      List<Tag> tagsList = tagManager.getAll();
+      List<Tag> tagsList = mTagManager.getAll();
 
       @Override
       public View getView(int position, View convertView, ViewGroup parent)
       {
-        LayoutInflater inflater = LayoutInflater.from(TagsListActivity.this);
-
-        convertView = inflater.inflate(R.layout.tag_row, null);
+        System.out.println("getView " + position + " " + convertView);
+        ViewHolder holder;
+        TagBundle tagBundle;
 
         Tag t = tagsList.get(position);
-        convertView.setTag(t);
-        convertView.setOnClickListener(TagsListActivity.this);
 
-        TextView label = (TextView) convertView.findViewById(R.id.label);
+        if (convertView == null)
+        {
+          convertView = mInflater.inflate(R.layout.tag_row, null);
 
-        TextView colorBar = (TextView) convertView.findViewById(R.id.color_bar);
+          convertView.setOnClickListener(TagsListActivity.this);
 
-        label.setText(t.getValue());
+          holder = new ViewHolder();
+          holder.colorBar = (TextView) convertView.findViewById(R.id.color_bar);
+          holder.label = (TextView) convertView.findViewById(R.id.label);
 
-        colorBar.setBackgroundColor(t.isSelected() ? t.getColor() : R.color.bar_unselected);
-        label.setTextColor(t.isSelected() ? getResources().getColor(R.color.label_selected)
+          tagBundle = new TagBundle();
+          tagBundle.viewHolder = holder;
+
+          convertView.setTag(tagBundle);
+        }
+        else
+        {
+          tagBundle = ((TagBundle) convertView.getTag());
+          holder = tagBundle.viewHolder;
+        }
+
+        tagBundle.tag = t;
+        holder.label.setText(t.getValue());
+        holder.colorBar.setBackgroundColor(t.isSelected() ? t.getColor() : R.color.bar_unselected);
+        holder.label.setTextColor(t.isSelected() ? getResources().getColor(R.color.label_selected)
           : getResources().getColor(R.color.label_unselected));
 
         return convertView;
