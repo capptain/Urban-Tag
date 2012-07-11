@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -24,8 +25,29 @@ public class StartActivity extends Activity
     SharedPreferences pref = getApplicationContext().getSharedPreferences("URBAN_TAG_PREF",
       Context.MODE_PRIVATE);
     pref.edit().putBoolean("notifiedWifi", false).commit();
+
+    new AsyncTask<Void, Void, List<Tag>>()
+    {
+
+      @Override
+      protected List<Tag> doInBackground(Void... v)
+      {
+        List<Tag> res = new ArrayList<Tag>();
+
+        // TODO Auto-generated method stub
+        return res;
+      }
+
+      @Override
+      protected void onPostExecute(List<Tag> list)
+      {
+        TagManager tagManager = new TagManager(new DatabaseHelper(getApplicationContext(), null));
+        tagManager.update(list);
+      }
+    };
+
     // Temp !!!!!!
-    loadData();
+    // loadData();
     startActivity(new Intent(this, UrbanTagMainActivity.class));
     finish();
   }
