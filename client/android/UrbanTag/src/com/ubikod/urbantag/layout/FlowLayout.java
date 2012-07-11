@@ -1,4 +1,4 @@
-package com.ubikod.urbantag;
+package com.ubikod.urbantag.layout;
 
 
 import android.content.Context;
