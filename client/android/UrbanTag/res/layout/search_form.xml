@@ -51,7 +51,7 @@
    </LinearLayout>
 	
      
-     <com.ubikod.urbantag.FlowLayout 
+     <com.ubikod.urbantag.layout.FlowLayout 
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
