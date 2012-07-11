@@ -7,58 +7,58 @@ import com.ubikod.urbantag.PlaceOverlayItem;
 
 public class Place
 {
-  private int id;
-  private String name;
-  private Tag mainTag;
-  private GeoPoint pos;
-  private List<Tag> allTags;
-  private PlaceOverlayItem overlayItem;
+  private int mId;
+  private String mName;
+  private Tag mMainTag;
+  private GeoPoint mPos;
+  private List<Tag> mAllTags;
+  private PlaceOverlayItem mOverlayItem;
 
   public Place(int id, String name, Tag mainTag, GeoPoint position, List<Tag> allTags)
   {
-    this.id = id;
-    this.name = name;
-    this.mainTag = mainTag;
-    this.pos = position;
-    this.allTags = allTags;
-    this.overlayItem = new PlaceOverlayItem(this.pos, this.name, this.mainTag.getValue(),
-      this.mainTag.getColor());
+    this.mId = id;
+    this.mName = name;
+    this.mMainTag = mainTag;
+    this.mPos = position;
+    this.mAllTags = allTags;
+    this.mOverlayItem = new PlaceOverlayItem(this.mPos, this.mName, this.mMainTag.getValue(),
+      this.mMainTag.getColor());
 
   }
 
   public String getName()
   {
-    return this.name;
+    return this.mName;
   }
 
   public int getId()
   {
-    return this.id;
+    return this.mId;
   }
 
   public Tag getMainTag()
   {
-    return this.mainTag;
+    return this.mMainTag;
   }
 
   public List<Tag> getAllTags()
   {
-    return this.allTags;
+    return this.mAllTags;
   }
 
   public GeoPoint getPosition()
   {
-    return this.pos;
+    return this.mPos;
   }
 
   public int getColor()
   {
-    return this.mainTag.getColor();
+    return this.mMainTag.getColor();
   }
 
   public PlaceOverlayItem getOverlayItem()
   {
-    return this.overlayItem;
+    return this.mOverlayItem;
   }
 
   public boolean equals(Object o)
@@ -66,7 +66,7 @@ public class Place
     if (o instanceof Place)
     {
       Place p = (Place) o;
-      return this.id == p.id;
+      return this.mId == p.mId;
     }
     return false;
   }
@@ -77,8 +77,8 @@ public class Place
     {
       Place p = (Place) o;
 
-      return !this.name.equals(p.name) || !this.pos.equals(p.pos)
-        || !this.mainTag.equals(p.mainTag) || !this.allTags.equals(p.allTags);
+      return !this.mName.equals(p.mName) || !this.mPos.equals(p.mPos)
+        || !this.mMainTag.equals(p.mMainTag) || !this.mAllTags.equals(p.mAllTags);
     }
     else
       return false;

@@ -11,36 +11,36 @@ import android.database.sqlite.SQLiteDatabase;
 public class ContentManager
 {
 
-  private SQLiteDatabase DB;
+  private SQLiteDatabase mDB;
 
-  private DatabaseHelper dbHelper;
+  private DatabaseHelper mDbHelper;
 
-  private HashMap<Integer, Content> contents = new HashMap<Integer, Content>();
+  private HashMap<Integer, Content> mContents = new HashMap<Integer, Content>();
 
   public ContentManager(DatabaseHelper databaseHelper)
   {
-    dbHelper = databaseHelper;
+    mDbHelper = databaseHelper;
   }
 
   public Content get(int id)
   {
-    if (contents.containsKey(id))
+    if (mContents.containsKey(id))
     {
-      return contents.get(id);
+      return mContents.get(id);
     }
     else
     {
       Content c = this.dbGet(id);
       if (c != null)
-        contents.put(id, c);
+        mContents.put(id, c);
       return c;
     }
   }
 
   public List<Content> getAll()
   {
-    contents = this.dbGetAll();
-    return new ArrayList<Content>(contents.values());
+    mContents = this.dbGetAll();
+    return new ArrayList<Content>(mContents.values());
   }
 
   public List<Content> getAllForTags(int[] ids)
@@ -48,7 +48,7 @@ public class ContentManager
     List<Content> res = this.dbGetAllForTags(ids);
     for (Content c : res)
     {
-      contents.put(c.getId(), c);
+      mContents.put(c.getId(), c);
     }
     return res;
   }
@@ -58,14 +58,14 @@ public class ContentManager
     List<Content> res = this.dbGetAllForPlace(id);
     for (Content c : res)
     {
-      contents.put(c.getId(), c);
+      mContents.put(c.getId(), c);
     }
     return res;
   }
 
   public boolean exists(Content c)
   {
-    return contents.containsKey(c.getId()) || this.get(c.getId()) != null;
+    return mContents.containsKey(c.getId()) || this.get(c.getId()) != null;
   }
 
   public void save(Content c)
@@ -84,7 +84,7 @@ public class ContentManager
   {
     if (!this.exists(c))
     {
-      contents.put(c.getId(), c);
+      mContents.put(c.getId(), c);
       this.dbInsert(c);
     }
   }
@@ -93,7 +93,7 @@ public class ContentManager
   {
     if (this.exists(c))
     {
-      contents.remove(c.getId());
+      mContents.remove(c.getId());
       this.dbDelete(c);
     }
   }
@@ -102,7 +102,7 @@ public class ContentManager
   {
     if (this.exists(c))
     {
-      contents.put(c.getId(), c);
+      mContents.put(c.getId(), c);
       this.dbUpdate(c);
     }
   }
@@ -115,7 +115,7 @@ public class ContentManager
   private Content dbGet(int id)
   {
     this.open();
-    Cursor c = DB.query(DatabaseHelper.TABLE_CONTENTS, new String[] {
+    Cursor c = mDB.query(DatabaseHelper.TABLE_CONTENTS, new String[] {
       DatabaseHelper.CONTENT_COL_ID, DatabaseHelper.CONTENT_COL_NAME,
       DatabaseHelper.CONTENT_COL_PLACE, DatabaseHelper.CONTENT_COL_START_DATE,
       DatabaseHelper.CONTENT_COL_END_DATE, DatabaseHelper.CONTENT_COL_TAG },
@@ -137,10 +137,10 @@ public class ContentManager
   private void dbDelete(Content c)
   {
     this.open();
-    DB.delete(DatabaseHelper.TABLE_CONTENTS, DatabaseHelper.CONTENT_COL_ID + "=?",
+    mDB.delete(DatabaseHelper.TABLE_CONTENTS, DatabaseHelper.CONTENT_COL_ID + "=?",
       new String[] { String.valueOf(c.getId()) });
 
-    DB.delete(DatabaseHelper.TABLE_CONTENTS, DatabaseHelper.CONTENT_TAG_COL_CONTENT + "=?",
+    mDB.delete(DatabaseHelper.TABLE_CONTENTS, DatabaseHelper.CONTENT_TAG_COL_CONTENT + "=?",
       new String[] { String.valueOf(c.getId()) });
     this.close();
   }
@@ -148,12 +148,12 @@ public class ContentManager
   private void dbUpdate(Content c)
   {
     this.open();
-    DB.update(DatabaseHelper.TABLE_CONTENTS, prepare(c, true), DatabaseHelper.CONTENT_COL_ID
+    mDB.update(DatabaseHelper.TABLE_CONTENTS, prepare(c, true), DatabaseHelper.CONTENT_COL_ID
       + " =? ", new String[] { String.valueOf(c.getId()) });
 
     /* Hardcore solution ... */
     // clean all tags
-    DB.delete(DatabaseHelper.TABLE_CONTENTS_TAGS, DatabaseHelper.CONTENT_TAG_COL_CONTENT + "=?",
+    mDB.delete(DatabaseHelper.TABLE_CONTENTS_TAGS, DatabaseHelper.CONTENT_TAG_COL_CONTENT + "=?",
       new String[] { String.valueOf(c.getId()) });
 
     // reinsert in content-tag table
@@ -172,14 +172,14 @@ public class ContentManager
         req += " UNION SELECT '" + c.getId() + "', '" + t.getId() + "'";
       }
     }
-    DB.execSQL(req);
+    mDB.execSQL(req);
     this.close();
   }
 
   private void dbInsert(Content c)
   {
     this.open();
-    DB.insert(DatabaseHelper.TABLE_CONTENTS, DatabaseHelper.CONTENT_COL_ID, prepare(c, false));
+    mDB.insert(DatabaseHelper.TABLE_CONTENTS, DatabaseHelper.CONTENT_COL_ID, prepare(c, false));
 
     // insert in place-tag table
     String req = "INSERT INTO '" + DatabaseHelper.TABLE_CONTENTS_TAGS + "' ";
@@ -198,7 +198,7 @@ public class ContentManager
       }
     }
     req += ";";
-    DB.execSQL(req);
+    mDB.execSQL(req);
     this.close();
 
   }
@@ -206,7 +206,7 @@ public class ContentManager
   private HashMap<Integer, Content> dbGetAll()
   {
     open();
-    Cursor c = DB.query(DatabaseHelper.TABLE_CONTENTS, new String[] {
+    Cursor c = mDB.query(DatabaseHelper.TABLE_CONTENTS, new String[] {
       DatabaseHelper.CONTENT_COL_ID, DatabaseHelper.CONTENT_COL_NAME,
       DatabaseHelper.CONTENT_COL_PLACE, DatabaseHelper.CONTENT_COL_START_DATE,
       DatabaseHelper.CONTENT_COL_END_DATE, DatabaseHelper.CONTENT_COL_TAG }, null, null, null,
@@ -237,10 +237,10 @@ public class ContentManager
   {
     List<Content> res = new ArrayList<Content>();
     this.open();
-    Cursor c = DB.query(DatabaseHelper.TABLE_CONTENTS, new String[] {
+    Cursor c = mDB.query(DatabaseHelper.TABLE_CONTENTS, new String[] {
       DatabaseHelper.CONTENT_COL_ID, DatabaseHelper.CONTENT_COL_NAME,
-      DatabaseHelper.CONTENT_COL_PLACE, DatabaseHelper.CONTENT_COL_START_DATE,
-      DatabaseHelper.CONTENT_COL_END_DATE, DatabaseHelper.CONTENT_COL_TAG },
+      DatabaseHelper.CONTENT_COL_TAG, DatabaseHelper.CONTENT_COL_PLACE,
+      DatabaseHelper.CONTENT_COL_START_DATE, DatabaseHelper.CONTENT_COL_END_DATE },
       DatabaseHelper.CONTENT_COL_PLACE + "=? ", new String[] { String.valueOf(placeId) }, null,
       null, null);
 
@@ -270,10 +270,11 @@ public class ContentManager
     {
       String[] selectionArgs = new String[tagsId.length];
       String sql = "SELECT DISTINCT " + DatabaseHelper.CONTENT_COL_ID + ", "
-        + DatabaseHelper.CONTENT_COL_NAME + ", " + DatabaseHelper.CONTENT_COL_PLACE + ", "
-        + DatabaseHelper.CONTENT_COL_START_DATE + ", " + DatabaseHelper.CONTENT_COL_END_DATE
-        + ", contents." + DatabaseHelper.CONTENT_COL_TAG + " FROM " + DatabaseHelper.TABLE_CONTENTS
-        + " contents INNER JOIN " + DatabaseHelper.TABLE_CONTENTS_TAGS + " pivot ON contents."
+        + DatabaseHelper.CONTENT_COL_NAME + ", contents." + DatabaseHelper.CONTENT_COL_TAG + ", "
+        + DatabaseHelper.CONTENT_COL_PLACE + ", " + DatabaseHelper.CONTENT_COL_START_DATE + ", "
+        + DatabaseHelper.CONTENT_COL_END_DATE + ", contents." + DatabaseHelper.CONTENT_COL_TAG
+        + " FROM " + DatabaseHelper.TABLE_CONTENTS + " contents INNER JOIN "
+        + DatabaseHelper.TABLE_CONTENTS_TAGS + " pivot ON contents."
         + DatabaseHelper.CONTENT_COL_ID + "= pivot." + DatabaseHelper.CONTENT_TAG_COL_CONTENT
         + " WHERE pivot." + DatabaseHelper.CONTENT_TAG_COL_TAG + "=?";
 
@@ -285,7 +286,7 @@ public class ContentManager
       }
 
       this.open();
-      Cursor c = DB.rawQuery(sql, selectionArgs);
+      Cursor c = mDB.rawQuery(sql, selectionArgs);
       if (c.getCount() > 0)
       {
         c.moveToFirst();
@@ -304,25 +305,25 @@ public class ContentManager
   private void dbClear()
   {
     this.open();
-    DB.delete(DatabaseHelper.TABLE_CONTENTS, null, null);
-    DB.delete(DatabaseHelper.TABLE_CONTENTS_TAGS, null, null);
+    mDB.delete(DatabaseHelper.TABLE_CONTENTS, null, null);
+    mDB.delete(DatabaseHelper.TABLE_CONTENTS_TAGS, null, null);
     this.close();
   }
 
   private void open()
   {
-    DB = dbHelper.getWritableDatabase();
+    mDB = mDbHelper.getWritableDatabase();
   }
 
   private void close()
   {
-    DB.close();
+    mDB.close();
   }
 
   private Content cursorToContent(Cursor c)
   {
-    TagManager tagManager = new TagManager(dbHelper);
-    PlaceManager placeManager = new PlaceManager(dbHelper);
+    TagManager tagManager = new TagManager(mDbHelper);
+    PlaceManager placeManager = new PlaceManager(mDbHelper);
     Content res = new Content(c.getInt(DatabaseHelper.CONTENT_NUM_COL_ID),
       c.getString(DatabaseHelper.CONTENT_NUM_COL_NAME),
       c.getInt(DatabaseHelper.CONTENT_NUM_COL_START_DATE),

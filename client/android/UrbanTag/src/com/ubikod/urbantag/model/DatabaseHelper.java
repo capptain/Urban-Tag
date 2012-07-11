@@ -7,10 +7,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DatabaseHelper extends SQLiteOpenHelper
 {
-  public static final int VERSION_BDD = 10;
+  public static final int VERSION_BDD = 2;
   public static final String DB_NAME = "urbantag.db";
-
-  // Common
 
   // Tags
   public static int TAG_NUM_COL_ID = 0;

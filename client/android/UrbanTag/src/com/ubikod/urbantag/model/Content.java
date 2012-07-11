@@ -4,59 +4,59 @@ import java.util.List;
 
 public class Content
 {
-  private int id;
-  private String name;
-  private int startDate;
-  private int endDate;
-  private Place place;
-  private Tag mainTag;
-  private List<Tag> allTags = null;
+  private int mId;
+  private String mName;
+  private int mStartDate;
+  private int mEndDate;
+  private Place mPlace;
+  private Tag mMainTag;
+  private List<Tag> mAllTags = null;
 
   public Content(int id, String name, int startDate, int endDate, Place place, Tag mainTag,
     List<Tag> allTags)
   {
-    this.id = id;
-    this.name = name;
-    this.startDate = startDate;
-    this.endDate = endDate;
-    this.place = place;
-    this.allTags = allTags;
-    this.mainTag = mainTag;
+    this.mId = id;
+    this.mName = name;
+    this.mStartDate = startDate;
+    this.mEndDate = endDate;
+    this.mPlace = place;
+    this.mAllTags = allTags;
+    this.mMainTag = mainTag;
   }
 
   public int getId()
   {
-    return this.id;
+    return this.mId;
   }
 
   public String getName()
   {
-    return this.name;
+    return this.mName;
   }
 
   public int getStartDate()
   {
-    return this.startDate;
+    return this.mStartDate;
   }
 
   public int getEndDate()
   {
-    return this.endDate;
+    return this.mEndDate;
   }
 
   public Place getPlace()
   {
-    return this.place;
+    return this.mPlace;
   }
 
   public List<Tag> getAllTags()
   {
-    return this.allTags;
+    return this.mAllTags;
   }
 
   public Tag getTag()
   {
-    return this.mainTag;
+    return this.mMainTag;
   }
 
   public boolean equals(Object o)
@@ -64,7 +64,7 @@ public class Content
     if (o instanceof Content)
     {
       Content c = (Content) o;
-      return this.id == c.id;
+      return this.mId == c.mId;
     }
     return false;
   }
@@ -74,9 +74,9 @@ public class Content
     if (o instanceof Content)
     {
       Content c = (Content) o;
-      return !this.name.equals(c.name) || this.startDate != c.startDate
-        || this.endDate != c.endDate || !this.mainTag.equals(c.mainTag)
-        || !this.allTags.equals(c.allTags) || !this.place.equals(c.place);
+      return !this.mName.equals(c.mName) || this.mStartDate != c.mStartDate
+        || this.mEndDate != c.mEndDate || !this.mMainTag.equals(c.mMainTag)
+        || !this.mAllTags.equals(c.mAllTags) || !this.mPlace.equals(c.mPlace);
     }
     else
       return false;

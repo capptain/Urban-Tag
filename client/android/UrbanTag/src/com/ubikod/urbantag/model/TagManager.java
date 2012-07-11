@@ -12,20 +12,15 @@ import android.util.Log;
 
 public class TagManager
 {
-  private static SQLiteDatabase DB;
+  private SQLiteDatabase mDB;
 
-  private static DatabaseHelper dbHelper;
+  private DatabaseHelper mDbHelper;
 
-  private static HashMap<Integer, Tag> tags = new HashMap<Integer, Tag>();
+  private static HashMap<Integer, Tag> sTags = new HashMap<Integer, Tag>();
 
   public TagManager(DatabaseHelper databaseHelper)
   {
-    dbHelper = databaseHelper;
-  }
-
-  public void renewList()
-  {
-
+    mDbHelper = databaseHelper;
   }
 
   public void update(List<Tag> list)
@@ -38,7 +33,7 @@ public class TagManager
 
     // Tags n'existant plus
     Vector<Tag> toDelete = new Vector<Tag>();
-    for (Tag t : tags.values())
+    for (Tag t : sTags.values())
     {
       if (!list.contains(t))
       {
@@ -65,9 +60,9 @@ public class TagManager
 
   private Tag get(int id, boolean first)
   {
-    if (tags.containsKey(id))
+    if (sTags.containsKey(id))
     {
-      return tags.get(id);
+      return sTags.get(id);
     }
     else
     {
@@ -77,12 +72,11 @@ public class TagManager
       Tag t = this.dbGet(id);
       if (t == null)
       {
-        this.renewList();
         t = this.get(id, false);
       }
       else
       {
-        tags.put(id, t);
+        sTags.put(id, t);
       }
       return t;
     }
@@ -90,13 +84,13 @@ public class TagManager
 
   public List<Tag> getAll()
   {
-    tags = this.dbGetAll();
-    return new ArrayList<Tag>(tags.values());
+    sTags = this.dbGetAll();
+    return new ArrayList<Tag>(sTags.values());
   }
 
   public boolean exists(Tag t)
   {
-    return tags.containsKey(t.getId()) || this.get(t.getId()) != null;
+    return sTags.containsKey(t.getId()) || this.get(t.getId()) != null;
   }
 
   public void save(Tag t)
@@ -115,7 +109,7 @@ public class TagManager
   {
     if (!this.exists(t))
     {
-      tags.put(t.getId(), t);
+      sTags.put(t.getId(), t);
       this.dbInsert(t);
     }
   }
@@ -124,7 +118,7 @@ public class TagManager
   {
     if (this.exists(t))
     {
-      tags.remove(t.getId());
+      sTags.remove(t.getId());
       this.dbDelete(t);
     }
   }
@@ -134,7 +128,7 @@ public class TagManager
     if (this.exists(t))
     {
       Log.i("UrbanTag", "Altering tag");
-      tags.put(t.getId(), t);
+      sTags.put(t.getId(), t);
       this.dbUpdate(t);
     }
   }
@@ -160,14 +154,14 @@ public class TagManager
     values.put(DatabaseHelper.TAG_COL_COLOR, t.getColor());
     values.put(DatabaseHelper.TAG_COL_NOTIFY, t.isSelected() ? 1 : 0);
 
-    DB.insert(DatabaseHelper.TABLE_TAGS, DatabaseHelper.TAG_COL_ID, values);
+    mDB.insert(DatabaseHelper.TABLE_TAGS, DatabaseHelper.TAG_COL_ID, values);
     this.close();
   }
 
   private void dbDelete(Tag t)
   {
     this.open();
-    DB.delete(DatabaseHelper.TABLE_TAGS, DatabaseHelper.TAG_COL_ID + "=?",
+    mDB.delete(DatabaseHelper.TABLE_TAGS, DatabaseHelper.TAG_COL_ID + "=?",
       new String[] { String.valueOf(t.getId()) });
     this.close();
   }
@@ -175,7 +169,7 @@ public class TagManager
   private Tag dbGet(int id)
   {
     this.open();
-    Cursor c = DB.query(DatabaseHelper.TABLE_TAGS, new String[] { DatabaseHelper.TAG_COL_ID,
+    Cursor c = mDB.query(DatabaseHelper.TABLE_TAGS, new String[] { DatabaseHelper.TAG_COL_ID,
       DatabaseHelper.TAG_COL_NAME, DatabaseHelper.TAG_COL_COLOR, DatabaseHelper.TAG_COL_NOTIFY },
       DatabaseHelper.TAG_COL_ID + "=? ", new String[] { String.valueOf(id) }, null, null, null);
 
@@ -200,7 +194,7 @@ public class TagManager
     values.put(DatabaseHelper.TAG_COL_COLOR, t.getColor());
     values.put(DatabaseHelper.TAG_COL_NOTIFY, t.isSelected() ? 1 : 0);
 
-    DB.update(DatabaseHelper.TABLE_TAGS, values, DatabaseHelper.TAG_COL_ID + " =? ",
+    mDB.update(DatabaseHelper.TABLE_TAGS, values, DatabaseHelper.TAG_COL_ID + " =? ",
       new String[] { String.valueOf(t.getId()) });
     this.close();
   }
@@ -209,7 +203,7 @@ public class TagManager
   {
     open();
 
-    Cursor c = DB.query(DatabaseHelper.TABLE_TAGS, new String[] { DatabaseHelper.TAG_COL_ID,
+    Cursor c = mDB.query(DatabaseHelper.TABLE_TAGS, new String[] { DatabaseHelper.TAG_COL_ID,
       DatabaseHelper.TAG_COL_NAME, DatabaseHelper.TAG_COL_COLOR, DatabaseHelper.TAG_COL_NOTIFY },
       null, null, null, null, null);
     HashMap<Integer, Tag> tags = new HashMap<Integer, Tag>();
@@ -243,7 +237,7 @@ public class TagManager
       + DatabaseHelper.TAG_COL_ID + "=pivot." + DatabaseHelper.CONTENT_TAG_COL_TAG
       + " WHERE pivot." + pivotColumn + "=?";
 
-    Cursor c = DB.rawQuery(query, new String[] { String.valueOf(id) });
+    Cursor c = mDB.rawQuery(query, new String[] { String.valueOf(id) });
     List<Tag> tags = new ArrayList<Tag>();
 
     if (c.getCount() == 0)
@@ -276,11 +270,11 @@ public class TagManager
 
   private void open()
   {
-    DB = dbHelper.getWritableDatabase();
+    mDB = mDbHelper.getWritableDatabase();
   }
 
   private void close()
   {
-    DB.close();
+    mDB.close();
   }
 }

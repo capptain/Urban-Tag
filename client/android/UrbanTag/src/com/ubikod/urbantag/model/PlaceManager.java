@@ -13,15 +13,15 @@ import com.google.android.maps.GeoPoint;
 
 public class PlaceManager
 {
-  private SQLiteDatabase DB;
+  private SQLiteDatabase mDB;
 
-  private DatabaseHelper dbHelper;
+  private DatabaseHelper mDbHelper;
 
-  private static HashMap<Integer, Place> places = new HashMap<Integer, Place>();
+  private static HashMap<Integer, Place> mPlaces = new HashMap<Integer, Place>();
 
   public PlaceManager(DatabaseHelper databaseHelper)
   {
-    dbHelper = databaseHelper;
+    mDbHelper = databaseHelper;
   }
 
   public Vector<Place> getVisiblePlaces()
@@ -37,15 +37,15 @@ public class PlaceManager
 
   public Place get(int id)
   {
-    if (places.containsKey(id))
+    if (mPlaces.containsKey(id))
     {
-      return places.get(id);
+      return mPlaces.get(id);
     }
     else
     {
       Place p = this.dbGet(id);
       if (p != null)
-        places.put(id, p);
+        mPlaces.put(id, p);
       return p;
     }
   }
@@ -56,8 +56,8 @@ public class PlaceManager
     List<Place> res = new ArrayList<Place>();
     for (int id : ids)
     {
-      if (places.containsKey(id))
-        res.add(places.get(id));
+      if (mPlaces.containsKey(id))
+        res.add(mPlaces.get(id));
     }
 
     return res;
@@ -65,13 +65,13 @@ public class PlaceManager
 
   public List<Place> getAll()
   {
-    places = this.dbGetAll();
-    return new ArrayList<Place>(places.values());
+    mPlaces = this.dbGetAll();
+    return new ArrayList<Place>(mPlaces.values());
   }
 
   public boolean exists(Place p)
   {
-    return places.containsKey(p.getId()) || this.get(p.getId()) != null;
+    return mPlaces.containsKey(p.getId()) || this.get(p.getId()) != null;
   }
 
   public void save(Place p)
@@ -90,7 +90,7 @@ public class PlaceManager
   {
     if (!this.exists(p))
     {
-      places.put(p.getId(), p);
+      mPlaces.put(p.getId(), p);
       this.dbInsert(p);
     }
   }
@@ -99,7 +99,7 @@ public class PlaceManager
   {
     if (this.exists(p))
     {
-      places.remove(p.getId());
+      mPlaces.remove(p.getId());
       this.dbDelete(p);
     }
   }
@@ -108,7 +108,7 @@ public class PlaceManager
   {
     if (this.exists(p))
     {
-      places.put(p.getId(), p);
+      mPlaces.put(p.getId(), p);
       this.dbUpdate(p);
     }
   }
@@ -123,7 +123,7 @@ public class PlaceManager
     List<Place> res = this.dbGetAllForTags(ids);
     for (Place p : res)
     {
-      places.put(p.getId(), p);
+      mPlaces.put(p.getId(), p);
     }
     return res;
   }
@@ -155,7 +155,7 @@ public class PlaceManager
 
     ids += ")";
 
-    Cursor c = DB.query(DatabaseHelper.TABLE_PLACES, new String[] { DatabaseHelper.PLACE_COL_ID,
+    Cursor c = mDB.query(DatabaseHelper.TABLE_PLACES, new String[] { DatabaseHelper.PLACE_COL_ID,
       DatabaseHelper.PLACE_COL_NAME, DatabaseHelper.PLACE_COL_TAG, DatabaseHelper.PLACE_COL_LAT,
       DatabaseHelper.PLACE_COL_LON }, DatabaseHelper.PLACE_COL_ID + " IN " + ids, null, null, null,
       null);
@@ -183,7 +183,7 @@ public class PlaceManager
   private void dbInsert(Place p)
   {
     this.open();
-    DB.insert(DatabaseHelper.TABLE_PLACES, DatabaseHelper.PLACE_COL_ID, this.prepare(p, false));
+    mDB.insert(DatabaseHelper.TABLE_PLACES, DatabaseHelper.PLACE_COL_ID, this.prepare(p, false));
 
     // insert in place-tag table
     String req = "INSERT INTO '" + DatabaseHelper.TABLE_PLACES_TAGS + "' ";
@@ -202,19 +202,19 @@ public class PlaceManager
       }
     }
     req += ";";
-    DB.execSQL(req);
+    mDB.execSQL(req);
     this.close();
   }
 
   private void dbUpdate(Place p)
   {
     this.open();
-    DB.update(DatabaseHelper.TABLE_PLACES, prepare(p, true), DatabaseHelper.PLACE_COL_ID + " =? ",
+    mDB.update(DatabaseHelper.TABLE_PLACES, prepare(p, true), DatabaseHelper.PLACE_COL_ID + " =? ",
       new String[] { String.valueOf(p.getId()) });
 
     /* Hardcore solution ... */
     // clean all tags
-    DB.delete(DatabaseHelper.TABLE_PLACES_TAGS, DatabaseHelper.PLACE_TAG_COL_PLACE + "=?",
+    mDB.delete(DatabaseHelper.TABLE_PLACES_TAGS, DatabaseHelper.PLACE_TAG_COL_PLACE + "=?",
       new String[] { String.valueOf(p.getId()) });
 
     // reinsert in place-tag table
@@ -233,17 +233,17 @@ public class PlaceManager
         req += " UNION SELECT '" + p.getId() + "', '" + t.getId() + "'";
       }
     }
-    DB.execSQL(req);
+    mDB.execSQL(req);
     this.close();
   }
 
   private void dbDelete(Place p)
   {
     this.open();
-    DB.delete(DatabaseHelper.TABLE_PLACES, DatabaseHelper.PLACE_COL_ID + "=?",
+    mDB.delete(DatabaseHelper.TABLE_PLACES, DatabaseHelper.PLACE_COL_ID + "=?",
       new String[] { String.valueOf(p.getId()) });
 
-    DB.delete(DatabaseHelper.TABLE_PLACES_TAGS, DatabaseHelper.PLACE_TAG_COL_PLACE + "=?",
+    mDB.delete(DatabaseHelper.TABLE_PLACES_TAGS, DatabaseHelper.PLACE_TAG_COL_PLACE + "=?",
       new String[] { String.valueOf(p.getId()) });
     this.close();
   }
@@ -252,7 +252,7 @@ public class PlaceManager
   {
     open();
 
-    Cursor c = DB.query(DatabaseHelper.TABLE_PLACES, new String[] { DatabaseHelper.PLACE_COL_ID,
+    Cursor c = mDB.query(DatabaseHelper.TABLE_PLACES, new String[] { DatabaseHelper.PLACE_COL_ID,
       DatabaseHelper.PLACE_COL_NAME, DatabaseHelper.PLACE_COL_TAG, DatabaseHelper.PLACE_COL_LAT,
       DatabaseHelper.PLACE_COL_LON }, null, null, null, null, null);
     HashMap<Integer, Place> places = new HashMap<Integer, Place>();
@@ -280,8 +280,8 @@ public class PlaceManager
   private void dbClear()
   {
     this.open();
-    DB.delete(DatabaseHelper.TABLE_PLACES, null, null);
-    DB.delete(DatabaseHelper.TABLE_PLACES_TAGS, null, null);
+    mDB.delete(DatabaseHelper.TABLE_PLACES, null, null);
+    mDB.delete(DatabaseHelper.TABLE_PLACES_TAGS, null, null);
     this.close();
   }
 
@@ -307,7 +307,7 @@ public class PlaceManager
       }
 
       this.open();
-      Cursor c = DB.rawQuery(sql, selectionArgs);
+      Cursor c = mDB.rawQuery(sql, selectionArgs);
       if (c.getCount() > 0)
       {
         c.moveToFirst();
@@ -325,12 +325,12 @@ public class PlaceManager
 
   private void open()
   {
-    DB = dbHelper.getWritableDatabase();
+    mDB = mDbHelper.getWritableDatabase();
   }
 
   private void close()
   {
-    DB.close();
+    mDB.close();
   }
 
   private ContentValues prepare(Place p, boolean update)
@@ -349,7 +349,7 @@ public class PlaceManager
 
   private Place cursorToPlace(Cursor c)
   {
-    TagManager tagManager = new TagManager(dbHelper);
+    TagManager tagManager = new TagManager(mDbHelper);
     Place p = new Place(c.getInt(DatabaseHelper.PLACE_NUM_COL_ID),
       c.getString(DatabaseHelper.PLACE_NUM_COL_NAME),
       tagManager.get(c.getInt(DatabaseHelper.PLACE_NUM_COL_TAG)), new GeoPoint(
