@@ -21,19 +21,20 @@ import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.MenuItem;
+import com.ubikod.urbantag.layout.FlowLayout;
 import com.ubikod.urbantag.model.DatabaseHelper;
 import com.ubikod.urbantag.model.Tag;
 import com.ubikod.urbantag.model.TagManager;
 
 public class SearchActivity extends SherlockActivity
 {
-  List<Tag> allTags = null;
-  List<Tag> selectedTags;
-  List<Tag> selectableTags;
-  private Spinner spinner;
-  private Button btnAddCategory, btnSubmit;
-  private FlowLayout tagContainer;
-  private LinearLayout bottomLayout;
+  private List<Tag> mAllTags = null;
+  private List<Tag> mSelectedTags;
+  private List<Tag> mSelectableTags;
+  private Spinner mSpinner;
+  private Button mBtnAddCategory, mBtnSubmit;
+  private FlowLayout mTagContainer;
+  private LinearLayout mBottomLayout;
 
   @Override
   public void onCreate(Bundle savedInstanceState)
@@ -44,37 +45,37 @@ public class SearchActivity extends SherlockActivity
     com.actionbarsherlock.app.ActionBar actionBar = this.getSupportActionBar();
     actionBar.setDisplayHomeAsUpEnabled(true);
     TagManager tagManager = new TagManager(new DatabaseHelper(this, null));
-    allTags = tagManager.getAll();
-    selectedTags = new ArrayList<Tag>();
-    selectableTags = allTags;
+    mAllTags = tagManager.getAll();
+    mSelectedTags = new ArrayList<Tag>();
+    mSelectableTags = mAllTags;
 
-    spinner = (Spinner) findViewById(R.id.spinner);
-    btnAddCategory = (Button) findViewById(R.id.addCategory);
-    tagContainer = (FlowLayout) findViewById(R.id.tag_container);
-    bottomLayout = (LinearLayout) btnAddCategory.getParent();
-    btnSubmit = (Button) findViewById(R.id.submit);
+    mSpinner = (Spinner) findViewById(R.id.spinner);
+    mBtnAddCategory = (Button) findViewById(R.id.addCategory);
+    mTagContainer = (FlowLayout) findViewById(R.id.tag_container);
+    mBottomLayout = (LinearLayout) mBtnAddCategory.getParent();
+    mBtnSubmit = (Button) findViewById(R.id.submit);
 
-    btnAddCategory.setOnClickListener(new OnClickListener()
+    mBtnAddCategory.setOnClickListener(new OnClickListener()
     {
       @Override
       public void onClick(View v)
       {
-        Tag t = (Tag) spinner.getSelectedItem();
-        selectedTags.add(t);
-        selectableTags.remove(t);
+        Tag t = (Tag) mSpinner.getSelectedItem();
+        mSelectedTags.add(t);
+        mSelectableTags.remove(t);
 
         updateTagList();
       }
     });
 
-    btnSubmit.setOnClickListener(new OnClickListener()
+    mBtnSubmit.setOnClickListener(new OnClickListener()
     {
 
       @Override
       public void onClick(View v)
       {
         RadioButton placeButton = (RadioButton) findViewById(R.id.place);
-        if (selectedTags.size() == 0)
+        if (mSelectedTags.size() == 0)
         {
           Toast.makeText(getApplicationContext(), R.string.category_needed, Toast.LENGTH_LONG)
             .show();
@@ -91,10 +92,10 @@ public class SearchActivity extends SherlockActivity
           {
             intent = new Intent(SearchActivity.this, SearchContentResultActivity.class);
           }
-          int[] array = new int[selectedTags.size()];
-          for (int i = 0; i < selectedTags.size(); i++)
+          int[] array = new int[mSelectedTags.size()];
+          for (int i = 0; i < mSelectedTags.size(); i++)
           {
-            array[i] = selectedTags.get(i).getId();
+            array[i] = mSelectedTags.get(i).getId();
           }
 
           intent.putExtra("tagsId", array);
@@ -109,23 +110,23 @@ public class SearchActivity extends SherlockActivity
 
   private void updateTagList()
   {
-    bottomLayout.removeView(btnAddCategory);
-    bottomLayout.removeView(spinner);
+    mBottomLayout.removeView(mBtnAddCategory);
+    mBottomLayout.removeView(mSpinner);
 
-    if (selectableTags.size() > 0)
+    if (mSelectableTags.size() > 0)
     {
-      bottomLayout.addView(spinner, new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,
+      mBottomLayout.addView(mSpinner, new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,
         LayoutParams.WRAP_CONTENT));
-      bottomLayout.addView(btnAddCategory, new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,
-        LayoutParams.WRAP_CONTENT));
+      mBottomLayout.addView(mBtnAddCategory, new LinearLayout.LayoutParams(
+        LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
     }
     ArrayAdapter<Tag> dataAdapter = new ArrayAdapter<Tag>(this,
-      android.R.layout.simple_spinner_item, selectableTags);
+      android.R.layout.simple_spinner_item, mSelectableTags);
     dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-    spinner.setAdapter(dataAdapter);
+    mSpinner.setAdapter(dataAdapter);
 
-    tagContainer.removeAllViews();
-    for (Tag t : selectedTags)
+    mTagContainer.removeAllViews();
+    for (Tag t : mSelectedTags)
     {
       TextView tv = createViewTag(t);
       tv.setTag(t);
@@ -136,14 +137,14 @@ public class SearchActivity extends SherlockActivity
         public void onClick(View v)
         {
           Tag t = (Tag) v.getTag();
-          selectedTags.remove(t);
-          selectableTags.add(t);
+          mSelectedTags.remove(t);
+          mSelectableTags.add(t);
           updateTagList();
 
         }
       });
 
-      tagContainer.addView(tv, new FlowLayout.LayoutParams(10, 10));
+      mTagContainer.addView(tv, new FlowLayout.LayoutParams(10, 10));
     }
   }
 
@@ -192,10 +193,10 @@ public class SearchActivity extends SherlockActivity
   @Override
   public void onSaveInstanceState(Bundle outState)
   {
-    int[] array = new int[selectedTags.size()];
+    int[] array = new int[mSelectedTags.size()];
     int i = 0;
 
-    for (Tag t : selectedTags)
+    for (Tag t : mSelectedTags)
     {
       array[i] = t.getId();
       i++;
@@ -212,8 +213,8 @@ public class SearchActivity extends SherlockActivity
     TagManager tagManager = new TagManager(new DatabaseHelper(this, null));
     for (int i = 0; i < selectedTagsArray.length; i++)
     {
-      selectedTags.add(tagManager.get(selectedTagsArray[i]));
-      selectableTags.remove(tagManager.get(selectedTagsArray[i]));
+      mSelectedTags.add(tagManager.get(selectedTagsArray[i]));
+      mSelectableTags.remove(tagManager.get(selectedTagsArray[i]));
     }
     updateTagList();
   }
