@@ -29,28 +29,28 @@ public class UrbanTagMainActivity extends SherlockMapActivity
   /* UI Elements */
 
   /** map view */
-  private MapView mapView;
+  private MapView mMapView;
 
   /* Map related */
   /** Default zoom level */
-  private int zoomLevel = 17;
+  private int mZoomLevel = 17;
 
   /** MapController */
-  private MapController mapController;
+  private MapController mMapController;
 
   /** Location manager */
-  private LocationManager locationManager;
+  private LocationManager mLocationManager;
 
   /** LocationOverlay */
-  private MyLocationOverlay locationOverlay;
+  private MyLocationOverlay mLocationOverlay;
 
   /** PlaceOverlay */
-  private PlaceOverlay placeOverlay;
+  private PlaceOverlay mPlaceOverlay;
 
   /** PlaceManager */
-  private PlaceManager placeManager;
+  private PlaceManager mPlaceManager;
 
-  private DatabaseHelper dbHelper;
+  private DatabaseHelper mDbHelper;
 
   /** Called when the activity is first created. */
   @Override
@@ -59,7 +59,7 @@ public class UrbanTagMainActivity extends SherlockMapActivity
     super.onCreate(savedInstanceState);
     setContentView(R.layout.main);
 
-    dbHelper = new DatabaseHelper(this, null);
+    mDbHelper = new DatabaseHelper(this, null);
 
     WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 
@@ -68,31 +68,31 @@ public class UrbanTagMainActivity extends SherlockMapActivity
     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
     pref.edit().putBoolean("notifiedWifi", wifiChecked).commit();
 
-    placeOverlay = new PlaceOverlay(this, this.getResources().getDrawable(R.drawable.ic_launcher));
-    placeManager = new PlaceManager(dbHelper);
+    mPlaceOverlay = new PlaceOverlay(this, this.getResources().getDrawable(R.drawable.ic_launcher));
+    mPlaceManager = new PlaceManager(mDbHelper);
 
     /* Initiate Map */
-    mapView = (MapView) this.findViewById(R.id.mapView);
-    mapView.setBuiltInZoomControls(true);
-    mapController = mapView.getController();
-    mapController.setZoom(zoomLevel);
+    mMapView = (MapView) this.findViewById(R.id.mapView);
+    mMapView.setBuiltInZoomControls(true);
+    mMapController = mMapView.getController();
+    mMapController.setZoom(mZoomLevel);
 
     /* Set location manager */
-    locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
-    locationOverlay = new MyLocationOverlay(getApplicationContext(), mapView);
-    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 0, locationOverlay);
-    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 10000, 0,
-      locationOverlay);
-    mapView.getOverlays().add(locationOverlay);
-    mapView.getOverlays().add(placeOverlay);
-    locationOverlay.enableMyLocation();
-    locationOverlay.runOnFirstFix(new Runnable()
+    mLocationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
+    mLocationOverlay = new MyLocationOverlay(getApplicationContext(), mMapView);
+    mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 0, mLocationOverlay);
+    mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 10000, 0,
+      mLocationOverlay);
+    mMapView.getOverlays().add(mLocationOverlay);
+    mMapView.getOverlays().add(mPlaceOverlay);
+    mLocationOverlay.enableMyLocation();
+    mLocationOverlay.runOnFirstFix(new Runnable()
     {
       public void run()
       {
-        GeoPoint curPosition = locationOverlay.getMyLocation();
-        mapController.animateTo(curPosition);
-        mapController.setCenter(curPosition);
+        GeoPoint curPosition = mLocationOverlay.getMyLocation();
+        mMapController.animateTo(curPosition);
+        mMapController.setCenter(curPosition);
       }
     });
   }
@@ -128,9 +128,9 @@ public class UrbanTagMainActivity extends SherlockMapActivity
         switch (resultCode)
         {
           case 1:
-            placeOverlay.clear();
-            mapView = (MapView) this.findViewById(R.id.mapView);
-            mapView.invalidate();
+            mPlaceOverlay.clear();
+            mMapView = (MapView) this.findViewById(R.id.mapView);
+            mMapView.invalidate();
             break;
         }
 
@@ -138,7 +138,7 @@ public class UrbanTagMainActivity extends SherlockMapActivity
         switch (resultCode)
         {
           case 1:
-            placeOverlay.setPlaces(placeManager.getVisiblePlaces());
+            mPlaceOverlay.setPlaces(mPlaceManager.getVisiblePlaces());
             break;
         }
     }
@@ -214,8 +214,8 @@ public class UrbanTagMainActivity extends SherlockMapActivity
   {
     Log.i(UrbanTag.TAG, "drawing places");
     /* Show places */
-    placeOverlay.clear();
-    placeOverlay.setPlaces(placeManager.getVisiblePlaces());
+    mPlaceOverlay.clear();
+    mPlaceOverlay.setPlaces(mPlaceManager.getVisiblePlaces());
   }
 
   public static void notifyNewPlace()
