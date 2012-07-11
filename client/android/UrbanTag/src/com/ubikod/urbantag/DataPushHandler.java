@@ -8,7 +8,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.os.Vibrator;
 import android.util.Log;
 
 import com.google.android.maps.GeoPoint;
@@ -36,39 +35,88 @@ public class DataPushHandler extends CapptainReachDataPushReceiver
       PlaceManager placeManager = new PlaceManager(dbHelper);
       TagManager tagManager = new TagManager(dbHelper);
 
-      boolean error = false;
-
+      /* Ensure with info about the place */
       if (json.has("place"))
       {
         JSONObject placeJSON = json.getJSONObject("place");
 
+        /* Ensure we have all needed infos */
         if (json.has("idInfo") && json.has("title") && json.has("mainTag") && json.has("place")
           && json.has("tags") && placeJSON.has("id") && placeJSON.has("name")
           && placeJSON.has("lon") && placeJSON.has("lat") && placeJSON.has("tags")
           && placeJSON.has("mainTag"))
         {
-          List<Tag> contentTags = new ArrayList<Tag>(), placeTags = new ArrayList<Tag>();
+          boolean error = false;
+          List<Tag> contentTagsList = new ArrayList<Tag>(), placeTagsList = new ArrayList<Tag>();
 
-          JSONArray contentTagsId = json.getJSONArray("tags");
-          for (int i = 0; i < contentTagsId.length(); i++)
+          /* Get all tags for content */
+          JSONArray contentTags = json.getJSONArray("tags");
+          for (int i = 0; i < contentTags.length(); i++)
           {
-            Tag t = tagManager.get(contentTagsId.getInt(i));
-            contentTags.add(t);
+            Tag t = tagParser(contentTags.getJSONObject(i));
+            if (t != null)
+            {
+              if (!tagManager.exists(t) || t.hasChanged(tagManager.get(t.getId())))
+              {
+                tagManager.save(t);
+              }
+              contentTagsList.add(t);
+            }
+            else
+              error = true;
           }
 
-          JSONArray placeTagsId = placeJSON.getJSONArray("tags");
-          for (int i = 0; i < contentTagsId.length(); i++)
+          /* idem for place */
+          JSONArray placeTags = placeJSON.getJSONArray("tags");
+          for (int i = 0; i < placeTags.length(); i++)
           {
-            Tag t = tagManager.get(contentTagsId.getInt(i));
-            placeTags.add(t);
+            Tag t = tagParser(placeTags.getJSONObject(i));
+            if (t != null)
+            {
+              if (!tagManager.exists(t) || t.hasChanged(tagManager.get(t.getId())))
+              {
+                tagManager.save(t);
+              }
+              placeTagsList.add(t);
+            }
+            else
+              error = true;
           }
 
-          Tag placeTag = tagManager.get(placeJSON.getInt("mainTag"));
-          Tag contentTag = tagManager.get(placeJSON.getInt("mainTag"));
+          /* Get mainTag for place */
+          Tag placeTag = tagParser(placeJSON.getJSONObject("mainTag"));
+          if (placeTag != null)
+          {
+            if (!tagManager.exists(placeTag)
+              || placeTag.hasChanged(tagManager.get(placeTag.getId())))
+            {
+              tagManager.save(placeTag);
+            }
+          }
+          else
+            error = true;
 
+          /* Get mainTag for content */
+          Tag contentTag = tagParser(placeJSON.getJSONObject("mainTag"));
+          if (contentTag != null)
+          {
+            if (!tagManager.exists(contentTag)
+              || contentTag.hasChanged(tagManager.get(contentTag.getId())))
+            {
+              tagManager.save(contentTag);
+            }
+          }
+          else
+            error = true;
+
+          /* In case of error just quit method */
+          if (error)
+            return true;
+
+          /* Create place and store it if new or update if changed */
           Place p = new Place(placeJSON.getInt("id"), placeJSON.getString("name"), placeTag,
             new GeoPoint((int) (placeJSON.getDouble("lat") * 1E6),
-              (int) (placeJSON.getDouble("lon") * 1E6)), placeTags);
+              (int) (placeJSON.getDouble("lon") * 1E6)), placeTagsList);
 
           if (!placeManager.exists(p))
           {
@@ -84,6 +132,7 @@ public class DataPushHandler extends CapptainReachDataPushReceiver
             }
           }
 
+          /* Create content and store it */
           int start = 0, end = 0;
           if (json.has("startDate") && json.has("endDate"))
           {
@@ -91,12 +140,11 @@ public class DataPushHandler extends CapptainReachDataPushReceiver
             end = json.getInt("endDate");
           }
           Content c = new Content(json.getInt("idInfo"), json.getString("title"), start, end, p,
-            contentTag, contentTags);
-
+            contentTag, contentTagsList);
           contentManager.save(c);
 
-          Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-          vibrator.vibrate(1000);
+          // Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+          // vibrator.vibrate(1000);
         }
         else
           Log.e("DataPushHandler", "Missing info in JSON");
@@ -120,4 +168,26 @@ public class DataPushHandler extends CapptainReachDataPushReceiver
     return true;
   }
 
+  /**
+   * Create a Tag from a JSONObject
+   * @param json
+   * @return Tag
+   */
+  private Tag tagParser(JSONObject json)
+  {
+    Tag t = null;
+    if (json.has("id") && json.has("name") && json.has("color"))
+    {
+      try
+      {
+        t = new Tag(json.getInt("id"), json.getString("name"), Integer.parseInt(
+          json.getString("color"), 16) + 0xff000000);
+      }
+      catch (JSONException je)
+      {
+        je.printStackTrace();
+      }
+    }
+    return t;
+  }
 }
