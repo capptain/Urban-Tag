@@ -7,35 +7,35 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.MenuItem;
 import com.ubikod.urbantag.layout.FlowLayout;
+import com.ubikod.urbantag.layout.MultipleSelection;
+import com.ubikod.urbantag.layout.MultipleSelection.MultiSpinnerListener;
 import com.ubikod.urbantag.model.DatabaseHelper;
 import com.ubikod.urbantag.model.Tag;
 import com.ubikod.urbantag.model.TagManager;
 
-public class SearchActivity extends SherlockActivity
+public class SearchActivity extends SherlockActivity implements MultiSpinnerListener<Tag>
 {
   private List<Tag> mAllTags = null;
   private List<Tag> mSelectedTags;
-  private List<Tag> mSelectableTags;
-  private Spinner mSpinner;
-  private Button mBtnAddCategory, mBtnSubmit;
+  private MultipleSelection<Tag> mSpinner;
+  private Button mBtnSubmit;
   private FlowLayout mTagContainer;
-  private LinearLayout mBottomLayout;
 
+  @SuppressWarnings("unchecked")
   @Override
   public void onCreate(Bundle savedInstanceState)
   {
@@ -47,26 +47,10 @@ public class SearchActivity extends SherlockActivity
     TagManager tagManager = new TagManager(new DatabaseHelper(this, null));
     mAllTags = tagManager.getAll();
     mSelectedTags = new ArrayList<Tag>();
-    mSelectableTags = mAllTags;
 
-    mSpinner = (Spinner) findViewById(R.id.spinner);
-    mBtnAddCategory = (Button) findViewById(R.id.addCategory);
+    mSpinner = (MultipleSelection<Tag>) findViewById(R.id.spinner);
     mTagContainer = (FlowLayout) findViewById(R.id.tag_container);
-    mBottomLayout = (LinearLayout) mBtnAddCategory.getParent();
     mBtnSubmit = (Button) findViewById(R.id.submit);
-
-    mBtnAddCategory.setOnClickListener(new OnClickListener()
-    {
-      @Override
-      public void onClick(View v)
-      {
-        Tag t = (Tag) mSpinner.getSelectedItem();
-        mSelectedTags.add(t);
-        mSelectableTags.remove(t);
-
-        updateTagList();
-      }
-    });
 
     mBtnSubmit.setOnClickListener(new OnClickListener()
     {
@@ -110,39 +94,20 @@ public class SearchActivity extends SherlockActivity
 
   private void updateTagList()
   {
-    mBottomLayout.removeView(mBtnAddCategory);
-    mBottomLayout.removeView(mSpinner);
-
-    if (mSelectableTags.size() > 0)
+    boolean[] sel = new boolean[mAllTags.size()];
+    for (int i = 0; i < sel.length; i++)
     {
-      mBottomLayout.addView(mSpinner, new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,
-        LayoutParams.WRAP_CONTENT));
-      mBottomLayout.addView(mBtnAddCategory, new LinearLayout.LayoutParams(
-        LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+      sel[i] = mSelectedTags.contains(mAllTags.get(i));
+      Log.i("isSelected", sel[i] + " " + i + " " + mAllTags.get(i).getValue());
     }
-    ArrayAdapter<Tag> dataAdapter = new ArrayAdapter<Tag>(this,
-      android.R.layout.simple_spinner_item, mSelectableTags);
-    dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-    mSpinner.setAdapter(dataAdapter);
+
+    mSpinner.setItems(mAllTags, sel, getResources().getString(R.string.select_tags), this);
 
     mTagContainer.removeAllViews();
     for (Tag t : mSelectedTags)
     {
       TextView tv = createViewTag(t);
       tv.setTag(t);
-
-      tv.setOnClickListener(new OnClickListener()
-      {
-        @Override
-        public void onClick(View v)
-        {
-          Tag t = (Tag) v.getTag();
-          mSelectedTags.remove(t);
-          mSelectableTags.add(t);
-          updateTagList();
-
-        }
-      });
 
       mTagContainer.addView(tv, new FlowLayout.LayoutParams(10, 10));
     }
@@ -214,8 +179,14 @@ public class SearchActivity extends SherlockActivity
     for (int i = 0; i < selectedTagsArray.length; i++)
     {
       mSelectedTags.add(tagManager.get(selectedTagsArray[i]));
-      mSelectableTags.remove(tagManager.get(selectedTagsArray[i]));
     }
+    updateTagList();
+  }
+
+  @Override
+  public void onItemsSelected(List<Tag> selectedItems)
+  {
+    mSelectedTags = selectedItems;
     updateTagList();
   }
 }
