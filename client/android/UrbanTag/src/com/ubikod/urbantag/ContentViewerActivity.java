@@ -1,7 +1,9 @@
 package com.ubikod.urbantag;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.webkit.WebView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.MenuItem;
@@ -11,6 +13,7 @@ import com.ubikod.urbantag.model.DatabaseHelper;
 
 public class ContentViewerActivity extends SherlockActivity
 {
+  public static final String CONTENT_ID = "content_id";
   private Content content = null;
 
   @Override
@@ -18,9 +21,20 @@ public class ContentViewerActivity extends SherlockActivity
   {
     super.onCreate(savedInstanceState);
     Bundle extras = getIntent().getExtras();
+    if (extras.getBoolean(NotificationHelper.FROM_NOTIFICATION, false))
+    {
+      NotificationHelper notificationHelper = new NotificationHelper(this);
+      notificationHelper.closeContentNotif();
+    }
     ContentManager contentManager = new ContentManager(new DatabaseHelper(this, null));
-    int bla = extras.getInt("contentId");
-    this.content = contentManager.get(extras.getInt("contentId"));
+    Log.i(UrbanTag.TAG, "View content : " + extras.getInt(CONTENT_ID));
+    this.content = contentManager.get(extras.getInt(CONTENT_ID));
+    if (this.content == null)
+    {
+      Toast.makeText(this, R.string.error_occured, Toast.LENGTH_SHORT).show();
+      finish();
+      return;
+    }
     setTitle(content.getName());
     com.actionbarsherlock.app.ActionBar actionBar = this.getSupportActionBar();
     actionBar.setDisplayHomeAsUpEnabled(true);

@@ -29,13 +29,13 @@
     <application
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/Theme.Sherlock.Light.ForceOverflow" >
+        android:theme="@style/Theme.Sherlock.Light.ForceOverflow" android:name=".UrbanTagApplication">
         <uses-library
             android:name="com.google.android.maps"
             required="true" />
 
         <activity
-            android:name=".StartActivity"
+            android:name=".UrbanTagMainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -49,9 +49,9 @@
         <activity android:name=".ContentsListActivity" />
         <activity android:name=".ContentViewerActivity" />
         <activity android:name=".SearchActivity" />
-        <activity android:name=".SearchPlaceResultActivity" />
-        <activity android:name=".SearchContentResultActivity" />
-        <activity android:name=".UrbanTagMainActivity" />
+       <!--  <activity android:name=".SearchPlaceResultActivity" /> -->
+     <!--   <activity android:name=".SearchContentResultActivity" /> -->
+
         <!-- 
         <service
             android:name="com.ubikod.capptain.android.service.CapptainService"

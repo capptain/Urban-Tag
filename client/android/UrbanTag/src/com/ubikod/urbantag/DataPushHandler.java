@@ -22,6 +22,7 @@ import com.ubikod.urbantag.model.TagManager;
 
 public class DataPushHandler extends CapptainReachDataPushReceiver
 {
+
   @Override
   protected Boolean onDataPushStringReceived(Context context, String body)
   {
@@ -47,13 +48,31 @@ public class DataPushHandler extends CapptainReachDataPushReceiver
           && placeJSON.has("mainTag"))
         {
           boolean error = false;
+
+          /* Get mainTag for content */
+          Tag contentTag = TagManager.createTag(placeJSON.getJSONObject("mainTag"));
+          if (contentTag != null)
+          {
+            if (!tagManager.exists(contentTag)
+              || contentTag.hasChanged(tagManager.get(contentTag.getId())))
+            {
+              tagManager.save(contentTag);
+            }
+          }
+          else
+            error = true;
+
+          /* If the contentTag is not selected we must skip the notification */
+          if (!contentTag.isSelected())
+            return true;
+
           List<Tag> contentTagsList = new ArrayList<Tag>(), placeTagsList = new ArrayList<Tag>();
 
           /* Get all tags for content */
           JSONArray contentTags = json.getJSONArray("tags");
           for (int i = 0; i < contentTags.length(); i++)
           {
-            Tag t = tagParser(contentTags.getJSONObject(i));
+            Tag t = TagManager.createTag(contentTags.getJSONObject(i));
             if (t != null)
             {
               if (!tagManager.exists(t) || t.hasChanged(tagManager.get(t.getId())))
@@ -70,7 +89,7 @@ public class DataPushHandler extends CapptainReachDataPushReceiver
           JSONArray placeTags = placeJSON.getJSONArray("tags");
           for (int i = 0; i < placeTags.length(); i++)
           {
-            Tag t = tagParser(placeTags.getJSONObject(i));
+            Tag t = TagManager.createTag(placeTags.getJSONObject(i));
             if (t != null)
             {
               if (!tagManager.exists(t) || t.hasChanged(tagManager.get(t.getId())))
@@ -84,26 +103,13 @@ public class DataPushHandler extends CapptainReachDataPushReceiver
           }
 
           /* Get mainTag for place */
-          Tag placeTag = tagParser(placeJSON.getJSONObject("mainTag"));
+          Tag placeTag = TagManager.createTag(placeJSON.getJSONObject("mainTag"));
           if (placeTag != null)
           {
             if (!tagManager.exists(placeTag)
               || placeTag.hasChanged(tagManager.get(placeTag.getId())))
             {
               tagManager.save(placeTag);
-            }
-          }
-          else
-            error = true;
-
-          /* Get mainTag for content */
-          Tag contentTag = tagParser(placeJSON.getJSONObject("mainTag"));
-          if (contentTag != null)
-          {
-            if (!tagManager.exists(contentTag)
-              || contentTag.hasChanged(tagManager.get(contentTag.getId())))
-            {
-              tagManager.save(contentTag);
             }
           }
           else
@@ -143,8 +149,10 @@ public class DataPushHandler extends CapptainReachDataPushReceiver
             contentTag, contentTagsList);
           contentManager.save(c);
 
-          // Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-          // vibrator.vibrate(1000);
+          /* Notify */
+          NotificationHelper notificationHelper = new NotificationHelper(context);
+          notificationHelper.notifyNewContent(c.getId());
+
         }
         else
           Log.e("DataPushHandler", "Missing info in JSON");
@@ -168,26 +176,4 @@ public class DataPushHandler extends CapptainReachDataPushReceiver
     return true;
   }
 
-  /**
-   * Create a Tag from a JSONObject
-   * @param json
-   * @return Tag
-   */
-  private Tag tagParser(JSONObject json)
-  {
-    Tag t = null;
-    if (json.has("id") && json.has("name") && json.has("color"))
-    {
-      try
-      {
-        t = new Tag(json.getInt("id"), json.getString("name"), Integer.parseInt(
-          json.getString("color"), 16) + 0xff000000);
-      }
-      catch (JSONException je)
-      {
-        je.printStackTrace();
-      }
-    }
-    return t;
-  }
 }

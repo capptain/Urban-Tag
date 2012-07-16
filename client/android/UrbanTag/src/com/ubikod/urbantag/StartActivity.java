@@ -21,6 +21,10 @@ public class StartActivity extends Activity
   public void onCreate(Bundle savedInstanceState)
   {
     super.onCreate(savedInstanceState);
+    // notify app's runnnig
+    NotificationHelper notifHelper = new NotificationHelper(this);
+    notifHelper.notifyAppliRunning();
+
     // re initiate wifi message display
     SharedPreferences pref = getApplicationContext().getSharedPreferences("URBAN_TAG_PREF",
       Context.MODE_PRIVATE);

@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -21,6 +24,24 @@ public class TagManager
   public TagManager(DatabaseHelper databaseHelper)
   {
     mDbHelper = databaseHelper;
+  }
+
+  public static Tag createTag(JSONObject json)
+  {
+    Tag t = null;
+    if (json.has("id") && json.has("name") && json.has("color"))
+    {
+      try
+      {
+        t = new Tag(json.getInt("id"), json.getString("name"), Integer.parseInt(
+          json.getString("color"), 16) + 0xff000000);
+      }
+      catch (JSONException je)
+      {
+        je.printStackTrace();
+      }
+    }
+    return t;
   }
 
   public void update(List<Tag> list)

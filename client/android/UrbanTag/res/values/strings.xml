@@ -39,5 +39,9 @@
     <string name="select_tags">Selectionner des catégories</string>
     <string name="category_needed">Vous devez sélectionner au moins une catégorie.</string>
     <string name="content">Contenu</string>
+    <string name="is_running"> est activé</string>
+    <string name="new_content">Il y a du neuf !</string>
+    <string name="error_occured">Une erreur a eu lieu.</string>
+    <string name="no_matching_place">Il n\'y a pas de lieu correspondant.</string>
 
 </resources>

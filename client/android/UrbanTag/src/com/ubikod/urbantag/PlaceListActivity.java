@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockListActivity;
 import com.actionbarsherlock.view.MenuItem;
@@ -22,12 +23,17 @@ import com.ubikod.urbantag.model.Tag;
 
 public class PlaceListActivity extends SherlockListActivity
 {
+  public static final String MODE = "mode";
+  public static final int MODE_PLACES_IDS = 0;
+  public static final int MODE_TAGS_IDS = 1;
+  public static final String PLACES_IDS = "places_ids";
+  public static final String TAGS_IDS = "tags_ids";
 
   private DatabaseHelper mDbHelper;
   private PlaceManager mPlaceManager;
   private LayoutInflater mInflater;
 
-  private int[] mPlacesId;
+  private List<Place> mPlaces;
 
   private static class ViewHolder
   {
@@ -49,13 +55,54 @@ public class PlaceListActivity extends SherlockListActivity
     com.actionbarsherlock.app.ActionBar actionBar = this.getSupportActionBar();
     actionBar.setDisplayHomeAsUpEnabled(true);
 
-    Bundle extras = getIntent().getExtras();
-    mPlacesId = extras.getIntArray("placesId");
-
     mDbHelper = new DatabaseHelper(this, null);
     mPlaceManager = new PlaceManager(mDbHelper);
     mInflater = LayoutInflater.from(this);
 
+    Bundle extras = getIntent().getExtras();
+
+    if (extras != null && extras.getInt(MODE, -1) == MODE_PLACES_IDS)
+    {
+      int[] ids;
+      if ((ids = extras.getIntArray(PLACES_IDS)) != null)
+      {
+        this.mPlaces = mPlaceManager.get(ids);
+      }
+      else
+      {
+        Toast.makeText(this, R.string.error_occured, Toast.LENGTH_SHORT).show();
+        finish();
+        return;
+      }
+
+    }
+    else if (extras != null && extras.getInt(MODE, -1) == MODE_TAGS_IDS)
+    {
+      int[] ids;
+      if ((ids = extras.getIntArray(TAGS_IDS)) != null)
+      {
+        this.mPlaces = mPlaceManager.getAllForTags(ids);
+      }
+      else
+      {
+        Toast.makeText(this, R.string.error_occured, Toast.LENGTH_SHORT).show();
+        finish();
+        return;
+      }
+    }
+    else
+    {
+      Toast.makeText(this, R.string.error_occured, Toast.LENGTH_SHORT).show();
+      finish();
+      return;
+    }
+
+    if (this.mPlaces.size() == 0)
+    {
+      Toast.makeText(this, R.string.no_matching_place, Toast.LENGTH_SHORT).show();
+      finish();
+      return;
+    }
     setListAdapter(createAdapter());
   }
 
@@ -75,15 +122,13 @@ public class PlaceListActivity extends SherlockListActivity
   {
     return new BaseAdapter()
     {
-      List<Place> places = mPlaceManager.get(mPlacesId);
-
       @Override
       public View getView(int position, View convertView, ViewGroup parent)
       {
         ViewHolder holder;
         TagBundle tagBundle;
 
-        Place p = places.get(position);
+        Place p = mPlaces.get(position);
 
         if (convertView == null)
         {
@@ -129,13 +174,13 @@ public class PlaceListActivity extends SherlockListActivity
       @Override
       public Object getItem(int position)
       {
-        return places.get(position);
+        return mPlaces.get(position);
       }
 
       @Override
       public int getCount()
       {
-        return places.size();
+        return mPlaces.size();
       }
     };
   }
@@ -158,7 +203,7 @@ public class PlaceListActivity extends SherlockListActivity
   public void onListItemClick(ListView l, View v, int position, long id)
   {
     Intent intent = new Intent(this, ContentsListActivity.class);
-    intent.putExtra("placeId", ((TagBundle) v.getTag()).place.getId());
+    intent.putExtra(ContentsListActivity.PLACE_ID, ((TagBundle) v.getTag()).place.getId());
     startActivity(intent);
   }
 }

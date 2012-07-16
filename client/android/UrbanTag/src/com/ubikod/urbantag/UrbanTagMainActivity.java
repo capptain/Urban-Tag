@@ -80,7 +80,8 @@ public class UrbanTagMainActivity extends SherlockMapActivity
     /* Set location manager */
     mLocationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
     mLocationOverlay = new MyLocationOverlay(getApplicationContext(), mMapView);
-    mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 0, mLocationOverlay);
+    mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 0,
+      mLocationOverlay);
     mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 10000, 0,
       mLocationOverlay);
     mMapView.getOverlays().add(mLocationOverlay);
@@ -107,13 +108,15 @@ public class UrbanTagMainActivity extends SherlockMapActivity
       {
         array[i] = placesId.get(i);
       }
-      intent.putExtra("placesId", array);
+      intent.putExtra(PlaceListActivity.MODE, PlaceListActivity.MODE_PLACES_IDS);
+      intent.putExtra(PlaceListActivity.PLACES_IDS, array);
       startActivity(intent);
     }
     else if (placesId.size() == 1)
     {
       Intent intent = new Intent(this, ContentsListActivity.class);
-      intent.putExtra("placeId", placesId.get(0));
+      intent.putExtra(ContentsListActivity.MODE, ContentsListActivity.MODE_PLACE);
+      intent.putExtra(ContentsListActivity.PLACE_ID, placesId.get(0));
       startActivity(intent);
     }
 
@@ -198,6 +201,8 @@ public class UrbanTagMainActivity extends SherlockMapActivity
 
       case R.id.menu_quit:
         Toast.makeText(this, "Tapped share", Toast.LENGTH_SHORT).show();
+        NotificationHelper nH = new NotificationHelper(this);
+        nH.closeAppRunningNotif();
         break;
     }
     return super.onOptionsItemSelected(item);
@@ -222,5 +227,10 @@ public class UrbanTagMainActivity extends SherlockMapActivity
   {
     if (instance != null)
       instance.drawPlaces();
+  }
+
+  public static boolean isDisplayed()
+  {
+    return instance == null;
   }
 }

@@ -49,6 +49,10 @@ public class TagsListActivity extends SherlockListActivity implements OnClickLis
     mInflater = LayoutInflater.from(this);
 
     setListAdapter(createAdapter());
+
+    NotificationHelper nH = new NotificationHelper(this);
+    nH.notifyNewContent(10);
+
   }
 
   @Override
@@ -103,7 +107,6 @@ public class TagsListActivity extends SherlockListActivity implements OnClickLis
       @Override
       public View getView(int position, View convertView, ViewGroup parent)
       {
-        System.out.println("getView " + position + " " + convertView);
         ViewHolder holder;
         TagBundle tagBundle;
 

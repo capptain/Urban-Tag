@@ -27,8 +27,13 @@ import com.ubikod.urbantag.model.Tag;
 public class ContentsListActivity extends SherlockListActivity
 {
 
-  /* The place currently viewed */
-  private Place mPlace = null;
+  public static final String MODE = "mode";
+  public static final int MODE_PLACE = 0;
+  public static final int MODE_CONTENTS_LIST = 1;
+  public static final int MODE_TAG_LIST = 2;
+  public static final String PLACE_ID = "place_id";
+  public static final String CONTENTS_IDS = "contents_ids";
+  public static final String TAGS_IDS = "tags_ids";
 
   /* Contents list for place */
   private List<Content> mContents = new ArrayList<Content>();
@@ -59,27 +64,86 @@ public class ContentsListActivity extends SherlockListActivity
     super.onCreate(savedInstanceState);
     Bundle extras = getIntent().getExtras();
 
+    if (extras.getBoolean(NotificationHelper.FROM_NOTIFICATION, false))
+    {
+      NotificationHelper notificationHelper = new NotificationHelper(this);
+      notificationHelper.closeContentNotif();
+    }
+
     mDbHelper = new DatabaseHelper(this, null);
     mPlaceManager = new PlaceManager(mDbHelper);
     mContentManager = new ContentManager(mDbHelper);
     mInflater = LayoutInflater.from(getApplicationContext());
 
-    this.mPlace = mPlaceManager.get(extras.getInt("placeId"));
-
-    if (this.mPlace != null)
+    /* Handle when is given a place id => display all contents for this place */
+    if (extras != null && extras.getInt(MODE, -1) == MODE_PLACE)
     {
-      setTitle(mPlace.getName());
-      this.mContents = mContentManager.getAllForPlace(mPlace.getId());
+      Place place = mPlaceManager.get(extras.getInt(PLACE_ID));
 
-      if (this.mContents.size() == 0)
+      if (place != null)
       {
-        Toast.makeText(this, R.string.no_contents_for_place, Toast.LENGTH_SHORT).show();
-        finish();
+        setTitle(place.getName());
+        this.mContents = mContentManager.getAllForPlace(place.getId());
+
+        if (this.mContents.size() == 0)
+        {
+          Toast.makeText(this, R.string.no_contents_for_place, Toast.LENGTH_SHORT).show();
+          finish();
+          return;
+        }
       }
+      else
+      {
+        Toast.makeText(this, R.string.error_occured, Toast.LENGTH_SHORT).show();
+        finish();
+        return;
+      }
+
+    }
+    /* Handle when is given a array of contents ids => display selected contents */
+    else if (extras != null && extras.getInt(MODE, -1) == MODE_CONTENTS_LIST)
+    {
+      setTitle(R.string.content);
+      int[] ids;
+      if ((ids = extras.getIntArray(CONTENTS_IDS)) != null)
+      {
+        this.mContents = mContentManager.get(ids);
+        if (this.mContents.size() == 0)
+        {
+          Toast.makeText(this, R.string.error_occured, Toast.LENGTH_SHORT).show();
+          finish();
+          return;
+        }
+      }
+      else
+      {
+        Toast.makeText(this, R.string.error_occured, Toast.LENGTH_SHORT).show();
+        finish();
+        return;
+      }
+    }
+    /* Handle when is given a array of tags ids => display contents with corresponding tags */
+    else if (extras != null && extras.getInt(MODE, -1) == MODE_TAG_LIST)
+    {
+      setTitle(R.string.content);
+      int[] ids;
+      if ((ids = extras.getIntArray(TAGS_IDS)) != null)
+      {
+        this.mContents = mContentManager.getAllForTags(ids);
+      }
+      else
+      {
+        Toast.makeText(this, R.string.error_occured, Toast.LENGTH_SHORT).show();
+        finish();
+        return;
+      }
+
     }
     else
     {
+      Toast.makeText(this, R.string.error_occured, Toast.LENGTH_SHORT).show();
       finish();
+      return;
     }
 
     com.actionbarsherlock.app.ActionBar actionBar = this.getSupportActionBar();
@@ -187,7 +251,7 @@ public class ContentsListActivity extends SherlockListActivity
   public void onListItemClick(ListView l, View v, int position, long id)
   {
     Intent intent = new Intent(this, ContentViewerActivity.class);
-    intent.putExtra("contentId", ((TagBundle) v.getTag()).content.getId());
+    intent.putExtra(ContentViewerActivity.CONTENT_ID, ((TagBundle) v.getTag()).content.getId());
     startActivity(intent);
   }
 

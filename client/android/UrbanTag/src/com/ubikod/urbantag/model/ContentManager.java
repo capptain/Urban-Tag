@@ -37,6 +37,19 @@ public class ContentManager
     }
   }
 
+  public List<Content> get(int[] ids)
+  {
+    this.getAll();
+    List<Content> res = new ArrayList<Content>();
+    for (int id : ids)
+    {
+      if (mContents.containsKey(id))
+        res.add(mContents.get(id));
+    }
+
+    return res;
+  }
+
   public List<Content> getAll()
   {
     mContents = this.dbGetAll();
@@ -124,6 +137,7 @@ public class ContentManager
     if (c.getCount() == 0)
     {
       c.close();
+      this.close();
       return null;
     }
 

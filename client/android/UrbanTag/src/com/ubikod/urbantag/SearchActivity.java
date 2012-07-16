@@ -66,23 +66,27 @@ public class SearchActivity extends SherlockActivity implements MultiSpinnerList
         }
         else
         {
-          Intent intent = new Intent();
-
-          if (placeButton.isChecked())
-          {
-            intent = new Intent(SearchActivity.this, SearchPlaceResultActivity.class);
-          }
-          else
-          {
-            intent = new Intent(SearchActivity.this, SearchContentResultActivity.class);
-          }
           int[] array = new int[mSelectedTags.size()];
           for (int i = 0; i < mSelectedTags.size(); i++)
           {
             array[i] = mSelectedTags.get(i).getId();
           }
 
-          intent.putExtra("tagsId", array);
+          Intent intent = new Intent();
+
+          if (placeButton.isChecked())
+          {
+            intent = new Intent(SearchActivity.this, PlaceListActivity.class);
+            intent.putExtra(PlaceListActivity.MODE, PlaceListActivity.MODE_TAGS_IDS);
+            intent.putExtra(PlaceListActivity.TAGS_IDS, array);
+          }
+          else
+          {
+            intent = new Intent(SearchActivity.this, ContentsListActivity.class);
+            intent.putExtra(ContentsListActivity.MODE, ContentsListActivity.MODE_TAG_LIST);
+            intent.putExtra(ContentsListActivity.TAGS_IDS, array);
+          }
+
           startActivity(intent);
         }
       }
