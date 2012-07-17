@@ -31,6 +31,7 @@ public class UrbanTagApplication extends CapptainApplication
   @Override
   protected void onApplicationProcessCreate()
   {
+    Log.i(UrbanTag.TAG, "Launching App !");
     NotificationHelper notifHelper = new NotificationHelper(this);
     notifHelper.notifyAppliRunning();
 
@@ -39,7 +40,7 @@ public class UrbanTagApplication extends CapptainApplication
       Context.MODE_PRIVATE);
     pref.edit().putBoolean("notifiedWifi", false).commit();
 
-    new AsyncTask<Void, Void, List<Tag>>()
+    AsyncTask<Void, Void, List<Tag>> updateTagList = new AsyncTask<Void, Void, List<Tag>>()
     {
 
       @Override
@@ -48,6 +49,7 @@ public class UrbanTagApplication extends CapptainApplication
         List<Tag> res = new ArrayList<Tag>();
         HttpClient client = new DefaultHttpClient();
         HttpGet request = new HttpGet(UrbanTag.API_URL + ACTION_FETCH_TAGS_LIST);
+        Log.i(UrbanTag.TAG, "Fetching tags list on : " + request.toString());
         try
         {
           HttpResponse response = client.execute(request);
@@ -60,6 +62,7 @@ public class UrbanTagApplication extends CapptainApplication
           {
             textResponse += line;
           }
+          Log.i(UrbanTag.TAG, "Received :" + textResponse);
           JSONArray jsonTagsArray = new JSONArray(textResponse);
 
           for (int i = 0; i < jsonTagsArray.length(); i++)
@@ -91,8 +94,11 @@ public class UrbanTagApplication extends CapptainApplication
       protected void onPostExecute(List<Tag> list)
       {
         TagManager tagManager = new TagManager(new DatabaseHelper(getApplicationContext(), null));
-        tagManager.update(list);
+        if (list.size() > 0)
+          tagManager.update(list);
       }
     };
+
+    updateTagList.execute();
   }
 }
