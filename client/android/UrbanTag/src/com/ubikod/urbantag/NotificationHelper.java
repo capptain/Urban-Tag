@@ -36,22 +36,35 @@ public class NotificationHelper
 
   public void notifyNewContent(int contentId)
   {
-    /* Store content id */
+    Log.i(UrbanTag.TAG, "Notification : Received for contentId " + contentId);
+    /* Get previous notifications stored */
     SharedPreferences prefs = mContext.getSharedPreferences("UrbanTag", Context.MODE_PRIVATE);
     SharedPreferences.Editor editor = prefs.edit();
     String ContentsForNotification = prefs.getString("ContentsForNotification", "");
-    ContentsForNotification += contentId + ",";
-    editor.putString("ContentsForNotification", ContentsForNotification);
-    editor.commit();
-
-    Log.i(UrbanTag.TAG, "Notification : contentsIdList -> " + ContentsForNotification);
     StringTokenizer st = new StringTokenizer(ContentsForNotification, ",");
     List<Integer> contentIds = new ArrayList<Integer>();
     while (st.hasMoreTokens())
     {
-      contentIds.add(Integer.parseInt(st.nextToken()));
+      int value = Integer.parseInt(st.nextToken());
+      contentIds.add(value);
     }
 
+    /*
+     * If not notified yet add it to list and store the list else quit method(we don't need to
+     * update notification and to send a new one)
+     */
+    if (!contentIds.contains(contentId))
+    {
+      contentIds.add(contentId);
+      ContentsForNotification += contentId + ",";
+      editor.putString("ContentsForNotification", ContentsForNotification);
+      editor.commit();
+      Log.i(UrbanTag.TAG, "Notification : contentsIdList -> " + ContentsForNotification);
+    }
+    else
+      return;
+
+    /* Modify intent to transmit all data(all content ids we stocked) */
     Intent intent;
     if (contentIds.size() > 1)
     {
@@ -68,15 +81,14 @@ public class NotificationHelper
     else
     {
       Log.i(UrbanTag.TAG, "Notification : one content to notify");
-
       intent = new Intent(mContext, ContentViewerActivity.class);
       intent.putExtra(ContentViewerActivity.CONTENT_ID, contentIds.get(0));
-
     }
-
+    /* Add the from notification extra info and create the pending intent */
     intent.putExtra(FROM_NOTIFICATION, true);
     PendingIntent activity = PendingIntent.getActivity(mContext, 0, intent, 0);
 
+    /* Create or update notification */
     if (sNewContentNotification == null)
     {
       sNewContentNotification = new NotificationCompat.Builder(mContext).setSmallIcon(icon)
@@ -96,8 +108,8 @@ public class NotificationHelper
       sNewContentNotification.contentIntent = activity;
     }
 
+    /* Increment counter and notify */
     sNewContentNotification.number += 1;
-
     mNotificationManager.notify(NEW_CONTENT_NOTIF, sNewContentNotification);
   }
 
