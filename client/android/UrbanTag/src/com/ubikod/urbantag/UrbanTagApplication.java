@@ -49,7 +49,7 @@ public class UrbanTagApplication extends CapptainApplication
         List<Tag> res = new ArrayList<Tag>();
         HttpClient client = new DefaultHttpClient();
         HttpGet request = new HttpGet(UrbanTag.API_URL + ACTION_FETCH_TAGS_LIST);
-        Log.i(UrbanTag.TAG, "Fetching tags list on : " + request.toString());
+        Log.i(UrbanTag.TAG, "Fetching tags list on : " + request.getURI().toString());
         try
         {
           HttpResponse response = client.execute(request);
