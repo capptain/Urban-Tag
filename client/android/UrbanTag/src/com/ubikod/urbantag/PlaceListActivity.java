@@ -203,6 +203,7 @@ public class PlaceListActivity extends SherlockListActivity
   public void onListItemClick(ListView l, View v, int position, long id)
   {
     Intent intent = new Intent(this, ContentsListActivity.class);
+    intent.putExtra(ContentsListActivity.MODE, ContentsListActivity.MODE_PLACE);
     intent.putExtra(ContentsListActivity.PLACE_ID, ((TagBundle) v.getTag()).place.getId());
     startActivity(intent);
   }
