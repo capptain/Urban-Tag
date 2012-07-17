@@ -149,6 +149,30 @@ public class ContentsListActivity extends SherlockListActivity
     com.actionbarsherlock.app.ActionBar actionBar = this.getSupportActionBar();
     actionBar.setDisplayHomeAsUpEnabled(true);
 
+    /* Ensure places descriptions are always on top */
+    /* Fetch them */
+    List<Content> placesDescriptions = new ArrayList<Content>();
+    for (Content content : mContents)
+    {
+      if (content.getStartDate() == -1 || content.getEndDate() == -1)
+      {
+        placesDescriptions.add(content);
+      }
+    }
+    /* Remove them and then Add them on top */
+    for (Content content : placesDescriptions)
+    {
+      mContents.remove(content);
+      mContents.add(0, content);
+    }
+
+    if (this.mContents.size() == 0)
+    {
+      Toast.makeText(this, R.string.no_matching_content, Toast.LENGTH_SHORT).show();
+      finish();
+      return;
+    }
+
     setListAdapter(createAdapter());
   }
 
