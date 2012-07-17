@@ -50,9 +50,6 @@ public class TagsListActivity extends SherlockListActivity implements OnClickLis
 
     setListAdapter(createAdapter());
 
-    NotificationHelper nH = new NotificationHelper(this);
-    nH.notifyNewContent(10);
-
   }
 
   @Override
