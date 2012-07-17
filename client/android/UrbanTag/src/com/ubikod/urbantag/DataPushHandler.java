@@ -139,14 +139,9 @@ public class DataPushHandler extends CapptainReachDataPushReceiver
           }
 
           /* Create content and store it */
-          int start = 0, end = 0;
-          if (json.has("startDate") && json.has("endDate"))
-          {
-            start = json.getInt("startDate");
-            end = json.getInt("endDate");
-          }
-          Content c = new Content(json.getInt("idInfo"), json.getString("title"), start, end, p,
-            contentTag, contentTagsList);
+
+          Content c = new Content(json.getInt("idInfo"), json.getString("title"),
+            json.getInt("startDate"), json.getInt("endDate"), p, contentTag, contentTagsList);
           contentManager.save(c);
 
           /* Notify */
