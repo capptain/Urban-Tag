@@ -1,0 +1,10 @@
+Urban Tag is a Web + Android application allowing to push some geo-localized and timestamped content to people whilst they are walking their way in a city.
+
+The Web app is used to create the geo-localized content (made of geo-localized places, optionnaly associated with timestamped events).
+
+The Android app is mainly a "passive" app receiving the geo-localized content (using push notifications) as soon as the user's geo-location is close to the location of a place.
+The Android app can also be used to search for already received content (by using a map, or specifying a set of tags).
+
+Urban Tag leverages Capptain's unique geo-fencing and real-time capabilities, and so Urban Tag uses Capptain platform's APIs (mainlky the Reach API).
+
+More to come...
