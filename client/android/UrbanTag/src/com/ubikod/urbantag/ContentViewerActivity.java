@@ -13,8 +13,9 @@ import com.ubikod.urbantag.model.DatabaseHelper;
 
 public class ContentViewerActivity extends SherlockActivity
 {
-  public static final String CONTENT_ID = "content_id";
+  public static final String CONTENT_ID = "contentid";
   private Content content = null;
+  private static final String ACTION_GET_CONTENT = "info/%/content";
 
   @Override
   public void onCreate(Bundle savedInstanceState)
@@ -41,7 +42,7 @@ public class ContentViewerActivity extends SherlockActivity
 
     setContentView(R.layout.content_viewer);
     WebView wvSite = (WebView) findViewById(R.id.webview);
-    wvSite.loadUrl("http://www.test.fr");
+    wvSite.loadUrl(UrbanTag.API_URL + ACTION_GET_CONTENT.replaceAll("%", "" + this.content.getId()));
   }
 
   @Override
