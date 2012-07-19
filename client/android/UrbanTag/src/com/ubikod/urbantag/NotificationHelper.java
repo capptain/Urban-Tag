@@ -80,13 +80,14 @@ public class NotificationHelper
     }
     else
     {
-      Log.i(UrbanTag.TAG, "Notification : one content to notify");
+      Log.i(UrbanTag.TAG, "Notification : one content to notify " + contentIds.get(0));
       intent = new Intent(mContext, ContentViewerActivity.class);
       intent.putExtra(ContentViewerActivity.CONTENT_ID, contentIds.get(0));
     }
     /* Add the from notification extra info and create the pending intent */
     intent.putExtra(FROM_NOTIFICATION, true);
-    PendingIntent activity = PendingIntent.getActivity(mContext, 0, intent, 0);
+    PendingIntent activity = PendingIntent.getActivity(mContext, 0, intent,
+      PendingIntent.FLAG_UPDATE_CURRENT);
 
     /* Create or update notification */
     if (sNewContentNotification == null)
