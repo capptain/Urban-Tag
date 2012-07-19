@@ -1,9 +1,13 @@
 package com.ubikod.urbantag;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.StringTokenizer;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -34,6 +38,8 @@ public class SearchActivity extends SherlockActivity implements MultiSpinnerList
   private MultipleSelection<Tag> mSpinner;
   private Button mBtnSubmit;
   private FlowLayout mTagContainer;
+  private SharedPreferences mPrefs;
+  private SharedPreferences.Editor mEditor;
 
   @SuppressWarnings("unchecked")
   @Override
@@ -47,6 +53,20 @@ public class SearchActivity extends SherlockActivity implements MultiSpinnerList
     TagManager tagManager = new TagManager(new DatabaseHelper(this, null));
     mAllTags = tagManager.getAll();
     mSelectedTags = new ArrayList<Tag>();
+    mPrefs = getSharedPreferences("UrbanTag", Context.MODE_PRIVATE);
+    mEditor = mPrefs.edit();
+
+    /* Get selectedTags from previous search */
+    String previousSearch = mPrefs.getString("PreviousSearch", "");
+    StringTokenizer st = new StringTokenizer(previousSearch, ",");
+    HashMap<Integer, Tag> allTags = tagManager.getAllAsHashMap();
+    while (st.hasMoreTokens())
+    {
+      int value = Integer.parseInt(st.nextToken());
+      Tag t = allTags.get(value);
+      if (t != null)
+        mSelectedTags.add(t);
+    }
 
     mSpinner = (MultipleSelection<Tag>) findViewById(R.id.spinner);
     mTagContainer = (FlowLayout) findViewById(R.id.tag_container);
@@ -147,6 +167,21 @@ public class SearchActivity extends SherlockActivity implements MultiSpinnerList
   {
     super.onPause();
     Common.onPause(this);
+  }
+
+  @Override
+  public void onStop()
+  {
+    super.onStop();
+    /* Store selected tag for next search */
+    String selectedTags = "";
+    for (Tag t : mSelectedTags)
+    {
+      selectedTags += t.getId() + ",";
+    }
+    mEditor.putString("PreviousSearch", selectedTags);
+    mEditor.commit();
+
   }
 
   @Override
