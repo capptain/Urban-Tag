@@ -106,7 +106,7 @@ public class ContentsListActivity extends SherlockListActivity
     /* Handle when is given a array of contents ids => display selected contents */
     else if (extras != null && extras.getInt(MODE, -1) == MODE_CONTENTS_LIST)
     {
-      setTitle(R.string.content);
+      setTitle(R.string.events);
       int[] ids;
       if ((ids = extras.getIntArray(CONTENTS_IDS)) != null)
       {
@@ -128,7 +128,7 @@ public class ContentsListActivity extends SherlockListActivity
     /* Handle when is given a array of tags ids => display contents with corresponding tags */
     else if (extras != null && extras.getInt(MODE, -1) == MODE_TAG_LIST)
     {
-      setTitle(R.string.content);
+      setTitle(R.string.events);
       int[] ids;
       if ((ids = extras.getIntArray(TAGS_IDS)) != null)
       {
@@ -173,7 +173,10 @@ public class ContentsListActivity extends SherlockListActivity
 
     if (this.mContents.size() == 0)
     {
-      Toast.makeText(this, R.string.no_matching_content, Toast.LENGTH_SHORT).show();
+      if (extras != null && extras.getInt(DISPLAY, -1) != DISPLAY_ONLY_EVENT)
+        Toast.makeText(this, R.string.no_matching_content, Toast.LENGTH_SHORT).show();
+      else
+        Toast.makeText(this, R.string.no_matching_event, Toast.LENGTH_SHORT).show();
       finish();
       return;
     }

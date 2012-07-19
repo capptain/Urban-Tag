@@ -34,14 +34,16 @@
     <string name="a_place">un lieu</string>
     <string name="place">Lieu</string>
     <string name="place_dashed">Lieu :</string>
-    <string name="a_content">un contenu</string>
+    <string name="an_event">un évènement</string>
     <string name="search_a">Rechercher :</string>
     <string name="select_tags">Selectionner des catégories</string>
     <string name="category_needed">Vous devez sélectionner au moins une catégorie.</string>
-    <string name="content">Contenu</string>
+    <string name="events">Evènements</string>
     <string name="is_running"> est activé</string>
     <string name="new_content">Il y a du neuf !</string>
     <string name="error_occured">Une erreur a eu lieu.</string>
     <string name="no_matching_place">Il n\'y a pas de lieu correspondant.</string>
+    <string name="no_matching_content">Il n\'y a pas de contenu correspondant.</string>
+    <string name="no_matching_event">Il n\'y a pas d\'évènement correspondant.</string>
 
 </resources>
