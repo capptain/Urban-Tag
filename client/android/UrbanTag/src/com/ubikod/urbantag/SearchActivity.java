@@ -85,6 +85,8 @@ public class SearchActivity extends SherlockActivity implements MultiSpinnerList
             intent = new Intent(SearchActivity.this, ContentsListActivity.class);
             intent.putExtra(ContentsListActivity.MODE, ContentsListActivity.MODE_TAG_LIST);
             intent.putExtra(ContentsListActivity.TAGS_IDS, array);
+            /* Specify we only want event and no description */
+            intent.putExtra(ContentsListActivity.DISPLAY, ContentsListActivity.DISPLAY_ONLY_EVENT);
           }
 
           startActivity(intent);

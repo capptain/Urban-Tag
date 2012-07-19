@@ -31,6 +31,9 @@ public class ContentsListActivity extends SherlockListActivity
   public static final int MODE_PLACE = 0;
   public static final int MODE_CONTENTS_LIST = 1;
   public static final int MODE_TAG_LIST = 2;
+  public static final String DISPLAY = "display";
+  public static final int DISPLAY_ALL = 0;
+  public static final int DISPLAY_ONLY_EVENT = 1;
   public static final String PLACE_ID = "place_id";
   public static final String CONTENTS_IDS = "contents_ids";
   public static final String TAGS_IDS = "tags_ids";
@@ -160,10 +163,12 @@ public class ContentsListActivity extends SherlockListActivity
       }
     }
     /* Remove them and then Add them on top */
+    /* If DISPLAY_ONLY_EVENT specified don't add them */
     for (Content content : placesDescriptions)
     {
       mContents.remove(content);
-      mContents.add(0, content);
+      if (extras != null && extras.getInt(DISPLAY, -1) != DISPLAY_ONLY_EVENT)
+        mContents.add(0, content);
     }
 
     if (this.mContents.size() == 0)
