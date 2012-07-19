@@ -199,9 +199,6 @@ public class UrbanTagMainActivity extends SherlockMapActivity
         startActivity(intent);
         break;
 
-      case R.id.menu_quit:
-        Toast.makeText(this, "Tapped share", Toast.LENGTH_SHORT).show();
-        break;
     }
     return super.onOptionsItemSelected(item);
   }
