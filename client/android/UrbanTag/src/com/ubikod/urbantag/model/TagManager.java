@@ -103,6 +103,12 @@ public class TagManager
     }
   }
 
+  public HashMap<Integer, Tag> getAllAsHashMap()
+  {
+    sTags = this.dbGetAll();
+    return sTags;
+  }
+
   public List<Tag> getAll()
   {
     sTags = this.dbGetAll();
