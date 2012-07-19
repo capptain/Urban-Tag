@@ -32,8 +32,6 @@ public class UrbanTagApplication extends CapptainApplication
   protected void onApplicationProcessCreate()
   {
     Log.i(UrbanTag.TAG, "Launching App !");
-    NotificationHelper notifHelper = new NotificationHelper(this);
-    notifHelper.notifyAppliRunning();
 
     // re initiate wifi message display
     SharedPreferences pref = getApplicationContext().getSharedPreferences("URBAN_TAG_PREF",

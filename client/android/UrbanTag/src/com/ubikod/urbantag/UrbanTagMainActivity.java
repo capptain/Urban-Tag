@@ -201,8 +201,6 @@ public class UrbanTagMainActivity extends SherlockMapActivity
 
       case R.id.menu_quit:
         Toast.makeText(this, "Tapped share", Toast.LENGTH_SHORT).show();
-        NotificationHelper nH = new NotificationHelper(this);
-        nH.closeAppRunningNotif();
         break;
     }
     return super.onOptionsItemSelected(item);

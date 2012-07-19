@@ -114,36 +114,6 @@ public class NotificationHelper
     mNotificationManager.notify(NEW_CONTENT_NOTIF, sNewContentNotification);
   }
 
-  public void notifyAppliRunning()
-  {
-    if (sRunningAppNotification == null)
-    {
-      Intent intent;
-      intent = new Intent(mContext, UrbanTagMainActivity.class);
-      intent.putExtra(FROM_NOTIFICATION, true);
-      intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-      PendingIntent activity = PendingIntent.getActivity(mContext, 0, intent, 0);
-
-      sRunningAppNotification = new NotificationCompat.Builder(mContext).setSmallIcon(icon)
-        .setContentTitle(mContext.getResources().getString(R.string.app_name))
-        .setContentText(
-          mContext.getResources().getString(R.string.app_name) + " "
-            + mContext.getResources().getString(R.string.is_running))
-        .setWhen(0)
-        .setContentIntent(activity)
-        .getNotification();
-
-      sRunningAppNotification.flags |= Notification.FLAG_ONGOING_EVENT;
-      mNotificationManager.notify(RUNNING_APP_NOTIF, sRunningAppNotification);
-    }
-
-  }
-
-  public void closeAppRunningNotif()
-  {
-    mNotificationManager.cancel(RUNNING_APP_NOTIF);
-  }
-
   public void closeContentNotif()
   {
     mNotificationManager.cancel(NEW_CONTENT_NOTIF);
