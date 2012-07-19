@@ -16,7 +16,6 @@ import android.util.Log;
 public class NotificationHelper
 {
   public static final String FROM_NOTIFICATION = "from_notification";
-  private static final int RUNNING_APP_NOTIF = 1;
   private static final int NEW_CONTENT_NOTIF = 2;
 
   private static final int icon = android.R.drawable.ic_lock_idle_alarm;
@@ -25,7 +24,6 @@ public class NotificationHelper
   private NotificationManager mNotificationManager;
 
   private static Notification sNewContentNotification = null;
-  private static Notification sRunningAppNotification = null;
 
   public NotificationHelper(Context context)
   {
