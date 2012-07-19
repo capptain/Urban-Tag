@@ -19,6 +19,8 @@ public class TagManager
 
   private DatabaseHelper mDbHelper;
 
+  private boolean madeAllRequest = false;
+
   private static HashMap<Integer, Tag> sTags = new HashMap<Integer, Tag>();
 
   public TagManager(DatabaseHelper databaseHelper)
@@ -105,13 +107,21 @@ public class TagManager
 
   public HashMap<Integer, Tag> getAllAsHashMap()
   {
-    sTags = this.dbGetAll();
+    if (!madeAllRequest)
+    {
+      sTags = this.dbGetAll();
+      madeAllRequest = true;
+    }
     return sTags;
   }
 
   public List<Tag> getAll()
   {
-    sTags = this.dbGetAll();
+    if (!madeAllRequest)
+    {
+      sTags = this.dbGetAll();
+      madeAllRequest = true;
+    }
     return new ArrayList<Tag>(sTags.values());
   }
 
