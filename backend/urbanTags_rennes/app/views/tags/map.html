@@ -1,12 +1,12 @@
 <link rel="stylesheet" type="text/css" href="@{'/public/stylesheets/map.css'}" />
 
-<div id="map">
+<div>
+  <form class="form-search">
+    <input type="text" id="homepage-geocoding-field" value="Rechercher un lieu" class="hint" />
+    <input type="button" class="btn" id="homepage-geocoding-button" value="Rechercher" />
+    <img src="@{'/public/images/loader.gif'}" id="homepage-geocoding-loader" />
+    <span class="alert alert-danger" id="homepage-geocoding-alert">Aucun lieu n'a été trouvé</span>
+  </form>
 </div>
-
-<script type="text/javascript" charset="${_response_encoding}">
-map = new Map(placeManager, infoManager, 'map');
-
-(function(){
-   map.osmMap.zoomTo(5);
-})();
-</script>
+<div id="map" class="map">
+</div>

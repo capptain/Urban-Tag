@@ -1,48 +1,8 @@
-<tr>
-    <td>
-        <a class='info-link' href='#{if info}@{Application.showInfo}#{/if}' target='_blank'>
-            <h4 class='info-title'>
-                #{if info}info.title#{/if}
-            </h4>
-        </a>
-        <div class='info-dates'>
-            #{if info}
-                #{if info.startDate && info.endDate}
-                    de <span class='info-start-date'>${info.startDate}</span> à <span class='info-end-date'>${info.endDate}</span>.
-                #{/if}
-                #{else}
-                    Constamment valide
-                #{/else}
-            #{/if}
-            #{else}
-                de <span class='info-start-date'></span> à <span class='info-end-date'></span>.
-            #{/else} 
-        </div>
-        <div class='tag-list'>
-            #{if info}
-                #{list items:info.tags, as:tag}
-                    <span class='label' style='background:${tag.color}";'>${tag.name}</span>&nbsp;
-                #{/list}
-            #{/if}
-        </div>
-        <div class='info-summary-content'>
-            #{if info}
-                ${info.content}
-            #{/if}
-        </div>
-        #{if info}
-            #{if user && info.owner == user}
-        <div>
-            <input id="button-edit-info" type="button" class="btn btn-warning" value="&{'edit'}" />
-            <input id="button-delete-info" type="button" class="btn btn-danger" value="&{'delete'}" />
-        </div>
-            #{/if}
-        #{/if}
-        #{else}
-        <div>
-            <input id="button-edit-info" type="button" class="btn btn-warning" value="&{'edit'}" />
-            <input id="button-delete-info" type="button" class="btn btn-danger" value="&{'delete'}" />
-        </div>
-        #{/else}
+<tr class="info-list-item">
+    <td class="info-name">
     </td>
+    <td class="info-type">
+    </td>
+    <td class="info-startDate"></td>
+    <td class="info-endDate"></td>
 </tr>

@@ -1,5 +1,7 @@
 package controllers;
 
+import java.util.List;
+
 import models.Tag;
 import play.mvc.Controller;
 
@@ -31,6 +33,12 @@ public class TagApi extends Controller
       tags[i] = tag;
     }
 
+    renderJSON(tags);
+  }
+
+  public static void getAllTags()
+  {
+    List<Tag> tags = Tag.findAll();
     renderJSON(tags);
   }
 }

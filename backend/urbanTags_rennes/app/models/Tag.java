@@ -52,4 +52,9 @@ public class Tag extends GenericModel implements Comparable<Tag>
   {
     return name;
   }
+
+  public String getHexColor()
+  {
+    return "#" + color;
+  }
 }

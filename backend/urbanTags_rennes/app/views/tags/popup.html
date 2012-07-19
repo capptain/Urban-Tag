@@ -1,9 +1,10 @@
-<div id="${_id}" class="popup-div">
-    <div class="popup-main-container">
-        <img class="popup-close-button" src="@{'/public/images/close.png'}" onclick="$('#${_id}').fadeOut(300)" title="Close this popup" alt="Close icon" />
+<div id="${_id}" class="modal hide fade">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">x</button>
         #{if _title}
             <h3 class="popup-title">${_title}</h3>
         #{/if}
-        <div class="popup-content"></div>
+    </div>
+    <div class="modal-body"></div>
     </div>
 </div>

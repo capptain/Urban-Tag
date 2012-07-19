@@ -23,18 +23,18 @@ InfoManager.prototype.addInfo = function(info, fireEvent)
     }
     
     // Store the info into the associated data structure only if not modified/deleted
-    if(typeof this.infosMap[info.id] == "undefined" || typeof this.infosMap[info.id].state == "undefined")
+    if(typeof this.infosMap[info.id] == "undefined")
     {
         this.infosMap[info.id] = info;
-    }
-    
-    // Push the id of the info into the ordered data structure
-    this.placesInfos[info.place.id].push(info.id);
-    
-    // Fire an event if asked
-    if(typeof fireEvent != "undefined" && fireEvent === true)
-    {
-        this.fireEvent("infoAdded", info);
+        
+        // Push the id of the info into the ordered data structure
+        this.placesInfos[info.place.id].push(info.id);
+        
+        // Fire an event if asked
+        if(typeof fireEvent != "undefined" && fireEvent === true)
+        {
+            this.fireEvent("infoAdded", info);
+        }
     }
 };
 
@@ -81,15 +81,6 @@ InfoManager.prototype.loadPlaceInfos = function(_place, _from, _to)
         to = -1;
     }
     
-    // Put the local added infos at the top of the info table
-    if(typeof this.addedInfos[_place.id] != "undefined")
-    {
-        for(var info in this.addedInfos[_place.id])
-        {
-            this.placesInfos[_place.id].push(info.id);
-        }
-    }
-    
     var obj = this;
     $.get(jsRoutes.getPlaceInfosAction({idPlace: _place.id, from: from, to: to}), function(data){
         jQuery.each(data, function(i, info)
@@ -109,46 +100,20 @@ InfoManager.prototype.loadPlaceInfos = function(_place, _from, _to)
     });
 };
 
-InfoManager.prototype.onPlaceSelected = function(place)
-{
-    this.loadPlaceInfos(place);
-};
-
-InfoManager.prototype.onPlaceEdited = function(place)
-{
-    this.loadPlaceInfos(place);
-};
-
 InfoManager.prototype.deleteInfo = function(info)
 {
-    var storedInfo = this.infosMap[info.id];
-    storedInfo.state = "deleted";
-    
+    var storedInfo = this.infosMap[info.id];    
     $.get(jsRoutes.info.remove({'id':info.id}), function(data){
-        this.fireEvent("newChange", info);
         this.fireEvent("infoDeleted", info);
     }.bind(this)).error(function(data){
         console.log(data);
+        // TODO: handles error
     }.bind(this));
     
 };
 
-//
-//---- For future uses (when changes will be stored in local before being saved on the server) ------//
-//
-//InfoManager.prototype.reverseDelete = function(idInfo)
-//{
-//    var storedInfo = this.infosMap[idInfo];
-//    if(typeof storedInfo != "undefined" && storedInfo.state == "deleted")
-//    {
-//        delete storedInfo.state;
-//        this.fireEvent("undoChange", storedInfo);
-//    }
-//};
-
 InfoManager.prototype.editInfo = function(info)
 {
-    info.state = "edited";
     this.infosMap[info.id] = info;
-    this.fireEvent("newChange", info);
+    this.fireEvent("infoEdited", info);
 };

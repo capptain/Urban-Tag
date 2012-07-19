@@ -7,13 +7,16 @@ import java.util.HashMap;
 
 public class CampaignData
 {
+  private long id;
+  private String state;
   private String name;
   private String type;
   private String deliveryTime;
   private String startTime = null, endTime = null;
   private String body;
   private String timezone = "Europe/Paris";
-  private AudienceData audience;
+
+  // private AudienceData audience;
 
   public CampaignData(String name, String type, String deliveryTime, long startDate, long endDate,
     String body, double lon, double lat, float rad, int expiration, int accuracy)
@@ -45,7 +48,27 @@ public class CampaignData
     criteria.put(criterionName, new Criterion("geo-fencing", new POI[] { new POI("poi", expiration,
       accuracy, new Shape("circle", lon, lat, Math.round(rad))) }));
 
-    this.audience = new AudienceData(criterionName, criteria);
+    // this.audience = new AudienceData(criterionName, criteria);
+  }
+
+  public long getId()
+  {
+    return id;
+  }
+
+  public void setId(long id)
+  {
+    this.id = id;
+  }
+
+  public String getState()
+  {
+    return state;
+  }
+
+  public void setState(String state)
+  {
+    this.state = state;
   }
 
   public String getName()
@@ -88,15 +111,15 @@ public class CampaignData
     this.body = body;
   }
 
-  public AudienceData getAudience()
-  {
-    return audience;
-  }
+  // public AudienceData getAudience()
+  // {
+  // return audience;
+  // }
 
-  public void setAudience(AudienceData audience)
-  {
-    this.audience = audience;
-  }
+  // public void setAudience(AudienceData audience)
+  // {
+  // this.audience = audience;
+  // }
 
   public String getStartTime()
   {

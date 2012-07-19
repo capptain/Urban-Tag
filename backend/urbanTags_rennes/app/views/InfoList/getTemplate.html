@@ -1,23 +1,22 @@
-<div class="row">
-    <div class="span12">
-        <a class='info-link' href='' target='_blank'>
-            <h4 class='info-title'>
-            </h4>
-        </a>
-        <div class='info-dates'>
-            de <span class='info-start-date'></span> à <span class='info-end-date'></span>.
-        </div>
-        <div class='tag-list'>
-        </div>
-        <div class='info-summary-content'>
-        </div>
-        <div>
-            <p>
-            <input type="button" class="btn btn-warning btn-edit-info" value="&{'edit'}" />
-<!--             <a class="btn btn-danger btn-delete-info" href="#"><i class="icon-trash icon-white"></i> &{'delete'}</a> -->
-            <input type="button" class="btn btn-danger btn-delete-info" value="&{'delete'}" />
-            <input type="button" class="btn btn-success btn-undo-info" value="&{'undo'}" />
-            </p>
-        </div>
-    </div>
+<div id="info-list-content">
+<table class="table table-striped table-bordered event-list-table">
+    <thead>
+    <tr>
+        <th>&{'infoName'}</th>
+        <th>&{'mainTag'}</th>
+        <th>&{'startDate'}</th>
+        <th>&{'endDate'}</th>
+    </tr>
+    </thead>
+    <tbody class="event-list-body">
+    </tbody>
+</table>
 </div>
+
+#{if user}
+<div class="button-container">
+    <input type="button" value="&{'add'}" class="btn btn-success" id="info-list-add-button" />
+    <input type="button" value="&{'edit'}" class="btn btn-warning" id="info-list-edit-button" disabled="disabled" />
+    <input type="button" value="&{'delete'}" class="btn btn-danger" id="info-list-delete-button" disabled="disabled" />
+</div>
+#{/if}

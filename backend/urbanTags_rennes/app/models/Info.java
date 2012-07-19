@@ -1,5 +1,6 @@
 package models;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Set;
 import java.util.TreeSet;
@@ -13,6 +14,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 
 import models.Tag.TagNotFoundException;
+import models.check.attribute.InfoTitleCheck;
 import models.check.attribute.MainTagCheck;
 import models.data.CampaignContentData;
 import models.data.CampaignContentData.CampaignPlaceData;
@@ -36,6 +38,7 @@ public class Info extends GenericModel
 
   @Required
   @Expose
+  @CheckWith(InfoTitleCheck.class)
   public String title;
 
   @Required
@@ -96,19 +99,30 @@ public class Info extends GenericModel
 
   public Boolean isActive()
   {
-    if (startDate == null && endDate == null)
-      return true;
-    else
-      return new Date().after(startDate) && new Date().before(endDate);
-
+    try
+    {
+      return ReachWrapper.getDataPushDetails(campaignId).getState().equals("in-progress");
+    }
+    catch (Exception e)
+    {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+      return false;
+    }
   }
 
   public Boolean isFinished()
   {
-    if (startDate == null && endDate == null)
+    try
+    {
+      return ReachWrapper.getDataPushDetails(campaignId).getState().equals("finished");
+    }
+    catch (Exception e)
+    {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
       return false;
-    else
-      return new Date().after(endDate);
+    }
   }
 
   /**
@@ -193,8 +207,11 @@ public class Info extends GenericModel
       /* Delete old data-push campaign */
       try
       {
-        if (isFinished() || (isActive() && ReachWrapper.finishDataPush(campaignId))
-          || (!isFinished() && !isActive() && ReachWrapper.suspendDataPush(campaignId)))
+        boolean isFinished = isFinished();
+        boolean isActive = isActive();
+
+        if (isFinished || (isActive && ReachWrapper.finishDataPush(campaignId))
+          || (!isFinished && !isActive && ReachWrapper.suspendDataPush(campaignId)))
         {
           {
             ReachWrapper.deleteDataPush(this.campaignId);
@@ -205,6 +222,20 @@ public class Info extends GenericModel
       {
         e.printStackTrace();
         return null;
+      }
+    }
+
+    if (startDate != null)
+    {
+      Calendar startCalendar = Calendar.getInstance();
+      startCalendar.setTime(startDate);
+      Calendar now = Calendar.getInstance();
+
+      if (startCalendar.before(now))
+      {
+        startCalendar = now;
+        startCalendar.add(Calendar.MINUTE, 1);
+        startDate = startCalendar.getTime();
       }
     }
 
@@ -263,25 +294,13 @@ public class Info extends GenericModel
   public CampaignData getCampaign()
   {
     /* place data */
-    Tag[] tags = this.place.tags.toArray(new Tag[0]);
-    long[] tagIds = new long[tags.length];
-    for (int i = 0; i < tags.length; i++)
-    {
-      tagIds[i] = tags[i].id;
-    }
-
     CampaignPlaceData placeData = new CampaignPlaceData(this.place.id, this.place.name,
-      this.place.longitude, this.place.latitude, tagIds, this.place.mainTag.id);
+      this.place.longitude, this.place.latitude, this.place.tags.toArray(new Tag[0]),
+      this.place.mainTag);
 
     /* content */
-    tags = this.tags.toArray(new Tag[0]);
-    tagIds = new long[tags.length];
-    for (int i = 0; i < tags.length; i++)
-    {
-      tagIds[i] = tags[i].id;
-    }
-    CampaignContentData contentObj = new CampaignContentData(this.title, tagIds, this.mainTag.id,
-      this.id, placeData);
+    CampaignContentData contentObj = new CampaignContentData(this.title,
+      this.tags.toArray(new Tag[0]), this.mainTag, this.id, placeData);
 
     long startDate = -1, endDate = -1;
     if (this.startDate != null && this.endDate != null)
@@ -294,10 +313,28 @@ public class Info extends GenericModel
 
     String content = new Gson().toJson(contentObj, CampaignContentData.class);
 
+    int expirationTime, accuracyThreshold;
+
+    if (this.place.accuracy.equals("low"))
+    {
+      expirationTime = 60;
+      accuracyThreshold = 1000;
+    }
+    else if (this.place.accuracy.equals("high"))
+    {
+      expirationTime = 1;
+      accuracyThreshold = 10;
+    }
+    else
+    {
+      expirationTime = 10;
+      accuracyThreshold = 100;
+    }
+
     /* campaign creation */
-    CampaignData campaign = new CampaignData(this.title, "text/plain", "when-started", startDate,
+    CampaignData campaign = new CampaignData(this.id + "", "text/plain", "when-started", startDate,
       endDate, content, this.place.longitude, this.place.latitude, this.place.radius,
-      this.place.expiration, this.place.accuracy);
+      expirationTime, accuracyThreshold);
 
     return campaign;
   }

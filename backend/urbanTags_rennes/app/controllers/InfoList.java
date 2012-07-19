@@ -1,24 +1,28 @@
 package controllers;
 
-import models.Info;
 import models.User;
+import play.mvc.Before;
 import play.mvc.Controller;
-
-import com.google.gson.Gson;
 
 public class InfoList extends Controller
 {
-
-  public static void item(String json)
+  @Before
+  static void setConnectedUser()
   {
-    Gson gson = new Gson();
-
-    Info info = new Info();
-    info = gson.fromJson(json, Info.class);
-    User user = null;
     if (Security.isConnected())
-      user = User.find("byEmail", Security.connected()).first();
-    render(user, info);
+    {
+      User user = User.find("byEmail", Security.connected()).first();
+      if (user != null)
+      {
+        renderArgs.put("user", user.username);
+        renderArgs.put("userId", user.id);
+      }
+    }
+  }
+
+  public static void item()
+  {
+    render();
   }
 
   public static void getTemplate()

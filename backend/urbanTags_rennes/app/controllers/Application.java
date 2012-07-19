@@ -27,6 +27,15 @@ public class Application extends Controller
     render();
   }
 
+  public static void placeSheet(long id)
+  {
+    Place place = Place.findById(id);
+    if (place != null)
+    {
+      render(place);
+    }
+  }
+
   public static void showInfo(long id)
   {
     Info info = Info.findById(id);

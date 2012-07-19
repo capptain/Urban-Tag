@@ -15,6 +15,7 @@ import javax.persistence.OneToMany;
 
 import models.Tag.TagNotFoundException;
 import models.check.attribute.MainTagCheck;
+import models.check.attribute.PlaceAccuracyCheck;
 import models.data.PlaceData;
 import play.data.validation.CheckWith;
 import play.data.validation.Max;
@@ -72,18 +73,11 @@ public class Place extends GenericModel
   public int radius;
 
   /**
-   * Optional device location threshold (in meters).
+   * Device location accuracy.
    */
   @Expose
-  @Min(0)
-  public int accuracy;
-
-  /**
-   * Optional device location time (in minutes).
-   */
-  @Expose
-  @Min(0)
-  public int expiration;
+  @CheckWith(PlaceAccuracyCheck.class)
+  public String accuracy;
 
   /**
    * Author of the place
@@ -127,7 +121,7 @@ public class Place extends GenericModel
   {
     // Call plain constructor with null values for thresholds
 
-    this(owner, name, longitude, latitude, radius, -1, -1);
+    this(owner, name, longitude, latitude, radius, "medium");
   }
 
   /**
@@ -141,7 +135,7 @@ public class Place extends GenericModel
    * @param expiration {@link Place#expiration}
    */
   public Place(User owner, String name, double longitude, double latitude, int radius,
-    int accuracy, int expiration)
+    String accuracy)
   {
     // Set attributes
 
@@ -153,7 +147,6 @@ public class Place extends GenericModel
     this.mainTag = null;
     this.tags = new TreeSet<Tag>();
     this.accuracy = accuracy;
-    this.expiration = expiration;
   }
 
   public Place removeTag(String tag)
@@ -245,7 +238,6 @@ public class Place extends GenericModel
     this.latitude = data.getLatitude();
     this.radius = data.getRadius();
     this.accuracy = data.getAccuracy();
-    this.expiration = data.getExpiration();
     this.owner = User.findById(data.getIdOwner());
     if (this.id != null)
       this.infos = Info.find("byPlace", this).fetch();

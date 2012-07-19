@@ -25,7 +25,7 @@ public class PlaceTest extends UnitTest
     User user = new User("bob@gmail.com", "secret", "bob", "basic").save();
 
     // Create a new place
-    Place place = new Place(user, "Eiffel tower", 2.294444, 48.858333, 50, 1000, 5).save();
+    Place place = new Place(user, "Eiffel tower", 2.294444, 48.858333, 50, "low").save();
 
     // Retrive user's places
     List<Place> userPlaces = Place.find("byOwner", user).fetch();

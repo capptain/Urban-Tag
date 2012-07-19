@@ -1,6 +1,8 @@
-"use strict";
+(function(){
+    "use strict";
+})();
 
-function Map(_placeManager, _infoManager, name, options)
+function Map(_placeManager, name, options)
 {
     // Constants
     this.LONLAT_ANIMATION_DURATION = 500;
@@ -10,7 +12,7 @@ function Map(_placeManager, _infoManager, name, options)
     
     // Link the map to the place manager
     this.placeManager = _placeManager;
-    this.infoManager = _infoManager;
+    this.name = name;
     
     // Data structures
     this.shapes = {};
@@ -38,6 +40,7 @@ function Map(_placeManager, _infoManager, name, options)
     
     // Register the Map to PlaceManager's events
     this.placeSelectedRegistration = this.placeManager.register("placeSelected", this.onPlaceSelected.bind(this));
+    this.placeUnselectedRegistration = this.placeManager.register("placeUnselected", this.onPlaceUnselected.bind(this));
     this.placeAddedRegistration = this.placeManager.register("placeAdded", this.onPlaceAdded.bind(this));
     this.placeEditedRegistration = this.placeManager.register("placeEdited", this.onPlaceEdited.bind(this));
     this.placeDeletedRegistration = this.placeManager.register("placeDeleted", this.onPlaceDeleted.bind(this));
@@ -47,10 +50,71 @@ function Map(_placeManager, _infoManager, name, options)
     {
         this.drawPlace(this.placeManager.places[i]);
     }
+    
+    $("#homepage-geocoding-button").bind('click', function()
+        {
+        this.geocode($("#homepage-geocoding-field").val());
+        }.bind(this)
+    );
+    
+    $("#homepage-geocoding-field").bind('focus', function()
+    {
+        $("#homepage-geocoding-alert").hide();
+        if($("#homepage-geocoding-field").val() == "Rechercher un lieu")
+        {
+            $("#homepage-geocoding-field").val("");
+            $("#homepage-geocoding-field").removeClass("hint");
+        }
+    }
+    );
+    
+    $("#homepage-geocoding-field").bind('blur', function()
+    {
+        var value = $("#homepage-geocoding-field").val();
+        if(value === "")
+        {
+            $("#homepage-geocoding-field").val("Rechercher un lieu");
+            $("#homepage-geocoding-field").addClass("hint");
+        }
+    }.bind(this)
+    );
+    
+    $("#homepage-geocoding-loader").hide();
+    $("#homepage-geocoding-alert").hide();
+    
+    /*
+    $("#"+name).bind('mouseout', function()
+    {
+        if(this.placeManager.selectedPlace !== null)
+        {
+            this.reduceMap();
+        }
+    }.bind(this));
+    
+    $("#"+name).bind('mouseover', function()
+    {
+        this.growMap();
+    }.bind(this));
+    */
+    
+    document.getElementById(name).addEventListener("webkitTransitionEnd", function(e)
+    {
+        this.osmMap.updateSize();
+    }.bind(this), false);
 }
 
+Map.prototype.growMap = function()
+{
+    $("#"+this.name).css("height", "500px");
+};
+
+Map.prototype.reduceMap = function()
+{
+    $("#"+this.name).css("height", "250px");
+};
+
 Map.prototype.goTo = function(lonLat, zoom)
-{    
+{
     var currentCenter = this.osmMap.center;
     var longitudeDiff = lonLat.lon - currentCenter.lon;
     var latitudeDiff = lonLat.lat - currentCenter.lat;
@@ -72,7 +136,7 @@ Map.prototype.goTo = function(lonLat, zoom)
             {
                 obj.osmMap.zoomOut();
             }
-        }, (obj.ZOOM_DURATION/zoomDiff))
+        }, (obj.ZOOM_DURATION/zoomDiff));
     };
     
     var runMoveAnimation = function(){
@@ -86,7 +150,7 @@ Map.prototype.goTo = function(lonLat, zoom)
                 clearInterval(moveAnimation);
                 runZoomAnimation();
             }
-        }, obj.LONLAT_ANIMATION_INTERVAL)
+        }, obj.LONLAT_ANIMATION_INTERVAL);
     };
     
     var runZoomAnimation = function(){
@@ -100,7 +164,7 @@ Map.prototype.goTo = function(lonLat, zoom)
             {
                 obj.osmMap.zoomIn();
             }
-        }, (obj.ZOOM_DURATION/zoomDiff))
+        }, (obj.ZOOM_DURATION/zoomDiff));
     };
     
     runUnzoomAnimation();
@@ -193,6 +257,11 @@ Map.prototype.onPlaceDeleted = function(place)
 	delete this.shapes[place.id];
 };
 
+Map.prototype.onPlaceUnselected = function(place)
+{
+    this.growMap();
+};
+
 /**
  * Draw a place as a circle and return the related Polygon.
  */
@@ -227,8 +296,8 @@ Map.prototype.drawPlace = function(place)
     // Set correct style
     var style = new OpenLayers.Style();
     circle.style = style;
-    style.fillColor = place.mainTag.color;
-    style.strokeColor = place.mainTag.color;
+    style.fillColor = "#"+place.mainTag.color;
+    style.strokeColor = "#"+place.mainTag.color;
     style.fillOpacity = 0.3;
     style.strokeOpacity = 0.5;
     
@@ -245,9 +314,9 @@ Map.prototype.drawPlace = function(place)
 Map.prototype.applySelectStyle = function(feature)
 {
     var style = feature.style;
-    if(style == null)
+    if(style === null)
     {
-        var style = new OpenLayers.Style();
+        style = new OpenLayers.Style();
         feature.style = style;
     }
     style.fillOpacity = 0.8;
@@ -258,12 +327,40 @@ Map.prototype.applySelectStyle = function(feature)
 Map.prototype.applyDefaultStyle = function(feature)
 {
     var style = feature.style;
-    if(style == null)
+    if(style === null)
     {
-        var style = new OpenLayers.Style();
+        style = new OpenLayers.Style();
         feature.style = style;
     }
     style.fillOpacity = 0.3;
     style.strokeOpacity = 0.5;
     this.placeLayer.redraw();
+};
+
+Map.prototype.geocode = function(query)
+{
+    $("#homepage-geocoding-loader").show();
+    $.get(jsRoutes.geocoding.geocode({"query": query}), function(data)
+    {
+        $("#homepage-geocoding-loader").hide();
+        if(data.length > 0)
+        {
+            var position = data[0];
+            var lonlat = new OpenLayers.LonLat(position.lon, position.lat);
+            lonlat.transform(this.standardProj, this.googleProj);
+            var bounds = new OpenLayers.Bounds(position.boundingbox[0], position.boundingbox[2], position.boundingbox[1], position.boundingbox[3]);
+            bounds.transform(this.standardProj, this.googleProj);
+            var zoom = this.osmMap.getZoomForExtent(bounds, false);
+            
+            this.goTo(lonlat, zoom);
+        }
+        else
+        {
+            $("#homepage-geocoding-alert").show();
+        }
+    }.bind(this)).error(
+    function(data)
+    {
+        console.log(data);
+    });
 };

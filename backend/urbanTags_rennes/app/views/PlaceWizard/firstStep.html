@@ -1,29 +1,10 @@
 <div class="row-fluid">
-    <h2 class="span12">&{'views.wizard.presentation.title'}</h2>
-</div>
 
-<div class="row-fluid">       
-    <div class="span6">
-        <h3>
-            Bienvenue dans l'assistant d'ajout de lieu !
-        </h3>
-            Un lieu est défini par un nom, un seuil de précision, un temps d'expiration des positions, un ensemble de tags et une forme géométrique.
-            <br /><br />
-            Nous sommes conscients que cela représente beaucoup d'informations, mais ne vous inquiétez pas, tout ceci a été séparé en deux étapes:
-            
-            <ul>
-                <li>Durant la première étape, vous serez invitez à saisir les informations textuelles concernant ce nouveau lieu.</li>
-                <li>La seconde étape vous invitera à dessiner la forme géométrique correspondant à votre lieu.</li>
-            </ul>
-        <p>
-            Il ne vous reste plus qu'à vous amusez !
-        </p>
-    </div>
-
-    <div class="span6">
-        <fieldset>
+    <div class="span9">
         <form class="form-horizontal">
-        <legend>&{'views.wizard.place.firstStep.title'}</legend>
+            <div class="alert alert-danger" id="place-wizard-first-step-unknown-errorMsg">
+              Certaines données indiquées sont invalides.
+            </div>
             <div class="control-group">
                 <label class="control-label" for="place-wizard-first-step-name-text">Nom du lieu </label>
                 <div class="controls">
@@ -33,55 +14,36 @@
             </div>
             
             <div class="control-group">
-                <label class="control-label" for="place-wizard-first-step-accuracy">Précision minimum requise (mètres) </label>
+                <label class="control-label" for="place-wizard-first-step-accuracy">Précision de la géolocalisation requise </label>
                 <div class="controls">
-                    <input type="text" size="5" id="place-wizard-first-step-accuracy" />
+                    <select id="place-wizard-first-step-accuracy">
+                      <option value="low">Faible</option>
+                      <option value="medium">Moyenne</option>
+                      <option value="high">Forte</option>
+                    </select>
                     <div id="place-wizard-first-step-accuracy-errorMsg" class="alert alert-error"></div>
                 </div>
             </div>
             
             <div class="control-group">
-                <label class="control-label" for="place-wizard-first-step-expiration">Ignorer les positions datant de plus de (minutes) </label>
-                <div class="controls">
-                    <input type="text" size="5" id="place-wizard-first-step-expiration" />
-                    <div id="place-wizard-first-step-expiration-errorMsg" class="alert alert-error"></div>
-                </div>
-            </div>
-            
-            <div class="control-group">
-                <span class="control-label">Tags</span>
-                <div class="controls">
-                    <select multiple="multiple" id="place-wizard-first-step-tags-select" name="tags">
-                    #{list items:tags, as:'tag'}
-                        <option value="${tag.id}">${tag.name}</option>
-                    #{/list}
-                    </select>
-                    <div id="place-wizard-first-step-tags-errorMsg" class="alert alert-error"></div>
-<!--                 #{list items:tags, as:'tag'} -->
-<!--                     <input type="hidden" name="{tag.name}" value="false" /> -->
-<!--                     <span class="label" style="background:${tag.color};">${tag}</span> -->
-<!--                 #{/list} -->
-                </div>
-            </div>
-            
-            <div class="control-group">
                 <span class="control-label">Tag principal</span>
-                <div class="controls">
-                    <select id="place-wizard-first-step-mainTag-select" name="mainTag">
+                  <div class="controls" id="place-wizard-first-step-mainTag-container">
                     #{list items:tags, as:'tag'}
-                        <option value="${tag.id}">${tag.name}</option>
+                      <a href="#" class="label" data-color="#${tag.color}" data-value="${tag.id}" style="padding:3px">${tag.name}</a>
                     #{/list}
-                    </select>
                     <div id="place-wizard-first-step-mainTag-errorMsg" class="alert alert-error"></div>
                 </div>
             </div>
-            </fieldset>
+            
+            <div class="control-group">
+                <span class="control-label">Tags additionnels</span>
+                <div class="controls" id="place-wizard-first-step-tags-container">
+                     #{list items:tags, as:'tag'}
+                       <a href="#" class="label" data-color="#${tag.color}" data-value="${tag.id}" style="padding:3px">${tag.name}</a>
+                     #{/list}
+                    <div id="place-wizard-first-step-tags-errorMsg" class="alert alert-error"></div>
+                </div>
+            </div>
         </form>
-    </div>
-</div>
-<div class="row-fluid">
-    <div class="pull-right">
-        <input type="button" class="btn btn-warning" value="&{'cancel'}" id="place-wizard-first-step-cancel-btn" />
-        <input type="button" class="btn btn-primary" value="&{'next'} >" id="place-wizard-first-step-next-btn" />
     </div>
 </div>

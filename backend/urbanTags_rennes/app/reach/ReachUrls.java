@@ -7,4 +7,5 @@ public class ReachUrls
   public static final String ACTIVATE = "http://api.dev.ubithere.com/reach/1/activate";
   public static final String SUSPEND = "http://api.dev.ubithere.com/reach/1/suspend";
   public static final String FINISH = "http://api.dev.ubithere.com/reach/1/finish";
+  public static final String DETAILS = "http://api.dev.ubithere.com/reach/1/details";
 }

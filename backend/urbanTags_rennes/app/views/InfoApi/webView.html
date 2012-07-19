@@ -1,0 +1,13 @@
+<link rel="stylesheet" media="screen" href="@{'/public/stylesheets/bootstrap/bootstrap.css'}" />
+
+
+<div class="hero-unit">
+    <fieldset>
+        #{if info.startDate && info.endDate}
+            <legend><h5>Du ${info.startDate} au ${info.endDate}</h5></legend>
+        #{/if}
+        <div id="content">
+            ${info.content.raw()}
+        </div>
+    </fieldset>
+</div>

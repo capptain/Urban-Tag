@@ -1,13 +1,18 @@
 package controllers;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import models.Place;
 import models.Tag;
+import models.check.attribute.PlaceAccuracyCheck;
+import models.data.PlaceData;
 import play.mvc.Controller;
 import play.mvc.With;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 
 @With(Secure.class)
 public class PlaceWizard extends Controller
@@ -33,35 +38,47 @@ public class PlaceWizard extends Controller
     renderTemplate("PlaceWizard/placeWizard.html");
   }
 
-  public static void validateFirstStep(long id, String name, String accuracy, String expiration,
-    String tags, String mainTag)
+  public static void validateFirstStep(String json)
   {
+    Gson gson = new GsonBuilder().create();
+    PlaceData data = null;
+
+    try
+    {
+      data = gson.fromJson(json, PlaceData.class);
+    }
+    catch (JsonSyntaxException e)
+    {
+      badRequest();
+    }
+
     HashMap<String, String> errors = new HashMap<String, String>();
 
     // Name validation
-    if (!name.isEmpty())
+    if (!data.getName().isEmpty())
     {
-      long count = Place.count("byName", name);
-      if (id == -1)
+      long count = Place.count("byName", data.getName());
+      if (data.getId() == -1)
       {
         if (count > 0)
-          errors.put("name", "Un lieu portant le nom '" + name + "' existe déjà.");
+          errors.put("name", "Un lieu portant le nom '" + data.getName() + "' existe déjà.");
       }
       else
       {
-        Place place = Place.findById(id);
+        Place place = Place.findById(data.getId());
         if (place == null)
         {
           errors.put("id", "L'identifiant du lieu est incorrect.");
         }
         else
         {
-          Place otherPlace = Place.find("byName", name).first();
+          Place otherPlace = Place.find("byName", data.getName()).first();
           if (otherPlace != null)
           {
-            if (otherPlace.id != id)
+            if (otherPlace.id != data.getId())
             {
-              errors.put("name", "Un autre lieu portant le nom '" + name + "' existe déjà.");
+              errors.put("name", "Un autre lieu portant le nom '" + data.getName()
+                + "' existe déjà.");
             }
           }
         }
@@ -73,72 +90,24 @@ public class PlaceWizard extends Controller
     }
 
     // Accuracy validation
-    try
-    {
-      int castedAccuracy = Integer.parseInt(accuracy);
-      if (castedAccuracy < 0)
-        errors.put("accuracy", "Le seuil de précision doit être positif.");
-    }
-    catch (NumberFormatException e)
-    {
-      errors.put("accuracy", "Le seuil de précision doit être un entier positif.");
-    }
-
-    // Expiration validation
-    try
-    {
-      int castedExpiration = Integer.parseInt(expiration);
-      if (castedExpiration < 0)
-        errors.put("expiration", "Le seuil d'expiration doit être positif.");
-    }
-    catch (NumberFormatException e)
-    {
-      errors.put("expiration", "Le seuil d'expiration doit être un entier positif.");
-    }
+    if (!new PlaceAccuracyCheck().isSatisfied(null, data.getAccuracy()))
+      errors.put("accuracy", "La valeur de la précision est incorrecte.");
 
     // Tags validation
-    List<Long> castedTags = new ArrayList<Long>();
-    if (tags.equals("null"))
+    for (long tagId : data.getTags())
     {
-      errors.put("tags", "Veuillez indiquer au moins un tag.");
-    }
-    else
-    {
-      try
-      {
-        String[] tagArray = tags.split(",");
-
-        for (String tag : tagArray)
-        {
-          long tagId = Long.parseLong(tag);
-          long count = Tag.count("byId", tagId);
-          if (count != 1)
-          {
-            errors.put("tags", "Tag incorrect.");
-            break;
-          }
-          else
-            castedTags.add(tagId);
-        }
-      }
-      catch (NumberFormatException e)
+      long count = Tag.count("byId", tagId);
+      if (count != 1)
       {
         errors.put("tags", "Tag incorrect.");
+        break;
       }
     }
 
     // Maintag validation
-    try
+    if (data.getMainTag() == -1)
     {
-      long tagId = Long.parseLong(mainTag);
-      if (!castedTags.contains(tagId))
-      {
-        errors.put("mainTag", "Le tag principal doit faire parti des tags sélectionnés.");
-      }
-    }
-    catch (NumberFormatException e)
-    {
-      errors.put("mainTag", "Tag principal incorrect.");
+      errors.put("mainTag", "Veuillez indiquer le tag principal du lieu.");
     }
 
     // If errors, send a "bad request" answer

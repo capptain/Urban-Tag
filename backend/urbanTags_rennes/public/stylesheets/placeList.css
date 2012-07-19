@@ -3,13 +3,12 @@
 *************************************/
 #place-list-content
 {
-    background: #F1F1F1;
+    /*background: #F1F1F1;*/
     overflow: auto;
 }
 
 #place-list-container .button-container
 {
-    margin-top: 10px;
     text-align: center;
 }
 

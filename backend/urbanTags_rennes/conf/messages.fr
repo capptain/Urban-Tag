@@ -1,3 +1,6 @@
+date.from=du
+date.to=au
+
 #### Buttons ####
 add=Ajouter
 edit=Modifier
@@ -12,7 +15,6 @@ map=Carte
 
 ##### Place #####
 placeName=Nom du lieu
-placeType=Type
 name=Nom
 longitude=Longitude
 latitude=Latitude
@@ -20,11 +22,12 @@ radius=Rayon
 accuracy=Seuil de précision (mètres)
 expiration=Seuil de longévité (minutes)
 owner=Propriétaire
-tags=Tags
+tags.additionnal=Tags additionnels
 mainTag=Tag principal
 
 ##### Info #####
 title=Titre
+duration=Durée
 content=Contenu
 startDate=Date de départ
 endDate=Date de fin
@@ -47,7 +50,10 @@ view.place.list.noChange=Aucun changement
 
 #### Info list ####
 view.info.list.title=Liste des infos
-view.info.list.add=Ajouter une info 
+view.info.list.add.description=Définir la description
+view.info.list.add.event=Ajouter un événement
+view.info.list.edit.description=Modifier la description
+view.info.list.delete.description=Supprimer la description
 
 
 ##### Top Bar #####
@@ -61,13 +67,13 @@ place.wizard.title.add=Ajouter un lieu
 views.wizard.presentation.title=Présentation
 views.wizard.place.firstStep.title=Première étape: informations générales
 views.wizard.place.firstStep.name=1. Informations
-views.wizard.place.secondStep.name=2. Dessin
+views.wizard.place.secondStep.name=2. Localisation
 views.wizard.place.thirdStep.name=3. Résumé
 
 #### Info Wizard ####
 info.wizard.title.edit=Editer une info
 info.wizard.title.add=Ajouter une info
 views.wizard.info.firstStep.title=Première étape: informations générales
-views.wizard.info.firstStep.name=1. Informations
-views.wizard.info.secondStep.name=2. Contenu
-views.wizard.info.thirdStep.name=3. Prévisualisation
+views.wizard.info.firstStep.name=Informations
+views.wizard.info.secondStep.name=Contenu
+views.wizard.info.thirdStep.name=Prévisualisation

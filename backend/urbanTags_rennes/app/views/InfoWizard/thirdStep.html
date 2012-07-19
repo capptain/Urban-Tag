@@ -1,7 +1,44 @@
 <div class="row-fluid">
-    <div class="pull-right">
-        <input type="button" class="btn btn-warning" value="&{'cancel'}" id="info-wizard-third-step-cancel-btn" />
-        <input type="button" class="btn btn-primary" value="< &{'previous'}" id="info-wizard-third-step-previous-btn" />
-        <input type="button" class="btn btn-primary" value="&{'next'} >" id="info-wizard-third-step-next-btn" />
+    <div class="span12">
+        <fieldset>
+            <legend>Résumé</legend>
+            
+            <div class="info-wizard-third-step-alert-container">
+                <div class="alert alert-error info-wizard-third-step-alert"></div>
+            </div>
+            
+            <form class="form-horizontal">
+                <div class="control-group">
+                    <label class="control-label">&{'title'}</label>
+                    <div class="controls">
+                        <div class="control-label info-wizard-third-step-title" style="text-align: left;"></div>
+                    </div>
+                </div>
+                
+                <div class="control-group">    
+                    <label class="control-label">&{'duration'}</label>
+                    <div class="controls">
+                        <div class="input-xlarge uneditable-input info-wizard-third-step-duration"></div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">&{'mainTag'}</label>
+                    <div class="controls info-wizard-third-step-mainTag-container">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">&{'tags.additionnal'}</label>
+                    <div class="controls info-wizard-third-step-tags-container"></div>
+                </div>
+                 
+                 <div class="control-group">
+                    <label class="control-label">&{'content'}</label>
+                  <div class="controls well info-wizard-third-step-content">
+                  </div>
+                </div>
+            </form>
+         </fieldset>
     </div>
 </div>
