@@ -1,6 +1,17 @@
 package com.ubikod.urbantag;
 
+import java.io.IOException;
+
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.DefaultHttpClient;
+
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.webkit.WebView;
 import android.widget.Toast;
@@ -13,9 +24,16 @@ import com.ubikod.urbantag.model.DatabaseHelper;
 
 public class ContentViewerActivity extends SherlockActivity
 {
-  public static final String CONTENT_ID = "contentid";
-  private Content content = null;
   private static final String ACTION_GET_CONTENT = "info/%/content";
+  private final String mimeType = "text/html";
+  private final String encoding = "US-ASCII";
+  private static final int TIMEOUT = 60000;
+  public static final String CONTENT_ID = "contentid";
+
+  private Thread timeOutHandler;
+  private Thread contentFetcher;
+
+  private Content content = null;
 
   @Override
   public void onCreate(Bundle savedInstanceState)
@@ -41,8 +59,124 @@ public class ContentViewerActivity extends SherlockActivity
     actionBar.setDisplayHomeAsUpEnabled(true);
 
     setContentView(R.layout.content_viewer);
-    WebView wvSite = (WebView) findViewById(R.id.webview);
-    wvSite.loadUrl(UrbanTag.API_URL + ACTION_GET_CONTENT.replaceAll("%", "" + this.content.getId()));
+    final WebView webView = (WebView) findViewById(R.id.webview);
+    final String URL = UrbanTag.API_URL
+      + ACTION_GET_CONTENT.replaceAll("%", "" + this.content.getId());
+
+    /* Display progress animation */
+    final ProgressDialog progress = ProgressDialog.show(this, "",
+      this.getResources().getString(R.string.loading_content), false, true,
+      new DialogInterface.OnCancelListener()
+      {
+
+        @Override
+        public void onCancel(DialogInterface dialog)
+        {
+          timeOutHandler.interrupt();
+          webView.stopLoading();
+          ContentViewerActivity.this.finish();
+        }
+
+      });
+
+    /* Go fetch content */
+    contentFetcher = new Thread(new Runnable()
+    {
+
+      DefaultHttpClient httpClient;
+
+      @Override
+      public void run()
+      {
+        Looper.prepare();
+        Log.i(UrbanTag.TAG, "Fetching content...");
+        httpClient = new DefaultHttpClient();
+        try
+        {
+          String responseBody = httpClient.execute(new HttpGet(URL), new BasicResponseHandler());
+          webView.loadData(responseBody, mimeType, encoding);
+          timeOutHandler.interrupt();
+          if (progress.isShowing())
+            progress.dismiss();
+        }
+        catch (ClientProtocolException cpe)
+        {
+          new Handler().post(new Runnable()
+          {
+            @Override
+            public void run()
+            {
+              Toast.makeText(getApplicationContext(), R.string.error_loading_content,
+                Toast.LENGTH_SHORT).show();
+            }
+          });
+          timeOutHandler.interrupt();
+          progress.cancel();
+        }
+        catch (IOException ioe)
+        {
+          new Handler().post(new Runnable()
+          {
+            @Override
+            public void run()
+            {
+              Toast.makeText(getApplicationContext(), R.string.error_loading_content,
+                Toast.LENGTH_SHORT).show();
+            }
+          });
+          timeOutHandler.interrupt();
+          progress.cancel();
+        }
+
+        Looper.loop();
+      }
+
+    });
+    contentFetcher.start();
+
+    /* TimeOut Handler */
+    timeOutHandler = new Thread(new Runnable()
+    {
+      private int INCREMENT = 1000;
+
+      @Override
+      public void run()
+      {
+        Looper.prepare();
+        try
+        {
+          for (int time = 0; time < TIMEOUT; time += INCREMENT)
+          {
+            Thread.sleep(INCREMENT);
+
+          }
+
+          Log.i(UrbanTag.TAG, "TimeOut !");
+          new Handler().post(new Runnable()
+          {
+            @Override
+            public void run()
+            {
+              Toast.makeText(getApplicationContext(), R.string.error_loading_content,
+                Toast.LENGTH_SHORT).show();
+            }
+          });
+
+          contentFetcher.interrupt();
+          progress.cancel();
+        }
+        catch (InterruptedException e)
+        {
+          e.printStackTrace();
+        }
+
+        Looper.loop();
+
+      }
+
+    });
+    timeOutHandler.start();
+
   }
 
   @Override
@@ -50,6 +184,7 @@ public class ContentViewerActivity extends SherlockActivity
   {
     super.onResume();
     Common.onResume(this);
+
   }
 
   @Override
@@ -57,6 +192,7 @@ public class ContentViewerActivity extends SherlockActivity
   {
     super.onPause();
     Common.onPause(this);
+
   }
 
   @Override
