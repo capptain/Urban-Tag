@@ -9,6 +9,7 @@ public class InfoData
   private long id = -1;
   private String title = "";
   private String startDate = "", endDate = "";
+  private String startTime = "", endTime = "";
   private long[] tags = null;
   private long mainTag = -1;
   private String content = null;
@@ -33,7 +34,7 @@ public class InfoData
 
   public void setStartDate(String startDate)
   {
-    this.startDate = startDate;
+    this.startDate = startDate + " 00:00";
   }
 
   public String getEndDate()
@@ -43,7 +44,27 @@ public class InfoData
 
   public void setEndDate(String endDate)
   {
-    this.endDate = endDate;
+    this.endDate = endDate + " 00:00";
+  }
+
+  public String getStartTime()
+  {
+    return startTime;
+  }
+
+  public void setStartTime(String startTime)
+  {
+    this.startTime = startTime;
+  }
+
+  public String getEndTime()
+  {
+    return endTime;
+  }
+
+  public void setEndTime(String endTime)
+  {
+    this.endTime = endTime;
   }
 
   public long[] getTags()
@@ -120,12 +141,12 @@ public class InfoData
   {
 
     DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-    return dateFormat.parse(this.startDate);
+    return dateFormat.parse(this.startDate + " " + this.startTime);
   }
 
   public Date getConvertedEndDate() throws Exception
   {
     DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-    return dateFormat.parse(this.endDate);
+    return dateFormat.parse(this.endDate + " " + this.endTime);
   }
 }

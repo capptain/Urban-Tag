@@ -1,3 +1,6 @@
+date.from=from
+date.to=to
+
 #### Buttons ####
 add=Add
 edit=Edit
@@ -12,7 +15,6 @@ map=Map
 
 ##### Place #####
 placeName=Place name
-placeType=Type
 name=Name
 longitude=Longitude
 latitude=Latitude
@@ -20,12 +22,13 @@ radius=Radius
 accuracy=Accuracy threshold (meters)
 expiration=Expiration time (minutes)
 owner=Owner
-tags=Tags
+tags.additionnal=Additionnal tags
 mainTag=Main tag
 
 ##### Info #####
 title=Title
 content=Content
+duration=Duration
 startDate=Start date
 endDate=End date
 addedAt=Added at
@@ -43,7 +46,8 @@ view.place.list.noChange=No change
 
 #### Info list ####
 view.info.list.title=Info list
-view.info.list.add=Add an info 
+view.info.list.add.description=Set the description
+view.info.list.add.event=Add an event 
 
 
 ##### Top Bar #####
@@ -56,5 +60,13 @@ place.wizard.title.add=Add a place
 views.wizard.presentation.title=Presentation
 views.wizard.place.firstStep.title=First step: general informations
 views.wizard.place.firstStep.name=1. Informations
-views.wizard.place.secondStep.name=2. Drawing
+views.wizard.place.secondStep.name=2. Localization
 views.wizard.place.thirdStep.name=3. Summary
+
+#### Info Wizard ####
+info.wizard.title.edit=Edit an info
+info.wizard.title.add=Add an info
+views.wizard.info.firstStep.title=First step: general informations
+views.wizard.info.firstStep.name=Informations
+views.wizard.info.secondStep.name=Content
+views.wizard.info.thirdStep.name=Preview

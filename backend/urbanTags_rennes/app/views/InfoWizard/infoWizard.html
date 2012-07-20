@@ -1,24 +1,26 @@
-<link rel="stylesheet" type="text/css" href="@{'/public/stylesheets/wizard/info/infoWizard.css'}" />
-
-<div id="info-wizard-container">
-    <div class="container-fluid hero-unit span8" id="info-wizard-content-container">
-        <div class="row-fluid">
-            <h2 class="span12" id="info-wizard-title">&{'info.wizard.title.add'}</h2>
-        </div>
-        
-        <div class="row-fluid">
-            <div class="span12">
-                <ul class="custom-breadcrumb">
-                    <li class="first"><a href="#">&{'views.wizard.info.firstStep.name'}</a></li>
-                    <li class="second"><a href="#">&{'views.wizard.info.secondStep.name'}</a></li>
-                    <li class="third"><a href="#">&{'views.wizard.info.thirdStep.name'}</a></li>
-                </ul>
-            </div>
-        </div>
-        
-        <div class="row-fluid">
-            <div class="span12" id="info-wizard-step-content">
-            </div>
-        </div>
+<div class="modal hide fade info-wizard-content-container">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">x</button>
+        <h2 class="info-wizard-title">&{'info.wizard.title.add'}</h2>
+        <ul class="custom-breadcrumb info-wizard-evt-breadcrumb">
+            <li class="first"><a href="#">1. &{'views.wizard.info.firstStep.name'}</a></li>
+            <li class="second"><a href="#">2. &{'views.wizard.info.secondStep.name'}</a></li>
+            <li class="third"><a href="#">3. &{'views.wizard.info.thirdStep.name'}</a></li>
+        </ul>
+        <ul class="custom-breadcrumb info-wizard-description-breadcrumb">
+            <li class="first"><a href="#">1. &{'views.wizard.info.secondStep.name'}</a></li>
+            <li class="second"><a href="#">2. &{'views.wizard.info.thirdStep.name'}</a></li>
+        </ul>
+    </div>
+    
+    <div class="modal-body info-wizard-step-content">
+    </div>
+    
+    <div class="modal-footer">
+      <div class="pull-right">
+        <input type="button" class="btn btn-warning info-wizard-cancel-btn" value="&{'cancel'}"/>
+        <input type="button" class="btn btn-primary info-wizard-previous-btn" value="< &{'previous'}" />
+        <input type="button" class="btn btn-primary info-wizard-next-btn" value="&{'next'} >" />
+      </div>
     </div>
 </div>

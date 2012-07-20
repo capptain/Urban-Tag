@@ -5,7 +5,7 @@
     <thead>
     <tr>
         <th>&{'placeName'}</th>
-        <th>&{'placeType'}</th>
+        <th>&{'mainTag'}</th>
     </tr>
     </thead>
     <tbody>
@@ -20,9 +20,3 @@
     <input type="button" value="&{'delete'}" class="btn btn-danger" id="place-list-delete-button" disabled="disabled" />
 </div>
 #{/if}
-
-<script type="text/javascript" src="@{'/public/javascripts/PlaceList.js'}"></script>
-<script type="text/javascript">
-placeList = new PlaceList(placeManager, placeWizard);
-placeList.refresh();
-</script>

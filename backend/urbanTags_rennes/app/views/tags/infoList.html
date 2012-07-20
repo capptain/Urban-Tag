@@ -6,11 +6,15 @@
     <p class="tag-list"></p>
     
     #{if _user}
-        <input id="button-add-info" type="button" class="btn btn-success" value="&{'view.info.list.add'}" />
+        <input id="button-add-event-info" type="button" class="btn btn-success" value="&{'view.info.list.add.event'}" />
     #{/if}
     
-    <div id="info-list-content" class="row-fluid">
-    </div>
+    <fieldset class="row-fluid">
+      <legend>Description du lieu</legend>
+      <div id="info-list-content">
+      </div>
+      
+    </fieldset>
 </div>
 
 <script type="text/javascript" src="@{'/public/javascripts/InfoList.js'}"></script>

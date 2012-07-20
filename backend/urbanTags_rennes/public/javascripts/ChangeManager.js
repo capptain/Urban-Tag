@@ -1,3 +1,4 @@
+/* FOR FUTURE USES */
 function ChangeManager(_placeManager, _infoManager)
 {
     this.placeManager = _placeManager;

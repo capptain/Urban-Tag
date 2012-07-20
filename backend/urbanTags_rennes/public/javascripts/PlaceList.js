@@ -1,9 +1,11 @@
-"use strict";
+(function(){
+    "use strict";
+})();
 
 function PlaceList(_manager, _placeWizard) {
     this.manager = _manager;
     this.placeWizard = _placeWizard;
-    this.placeItems = new Object();
+    this.placeItems = {};
     
     this.placeAddedRegistration = this.manager.register("placeAdded", this.onPlaceAdded.bind(this));
     this.placeSelectedRegistration = this.manager.register("placeSelected", this.onPlaceSelected.bind(this));
@@ -27,7 +29,7 @@ function PlaceList(_manager, _placeWizard) {
  */
 PlaceList.prototype.refresh = function()
 {
-	this.placeItems = new Object();
+    this.placeItems = {};
     $("tr.place-list-item", "#place-list-table").remove();
     // Generate HTML for each place
     jQuery.each(this.manager.places, function(i, place)
@@ -53,7 +55,7 @@ PlaceList.prototype.addItem = function(place)
 {
     var html = $(this.templateView);
     $("td.place-name", html).html(place.name);
-    $("td.place-type", html).html($("<span class='label' style='background:"+place.mainTag.color+";'>"+place.mainTag.name+"</span>"));
+    $("td.place-type", html).html($("<span class='label' style='background:#"+place.mainTag.color+";'>"+place.mainTag.name+"</span>"));
     $("#place-list-table tbody").append(html);
     
     // Store html into datastructure
@@ -70,7 +72,7 @@ PlaceList.prototype.replaceItem = function(place)
 {
     var html = this.placeItems[place.id];
     $("td.place-name", html).html(place.name);
-    $("td.place-type", html).html($("<span class='label' style='background:"+place.mainTag.color+";'>"+place.mainTag.name+"</span>"));
+    $("td.place-type", html).html($("<span class='label' style='background:#"+place.mainTag.color+";'>"+place.mainTag.name+"</span>"));
 };
 
 /**
@@ -88,7 +90,7 @@ PlaceList.prototype.onPlaceEdited = function(place)
 };
 
 /**
- * Change the background of the row corresponding to the selected place 
+ * Change the background of the row corresponding to the selected place
  */
 
 PlaceList.prototype.onPlaceSelected = function(place)
@@ -96,13 +98,12 @@ PlaceList.prototype.onPlaceSelected = function(place)
     var selectedIndex = this.manager.places.indexOf(place);
     if(selectedIndex !== -1)
     {
-    	jQuery('tr.place-list-item.selected', "#place-list-table").removeClass('selected');
-    	
-    	var row = this.placeItems[place.id];
-    	if(typeof row != "undefined")
-		{
-    		row.addClass('selected');
-		}
+        $('tr.place-list-item.selected', "#place-list-table").removeClass('selected');
+        var row = this.placeItems[place.id];
+        if(typeof row != "undefined")
+        {
+            row.addClass('selected');
+        }
     }
     
     $("#place-list-edit-button").bind("click", function()
@@ -111,18 +112,18 @@ PlaceList.prototype.onPlaceSelected = function(place)
     }.bind(this));
     
     if(place.owner.id == myId)
-	{
-	    if(typeof $("#place-list-delete-button").attr("disabled") != "undefined")
-		{
-	    	$('#place-list-delete-button').removeAttr("disabled");
-	    	$('#place-list-edit-button').removeAttr("disabled");
-	    	
-	    	$("#place-list-delete-button").bind("click", function()
-			{
-	    		this.manager.deletePlace(this.manager.selectedPlace);
-			}.bind(this))
-		}
-	}
+    {
+        if(typeof $("#place-list-delete-button").attr("disabled") != "undefined")
+        {
+            $('#place-list-delete-button').removeAttr("disabled");
+            $('#place-list-edit-button').removeAttr("disabled");
+            
+            $("#place-list-delete-button").bind("click", function()
+            {
+                this.manager.deletePlace(this.manager.selectedPlace);
+            }.bind(this));
+        }
+    }
 };
 
 PlaceList.prototype.onPlaceUnselected = function()
@@ -134,10 +135,10 @@ PlaceList.prototype.onPlaceUnselected = function()
 
 PlaceList.prototype.onPlaceDeleted = function(place)
 {
-	if(typeof this.placeItems[place.id] != "undefined")
-	{
-		var html = this.placeItems[place.id];
-		html.remove();
-		delete this.placeItems[place.id];
-	}
+    if(typeof this.placeItems[place.id] != "undefined")
+    {
+        var html = this.placeItems[place.id];
+        html.remove();
+        delete this.placeItems[place.id];
+    }
 };

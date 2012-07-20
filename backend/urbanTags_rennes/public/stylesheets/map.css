@@ -7,4 +7,11 @@
 #map{
     width: 100%;
     height: 500px;
+    -webkit-transition-duration: 300ms;
+    -webkit-transition-property: height;
+    
+}
+
+input.hint{
+	color: #B4B4B4;
 }

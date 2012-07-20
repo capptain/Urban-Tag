@@ -1,11 +1,13 @@
-"use strict";
+(function(){
+    "use strict";
+})();
 
 function PlaceManager()
 {
     CanFireEvents.call(this, ["placeAdded", "placeEdited", "placeSelected", "placeUnselected", "placeDeleted"]);
-	this.places = new Array();
+	this.places        = [];
 	this.selectedPlace = null;
-};
+}
 
 extend(PlaceManager.prototype, CanFireEvents.prototype);
 
@@ -14,11 +16,10 @@ extend(PlaceManager.prototype, CanFireEvents.prototype);
  */
 PlaceManager.prototype.loadData = function()
 {
-    this.places = new Array();
-    var obj = this;
+    this.places = [];
+    var obj     = this;
     $.get(jsRoutes.getPlaceListAction(), function(data){
-        jQuery.each(data, function(i, place)
-        {
+        jQuery.each(data, function(i, place){
             obj.addPlace(this);
         });
     });
@@ -27,12 +28,10 @@ PlaceManager.prototype.loadData = function()
 PlaceManager.prototype.getPlaceByName = function(name)
 {
     var found = false;
-    var cpt = 0;
-    while(!found && cpt < this.places.length)
-    {
+    var cpt   = 0;
+    while(!found && cpt < this.places.length){
         found = (this.places[cpt].name === name);
-        if(!found)
-        {
+        if(!found){
             cpt++;
         }
     }
@@ -45,7 +44,7 @@ PlaceManager.prototype.getPlaceByName = function(name)
     {
         return null;
     }
-}
+};
 
 /**
  * Add a place to the place list and fire a placeAddedEvent
@@ -59,15 +58,14 @@ PlaceManager.prototype.addPlace = function(place)
 PlaceManager.prototype.editPlace = function(place)
 {
     // Find old place
-    var id = place.id;
-    var found = false;
-    var i = 0;
+    var id       = place.id;
+    var found    = false;
+    var i        = 0;
     var oldPlace = null;
     while(!found  && i < this.places.length)
     {
         found = this.places[i].id == id;
-        if(found)
-        {
+        if(found){
             oldPlace = this.places[i];
         }
         i++;
@@ -75,11 +73,9 @@ PlaceManager.prototype.editPlace = function(place)
     
     if(found)
     {
-        for(var key in place)
-        {
+        for(var key in place){
             oldPlace[key] = place[key];
         }
-        
         this.fireEvent("placeEdited", oldPlace);
     }
 };
@@ -98,7 +94,6 @@ PlaceManager.prototype.selectPlace = function(place)
     {
         this.selectedPlace = place;
         this.fireEvent("placeSelected", place);
-//        this.selectPlaceByIndex(index);
     }
 };
 
@@ -107,14 +102,15 @@ PlaceManager.prototype.deletePlace = function(place)
 	$.get(jsRoutes.place.remove({'id':place.id}), function(data)
 	{
 		console.log(data);
-		var index = this.places.indexOf(place);
+		var index     = this.places.indexOf(place);
 		var newPlaces = [];
-		for(var i = 0; i < index; i++)
+        var i;
+		for(i = 0; i < index; i++)
 		{
 			newPlaces.push(this.places[i]);
 		}
 		
-		for(var i = index+1; i < this.places.length; i++)
+		for(i = index+1; i < this.places.length; i++)
 		{
 			newPlaces.push(this.places[i]);
 		}

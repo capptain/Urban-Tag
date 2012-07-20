@@ -1,16 +1,18 @@
 package models.data;
 
+import models.Tag;
+
 public class CampaignContentData
 {
   String title;
-  long[] tags;
-  long mainTag;
+  Tag[] tags;
+  Tag mainTag;
   long idInfo;
   CampaignPlaceData place;
   long startDate = -1;
   long endDate = -1;
 
-  public CampaignContentData(String title, long[] tags, long mainTag, long idInfo,
+  public CampaignContentData(String title, Tag[] tags, Tag mainTag, long idInfo,
     CampaignPlaceData place)
   {
     super();
@@ -21,7 +23,7 @@ public class CampaignContentData
     this.place = place;
   }
 
-  public CampaignContentData(String title, long[] tags, long mainTag, long idInfo,
+  public CampaignContentData(String title, Tag[] tags, Tag mainTag, long idInfo,
     CampaignPlaceData place, long startDate, long endDate)
   {
     super();
@@ -44,22 +46,22 @@ public class CampaignContentData
     this.title = title;
   }
 
-  public long[] getTags()
+  public Tag[] getTags()
   {
     return tags;
   }
 
-  public void setTags(long[] tags)
+  public void setTags(Tag[] tags)
   {
     this.tags = tags;
   }
 
-  public long getMainTag()
+  public Tag getMainTag()
   {
     return mainTag;
   }
 
-  public void setMainTag(long mainTag)
+  public void setMainTag(Tag mainTag)
   {
     this.mainTag = mainTag;
   }
@@ -110,10 +112,10 @@ public class CampaignContentData
     String name;
     double lon;
     double lat;
-    long[] tags;
-    long mainTag;
+    Tag[] tags;
+    Tag mainTag;
 
-    public CampaignPlaceData(long id, String name, double lon, double lat, long[] tags, long maintag)
+    public CampaignPlaceData(long id, String name, double lon, double lat, Tag[] tags, Tag maintag)
     {
       super();
       this.id = id;
@@ -164,22 +166,22 @@ public class CampaignContentData
       this.lat = lat;
     }
 
-    public long[] getTags()
+    public Tag[] getTags()
     {
       return tags;
     }
 
-    public void setTags(long[] tags)
+    public void setTags(Tag[] tags)
     {
       this.tags = tags;
     }
 
-    public long getMainTag()
+    public Tag getMainTag()
     {
       return mainTag;
     }
 
-    public void setMainTag(long maintag)
+    public void setMainTag(Tag maintag)
     {
       this.mainTag = maintag;
     }

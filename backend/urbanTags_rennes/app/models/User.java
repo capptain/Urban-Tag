@@ -1,8 +1,11 @@
 package models;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.PrePersist;
+import javax.persistence.Transient;
 
 import models.check.security.UserRoleCheck;
 import play.data.validation.CheckWith;
@@ -11,6 +14,7 @@ import play.data.validation.Password;
 import play.data.validation.Required;
 import play.data.validation.Unique;
 import play.db.jpa.GenericModel;
+import play.libs.Codec;
 
 import com.google.gson.annotations.Expose;
 
@@ -38,8 +42,12 @@ public class User extends GenericModel
    * Password of the user.
    */
   @Password
-  @Required
+  @Transient
   public String password;
+
+  @Column(nullable = false)
+  @Password
+  public String hash;
 
   /**
    * Displayed username
@@ -79,7 +87,7 @@ public class User extends GenericModel
    */
   public static User connect(String email, String password)
   {
-    return find("byEmailAndPassword", email, password).first();
+    return find("byEmailAndHash", email, Codec.hexSHA1(password)).first();
   }
 
   /*
@@ -89,5 +97,11 @@ public class User extends GenericModel
   public String toString()
   {
     return username;
+  }
+
+  @PrePersist
+  public void prePersist() throws Exception
+  {
+    this.hash = Codec.hexSHA1(this.password);
   }
 }

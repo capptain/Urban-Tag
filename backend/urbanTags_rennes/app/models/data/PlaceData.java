@@ -4,11 +4,11 @@ public class PlaceData
 {
 
   private long id = -1, idOwner = -1;
-  private String name;
+  private String name, accuracy;
   private double longitude, latitude;
-  private int radius, accuracy, expiration;
+  private int radius;
   private int[] tags;
-  private int mainTag;
+  private int mainTag = -1;
 
   public long getId()
   {
@@ -35,14 +35,9 @@ public class PlaceData
     return radius;
   }
 
-  public int getAccuracy()
+  public String getAccuracy()
   {
     return accuracy;
-  }
-
-  public int getExpiration()
-  {
-    return expiration;
   }
 
   public int[] getTags()
@@ -80,14 +75,9 @@ public class PlaceData
     this.radius = radius;
   }
 
-  public void setAccuracy(int accuracy)
+  public void setAccuracy(String accuracy)
   {
     this.accuracy = accuracy;
-  }
-
-  public void setExpiration(int expiration)
-  {
-    this.expiration = expiration;
   }
 
   public void setTags(int[] tags)

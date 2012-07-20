@@ -2,7 +2,6 @@ package controllers;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -27,8 +26,14 @@ public class InfoWizard extends Controller
 
   public static void firstStep()
   {
+    Calendar date = Calendar.getInstance();
     List<Tag> tags = Tag.findAll();
-    render(tags);
+    String day = (date.get(Calendar.DAY_OF_MONTH) < 10) ? ("0" + date.get(Calendar.DAY_OF_MONTH))
+      : "" + date.get(Calendar.DAY_OF_MONTH);
+    String month = (date.get(Calendar.MONTH) + 1) < 10 ? ("0" + (date.get(Calendar.MONTH) + 1))
+      : "" + (date.get(Calendar.MONTH) + 1);
+    int year = date.get(Calendar.YEAR);
+    render(tags, day, month, year);
   }
 
   public static void secondStep()
@@ -76,103 +81,56 @@ public class InfoWizard extends Controller
         errors.put("title", "Le titre ne peut pas être vide.");
       }
 
-      if (data.getType().isEmpty())
+      if (!data.getStartDate().isEmpty() && !data.getEndDate().isEmpty()
+        && !data.getStartTime().isEmpty() && !data.getEndTime().isEmpty())
       {
-        errors.put("infoType", "Veuillez sélectionner un type d'info.");
+        Date startDate = null;
+        Date endDate = null;
+        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+        try
+        {
+          startDate = dateFormat.parse(data.getStartDate() + " " + data.getStartTime());
+        }
+        catch (java.text.ParseException e)
+        {
+          errors.put("startDate", "La date de début semble incorrecte.");
+        }
+
+        try
+        {
+          endDate = dateFormat.parse(data.getEndDate() + " " + data.getEndTime());
+        }
+        catch (java.text.ParseException e)
+        {
+          errors.put("endDate", "La date de fin semble incorrecte.");
+        }
+
+        if (startDate != null && endDate != null && !endDate.after(startDate))
+        {
+          errors.put("endDate", "La date de fin doit être postérieure à la date de début.");
+        }
+
+        Date now = Calendar.getInstance().getTime();
+
+        if (endDate != null && !errors.containsKey("endDate") && !endDate.after(now))
+        {
+          errors.put("endDate", "La date de fin ne peut pas être déjà passée.");
+        }
       }
       else
       {
-        // Check static info unicity
-        if (data.getType().equals("static"))
-        {
-          if (place != null)
-          {
-            // if new info
-            if (data.getId() == -1)
-            {
-              // select info where dates are null
-              long count = Info.count("byPlaceAndStartDateAndEndDate", place, null, null);
-              if (count > 0)
-              {
-                errors.put("infoType",
-                  "Une info de type 'statique' est déjà présente pour ce lieu.");
-              }
-            }
-            // OR if old type was event
-            else
-            {
-              Info info = Info.find("byPlaceAndStartDateAndEndDate", place, null, null).first();
-              if (info.id != data.getId())
-              {
-                errors.put("infoType",
-                  "Une info de type 'statique' est déjà présente pour ce lieu.");
-              }
-            }
-          }
-        }
-        // Check dates
-        else if (data.getType().equals("event"))
-        {
-          if (!data.getStartDate().isEmpty() && !data.getEndDate().isEmpty())
-          {
-            Date startDate = null;
-            Date endDate = null;
-            DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-            try
-            {
-              startDate = dateFormat.parse(data.getStartDate());
-            }
-            catch (java.text.ParseException e)
-            {
-              errors.put("startDate", "La date de début semble incorrecte.");
-            }
-
-            try
-            {
-              endDate = dateFormat.parse(data.getEndDate());
-            }
-            catch (java.text.ParseException e)
-            {
-              errors.put("endDate", "La date de fin semble incorrecte.");
-            }
-
-            if (startDate != null && endDate != null && !endDate.after(startDate))
-            {
-              errors.put("endDate", "La date de fin doit être postérieure à la date de début.");
-            }
-
-            Date now = Calendar.getInstance().getTime();
-            if (endDate != null && !errors.containsKey("endDate") && !endDate.after(now))
-            {
-              errors.put("endDate", "La date de fin ne peut pas être déjà passée.");
-            }
-          }
-          else
-          {
-            errors.put("startDate", "Veuillez indiquer une date de début pour l'événement.");
-            errors.put("endDate", "Veuillez indiquer une date de fin pour l'événement.");
-          }
-        }
+        errors.put("startDate", "Veuillez indiquer une date de début pour l'événement.");
+        errors.put("endDate", "Veuillez indiquer une date de fin pour l'événement.");
       }
 
       // Tags validation
-      List<Long> castedTags = new ArrayList<Long>();
-      if (data.getTags() == null || data.getTags().length < 1)
+      for (long tagId : data.getTags())
       {
-        errors.put("tags", "Veuillez indiquer au moins un tag.");
-      }
-      else
-      {
-        for (long tagId : data.getTags())
+        long count = Tag.count("byId", tagId);
+        if (count != 1)
         {
-          long count = Tag.count("byId", tagId);
-          if (count != 1)
-          {
-            errors.put("tags", "Tag incorrect.");
-            break;
-          }
-          else
-            castedTags.add(tagId);
+          errors.put("tags", "Tag incorrect.");
+          break;
         }
       }
 
@@ -180,14 +138,6 @@ public class InfoWizard extends Controller
       if (data.getMainTag() == -1)
       {
         errors.put("mainTag", "Veuillez indiquer le tag principal de l'info.");
-      }
-      else
-      {
-        long tagId = data.getMainTag();
-        if (!castedTags.contains(tagId))
-        {
-          errors.put("mainTag", "Le tag principal doit faire parti des tags sélectionnés.");
-        }
       }
     }
     else

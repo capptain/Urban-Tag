@@ -1,41 +1,39 @@
-function PlaceWizard(_placeManager, _place)
+(function () {
+    "use strict";
+})();
+
+function PlaceWizard(placeManager, place)
 {
-    this.placeManager = _placeManager;
-    this.mapBox = null;
-    this.thirdStepMap = null;
+    this.placeManager    = placeManager;
+    this.mapBox          = null;
+    this.thirdStepMap    = null;
+    this.previousMainTag = null;
     
-    if(typeof _place != "undefined")
+    if(typeof place != "undefined")
     {
-        this.data.id = _place.id;
-        this.data.name = _place.name;
-        this.data.accuracy = _place.accuracy;
-        this.data.expiration = _place.expiration;
+        this.data.id         = place.id;
+        this.data.name       = place.name;
+        this.data.accuracy   = place.accuracy;
+        this.data.expiration = place.expiration;
         
         this.data.tags = [];
-        for(var i = 0; i < _place.tags.length; i++)
-        {
-            this.data.tags[i] = _place.tags[i].id;
-        }
-        this.data.mainTag = _place.mainTag.id;
-        this.data.longitude = _place.longitude;
-        this.data.latitude = _place.latitude;
-        this.data.radius = _place.radius;
+        for(var i = 0; i < place.tags.length; i++)
+            this.data.tags[i] = place.tags[i].id;
+
+        this.data.mainTag   = place.mainTag.id;
+        this.data.longitude = place.longitude;
+        this.data.latitude  = place.latitude;
+        this.data.radius    = place.radius;
         
-        getMessage("place.wizard.title.edit", function(data){ $("#place-wizard-title").html(data) });
+        getMessage("place.wizard.title.edit", function(data){ $("#place-wizard-title").html(data); });
     }
     else
     {
         this.data = {};
-        getMessage("place.wizard.title.add", function(data){ $("#place-wizard-title").html(data) });
+        getMessage("place.wizard.title.add", function(data){ $("#place-wizard-title").html(data); });
     }
     
     //Views
-    this.templateView = null;
-    $.get(jsRoutes.placeWizardRoutes.getTemplate(), function(data)
-    {
-        this.templateView = data;
-    }.bind(this));
-    
     this.firstStepView = null;
     $.get(jsRoutes.placeWizardRoutes.firstStep(), function(data)
     {
@@ -53,11 +51,13 @@ function PlaceWizard(_placeManager, _place)
     {
         this.thirdStepView = data;
     }.bind(this));
-    this.thirdStepAlert = null;
     
-    this.templateHtml = null;
-    this.firstStepHtml = null;
+    this.templateView   = null;
+    this.templateHtml   = null;
+    this.thirdStepAlert = null;
+    this.firstStepHtml  = null;
     this.secondStepHtml = null;
+    this.thirdStepHtml  = null;
 }
 
 
@@ -67,7 +67,8 @@ function PlaceWizard(_placeManager, _place)
 
 PlaceWizard.prototype.displayFirstStep = function()
 {
-    if(this.firstStepView == null)
+    /* Get first step template if null */
+    if(this.firstStepView === null)
     {
         $.get(jsRoutes.placeWizardRoutes.firstStep(), function(data)
         {
@@ -78,48 +79,47 @@ PlaceWizard.prototype.displayFirstStep = function()
         return;
     }
     
-    if(this.firstStepHtml == null)
-    {
+    if(this.firstStepHtml === null)
         this.firstStepHtml = $(this.firstStepView);
-    }
-    
+
+    $("#place-wizard-step-content").html(this.firstStepHtml);
     $(".custom-breadcrumb li.first", this.templateHtml).addClass("current");
     $(".custom-breadcrumb li.second", this.templateHtml).removeClass("current");
     $(".custom-breadcrumb li.third", this.templateHtml).removeClass("current");
     
-    
-    $("#place-wizard-step-content").html(this.firstStepHtml);
-    
-    if(typeof this.data.name != "undefined")
-    {
+    if(typeof this.data.name != "undefined"){
         $("#place-wizard-first-step-name-text", this.firstStepHtml).val(this.data.name);
     }
-    
-    if(typeof this.data.accuracy != "undefined")
-    {
+    if(typeof this.data.accuracy != "undefined"){
         $("#place-wizard-first-step-accuracy", this.firstStepHtml).val(this.data.accuracy);
-    }
-    
-    if(typeof this.data.expiration != "undefined")
-    {
-        $("#place-wizard-first-step-expiration", this.firstStepHtml).val(this.data.expiration);
     }
     
     if(typeof this.data.tags != "undefined")
     {
         for(var i = 0; i < this.data.tags.length; i++)
         {
-            var tagId = this.data.tags[i];
-            var elt = $("#place-wizard-first-step-tags-select option[value='"+tagId+"']");
-            elt.attr("selected", "selected");
+            var tagId  = this.data.tags[i];
+            var tagElt = $("#place-wizard-first-step-tags-container a[data-value='"+tagId+"']");
+            this.selectTag(tagElt);
         }
     }
     
     if(typeof this.data.mainTag != "undefined")
     {
-        var tagId = this.data.mainTag;
-        var elt = $("#place-wizard-first-step-mainTag-select option[value='"+tagId+"']"); 
-        elt.attr("selected", "selected");
+        var obj = this;
+        $("#place-wizard-first-step-mainTag-container a").each(function(index, object)
+        {
+           obj.unselectTag($(object));
+        });
+        
+        var maintTagId  = this.data.mainTag;
+        var maintTagElt = $("#place-wizard-first-step-mainTag-container a[data-value='"+maintTagId+"']");
+        this.selectTag(maintTagElt);
+        
+        var newTagElement    = $("#place-wizard-first-step-tags-container a[data-value='"+maintTagId+"']");
+        newTagElement.css("opacity", "0.4");
+        this.selectTag(newTagElement);
+        this.previousMainTag = maintTagId;
     }
     
     $("#place-wizard-first-step-name-text-errorMsg", this.firstStepHtml).hide();
@@ -127,84 +127,141 @@ PlaceWizard.prototype.displayFirstStep = function()
     $("#place-wizard-first-step-expiration-errorMsg", this.firstStepHtml).hide();
     $("#place-wizard-first-step-tags-errorMsg", this.firstStepHtml).hide();
     $("#place-wizard-first-step-mainTag-errorMsg", this.firstStepHtml).hide();
+    $("#place-wizard-first-step-unknown-errorMsg").hide();
     
     this.initFirstStepHandlers();
 };
 
 PlaceWizard.prototype.initFirstStepHandlers = function()
 {
-    // Set button handlers
-    $("#place-wizard-first-step-cancel-btn").bind('click', function(){ this.close(); }.bind(this) );
-    $("#place-wizard-first-step-next-btn").bind('click', function(){ this.validateFirstStepForm(); }.bind(this) );
+    /* Remove old handlers */
+    $("#place-wizard-previous-btn", this.templateHtml).unbind('click');
+    $("#place-wizard-cancel-btn", this.templateHtml).unbind('click');
+    $("#place-wizard-next-btn", this.templateHtml).unbind('click');
+    $("#place-wizard-validate-btn", this.templateHtml).unbind('click');
+    
+    $("#place-wizard-previous-btn", this.templateHtml).hide();
+    $("#place-wizard-validate-btn", this.templateHtml).hide();
+    $("#place-wizard-next-btn", this.templateHtml).show();
+    $("#place-wizard-cancel-btn", this.templateHtml).bind('click', function(){ this.close(); }.bind(this) );
+    $("#place-wizard-next-btn", this.templateHtml).bind('click', function(){ this.validateFirstStepForm(); }.bind(this) );
+    
+    
+    var obj = this;
+    /* Main tag handlers */
+    $("#place-wizard-first-step-mainTag-container a").bind('click', function()
+    {
+        $("#place-wizard-first-step-mainTag-container a").each(function(index, object)
+        {
+           obj.unselectTag($(object));
+        });
+        obj.onTagClicked($(this));
+        if(obj.previousMainTag !== null)
+        {
+            var previousTagElement = $("#place-wizard-first-step-tags-container a[data-value='" + obj.previousMainTag + "']");
+            previousTagElement.css("opacity", "1");
+            obj.unselectTag(previousTagElement);
+            
+            previousTagElement.bind('click', function()
+            {
+                obj.onTagClicked($(this));
+            });
+        }
+        
+        var mainTagId     = $(this).attr("data-value");
+        var newTagElement = $("#place-wizard-first-step-tags-container a[data-value='"+mainTagId+"']");
+        newTagElement.css("opacity", "0.4");
+        newTagElement.unbind('click');
+        obj.selectTag(newTagElement);
+        obj.previousMainTag = mainTagId;
+    });
+    
+    /* Tag handlers */
+    $("#place-wizard-first-step-tags-container a").bind('click', function()
+    {
+        obj.onTagClicked($(this));
+    });
+    $("#place-wizard-first-step-tags-container a[data-value='"+this.previousMainTag+"']").unbind('click');
 };
 
 PlaceWizard.prototype.validateFirstStepForm = function()
 {
-    var name = $("#place-wizard-first-step-name-text").val();
-    var accuracy = $("#place-wizard-first-step-accuracy").val();
-    var expiration = $("#place-wizard-first-step-expiration").val();
-    var tags = $("#place-wizard-first-step-tags-select").val();
-    var mainTag = $("#place-wizard-first-step-mainTag-select").val();
+    var postData      = {};
+    postData.name     = $("#place-wizard-first-step-name-text").val();
+    postData.accuracy = $("#place-wizard-first-step-accuracy").val();
+    postData.tags     = [];
+    $("#place-wizard-first-step-tags-container a").each(function(index, element)
+    {
+        if(typeof $(element).attr("selected") != "undefined") {
+            postData.tags.push($(element).attr("data-value"));
+        }
+    });
+    postData.mainTag = $("#place-wizard-first-step-mainTag-container a[selected='selected']", this.firstStepHtml).attr("data-value");
 
     $("#place-wizard-first-step-name-text-errorMsg").slideUp(300);
     $("#place-wizard-first-step-accuracy-errorMsg").slideUp(300);
     $("#place-wizard-first-step-expiration-errorMsg").slideUp(300);
     $("#place-wizard-first-step-tags-errorMsg").slideUp(300);
     $("#place-wizard-first-step-mainTag-errorMsg").slideUp(300);
+    $("#place-wizard-first-step-unknown-errorMsg").slideUp(300);
     
-    var id = (typeof this.data.id != "undefined") ? this.data.id : -1;
-    $.post(jsRoutes.placeWizardRoutes.validation.firstStep({"id": id, "name": name, "accuracy": accuracy, "expiration": expiration, "tags": tags, "mainTag": mainTag}), function(errors)
+    postData.id = (typeof this.data.id != "undefined") ? this.data.id : -1;
+    $.post(jsRoutes.placeWizardRoutes.validation.firstStep({'json':JSON.stringify(postData)}), function(errors)
     {
         // If everything is ok, go to the second step
-    	this.data.name = name;
-    	this.data.accuracy = accuracy;
-    	this.data.expiration = expiration;
-    	this.data.tags = tags;
-    	this.data.mainTag = mainTag;
-    	
+        this.data.name       = postData.name;
+        this.data.accuracy   = postData.accuracy;
+        this.data.expiration = postData.expiration;
+        this.data.tags       = postData.tags;
+        this.data.mainTag    = postData.mainTag;
+        
         this.displaySecondStep();
     }.bind(this)).error(function(data)
-	{
-    	var errors = jQuery.parseJSON(data.responseText);
-    	
-    	if(typeof errors["name"] != "undefined")
+    {
+        if(data.responseText !== "")
         {
-            $("#place-wizard-first-step-name-text-errorMsg").slideDown(300);
-            $("#place-wizard-first-step-name-text-errorMsg").html(errors["name"]);
+            var errors = jQuery.parseJSON(data.responseText);
+            
+            if(typeof errors["name"] != "undefined")
+            {
+                $("#place-wizard-first-step-name-text-errorMsg").slideDown(300);
+                $("#place-wizard-first-step-name-text-errorMsg").html(errors["name"]);
+            }
+            if(typeof errors["accuracy"] != "undefined")
+            {
+                $("#place-wizard-first-step-accuracy-errorMsg").slideDown(300);
+                $("#place-wizard-first-step-accuracy-errorMsg").html(errors["accuracy"]);
+            }
+            if(typeof errors["expiration"] != "undefined")
+            {
+                $("#place-wizard-first-step-expiration-errorMsg").slideDown(300);
+                $("#place-wizard-first-step-expiration-errorMsg").html(errors["expiration"]);
+            }
+            if(typeof errors["tags"] != "undefined")
+            {
+                $("#place-wizard-first-step-tags-errorMsg").slideDown(300);
+                $("#place-wizard-first-step-tags-errorMsg").html(errors["tags"]);
+            }
+            if(typeof errors["mainTag"] != "undefined")
+            {
+                $("#place-wizard-first-step-mainTag-errorMsg").slideDown(300);
+                $("#place-wizard-first-step-mainTag-errorMsg").html(errors["mainTag"]);
+            }
         }
-        if(typeof errors["accuracy"] != "undefined")
+        else
         {
-            $("#place-wizard-first-step-accuracy-errorMsg").slideDown(300);
-            $("#place-wizard-first-step-accuracy-errorMsg").html(errors["accuracy"]);
+            $("#place-wizard-first-step-unknown-errorMsg").slideDown(300);
         }
-        if(typeof errors["expiration"] != "undefined")
-        {
-            $("#place-wizard-first-step-expiration-errorMsg").slideDown(300);
-            $("#place-wizard-first-step-expiration-errorMsg").html(errors["expiration"]);
-        }
-        if(typeof errors["tags"] != "undefined")
-        {
-            $("#place-wizard-first-step-tags-errorMsg").slideDown(300);
-            $("#place-wizard-first-step-tags-errorMsg").html(errors["tags"]);
-        }
-        if(typeof errors["mainTag"] != "undefined")
-        {
-            $("#place-wizard-first-step-mainTag-errorMsg").slideDown(300);
-            $("#place-wizard-first-step-mainTag-errorMsg").html(errors["mainTag"]);
-        }
-	}.bind(this));
+    }.bind(this));
 };
-
-
 
 
 /*
  * SECOND STEP
  */
-
 PlaceWizard.prototype.displaySecondStep = function()
 {
-    if(this.secondStepView == null)
+    if(this.secondStepView === null)
     {
         $.get(jsRoutes.placeWizardRoutes.secondStep(), function(data)
         {
@@ -215,7 +272,7 @@ PlaceWizard.prototype.displaySecondStep = function()
         return;
     }
     
-    if(this.secondStepHtml == null)
+    if(this.secondStepHtml === null)
     {
         this.secondStepHtml = $(this.secondStepView);
     }
@@ -230,8 +287,8 @@ PlaceWizard.prototype.displaySecondStep = function()
     $("#place-wizard-second-step-latitude-errorMsg", this.secondStepHtml).hide();
     $("#place-wizard-second-step-radius-errorMsg", this.secondStepHtml).hide();
     
-    if(this.mapBox == null)
-	{
+    if(this.mapBox === null)
+    {
         var options = {
           onFeatureDrawn: function(feature, fireEvent)
           {
@@ -240,11 +297,11 @@ PlaceWizard.prototype.displaySecondStep = function()
               this.drawLayer.addFeatures([feature]);
               this.shape = feature;
               
-              if(typeof fireEvent == "undefined" || fireEvent == true)
+              if(typeof fireEvent == "undefined" || fireEvent === true)
               {
                   this.fireEvent("shapeModified", this.shape);
               }
-          }  
+          }
         };
         
         if(typeof this.data.longitude != "undefined" && typeof this.data.latitude != "undefined" && typeof this.data.radius != "undefined")
@@ -260,38 +317,70 @@ PlaceWizard.prototype.displaySecondStep = function()
         {
             this.mapBox = new MapBox("place-wizard-second-step-map-container", options);
         }
-	}
+    }
     
-	this.initSecondStepHandlers();
-	$("#place-wizard-second-step-geocoding-field", this.secondStepHtml).val(this.data.name + " Rennes");
+    this.initSecondStepHandlers();
+    $("#place-wizard-second-step-geocoding-alert").hide();
 };
 
 PlaceWizard.prototype.initSecondStepHandlers = function()
 {
-    $("#place-wizard-second-step-previous-btn").bind('click', function(){
-    	this.displayFirstStep();
-	}.bind(this));
+    /* Remove old handlers */
+    $("#place-wizard-previous-btn", this.templateHtml).unbind('click');
+    $("#place-wizard-cancel-btn", this.templateHtml).unbind('click');
+    $("#place-wizard-next-btn", this.templateHtml).unbind('click');
+    $("#place-wizard-validate-btn", this.templateHtml).unbind('click');
     
-    $("#place-wizard-second-step-cancel-btn").bind('click', function()
-	{
-    	this.close();
-	}.bind(this));
+    $("#place-wizard-validate-btn", this.templateHtml).hide();
+    $("#place-wizard-previous-btn", this.templateHtml).show();
+    $("#place-wizard-next-btn", this.templateHtml).show();
+    $("#place-wizard-previous-btn", this.templateHtml).bind('click', function(){
+        this.displayFirstStep();
+    }.bind(this));
     
-    $("#place-wizard-second-step-next-btn").bind('click', function()
-		{
-    		this.validateSecondStepForm();
-		}.bind(this)
-	);
+    $("#place-wizard-cancel-btn", this.templateHtml).bind('click', function()
+    {
+        this.close();
+    }.bind(this));
     
-    $("#place-wizard-second-step-geocoding-button", this.secondStepHtml).bind('click', function()
+    $("#place-wizard-next-btn", this.templateHtml).bind('click', function()
         {
-        this.geocode($("#place-wizard-second-step-geocoding-field", this.secondStepHtml).val());
+            this.validateSecondStepForm();
         }.bind(this)
     );
     
+    $("#place-wizard-second-step-geocoding-button", this.secondStepHtml).bind('click', function() {
+            this.geocode($("#place-wizard-second-step-geocoding-field", this.secondStepHtml).val());
+        }.bind(this)
+    );
+    
+    $("#place-wizard-second-step-geocoding-field").bind('focus', function()
+    {
+        $("#place-wizard-second-step-geocoding-alert").hide();
+        if($("#place-wizard-second-step-geocoding-field", this.secondStepHtml).val() == "Rechercher une adresse")
+        {
+            $("#place-wizard-second-step-geocoding-field", this.secondStepHtml).val("");
+            $("#place-wizard-second-step-geocoding-field", this.secondStepHtml).removeClass("hint");
+        }
+    }
+    );
+    
+    $("#place-wizard-second-step-geocoding-field").bind('blur', function()
+    {
+        var value = $("#place-wizard-second-step-geocoding-field", this.secondStepHtml).val();
+        if(value === "")
+        {
+            $("#place-wizard-second-step-geocoding-field", this.secondStepHtml).val("Rechercher une adresse");
+            $("#place-wizard-second-step-geocoding-field", this.secondStepHtml).addClass("hint");
+        }
+    }.bind(this)
+    );
+    
+    $("#place-wizard-second-step-geocoding-loader").hide();
+    
     // Initialize button handlers
-    this.navigateButton = $("#place-wizard-second-step-navigate-button");
-    this.drawButton = $("#place-wizard-second-step-draw-button");
+    this.navigateButton  = $("#place-wizard-second-step-navigate-button");
+    this.drawButton      = $("#place-wizard-second-step-draw-button");
     this.transformButton = $("#place-wizard-second-step-transform-button");
     
     this.navigateButton.bind('click', this.onNavigateButtonClicked.bind(this));
@@ -299,9 +388,9 @@ PlaceWizard.prototype.initSecondStepHandlers = function()
     
     
     if(typeof this.shapeModifiedRegistration != "undefined")
-	{
-    	this.shapeModifiedRegistration.removeHandler();
-	}
+    {
+        this.shapeModifiedRegistration.removeHandler();
+    }
     this.shapeModifiedRegistration = this.mapBox.register("shapeModified", this.onShapeModified.bind(this));
     $("#place-wizard-second-step-longitude", this.secondStepHtml).bind('change', this.onLongitudeChanged.bind(this));
     $("#place-wizard-second-step-latitude", this.secondStepHtml).bind('change', this.onLatitudeChanged.bind(this));
@@ -310,70 +399,70 @@ PlaceWizard.prototype.initSecondStepHandlers = function()
 
 PlaceWizard.prototype.validateSecondStepForm = function()
 {
-	var longitude = $("#place-wizard-second-step-longitude").val();
-	var latitude = $("#place-wizard-second-step-latitude").val();
-	var radius = $("#place-wizard-second-step-radius").val();
-	
-	this.data.longitude = longitude;
-	this.data.latitude = latitude;
-	this.data.radius = radius;
-	
-	$("#place-wizard-second-step-longitude-errorMsg", this.secondStepHtml).slideUp(300);
-	$("#place-wizard-second-step-latitude-errorMsg", this.secondStepHtml).slideUp(300);
-	$("#place-wizard-second-step-radius-errorMsg", this.secondStepHtml).slideUp(300);
-	
-	$.post(jsRoutes.placeWizardRoutes.validation.secondStep({'longitude': longitude , 'latitude': latitude, 'radius': radius}), function(data)
-	{
-	    this.displayThirdStep();
-	}.bind(this)
-	).error(
-		function(data)
-		{
-			var errors = jQuery.parseJSON(data.responseText);
-			
-			if(typeof errors.longitude != "undefined")
-			{
-				$("#place-wizard-second-step-longitude-errorMsg", this.secondStepHtml).html(errors.longitude);
-				$("#place-wizard-second-step-longitude-errorMsg", this.secondStepHtml).slideDown(300);
-			}
-			
-			if(typeof errors.latitude != "undefined")
-			{
-				$("#place-wizard-second-step-latitude-errorMsg", this.secondStepHtml).html(errors.latitude);
-				$("#place-wizard-second-step-latitude-errorMsg", this.secondStepHtml).slideDown(300);
-			}
-			
-			if(typeof errors.radius != "undefined")
-			{
-				$("#place-wizard-second-step-radius-errorMsg", this.secondStepHtml).html(errors.radius);
-				$("#place-wizard-second-step-radius-errorMsg", this.secondStepHtml).slideDown(300);
-			}
-		}.bind(this)
-	);
+    var longitude = $("#place-wizard-second-step-longitude").val();
+    var latitude  = $("#place-wizard-second-step-latitude").val();
+    var radius    = $("#place-wizard-second-step-radius").val();
+    
+    this.data.longitude = longitude;
+    this.data.latitude  = latitude;
+    this.data.radius    = radius;
+    
+    $("#place-wizard-second-step-longitude-errorMsg", this.secondStepHtml).slideUp(300);
+    $("#place-wizard-second-step-latitude-errorMsg", this.secondStepHtml).slideUp(300);
+    $("#place-wizard-second-step-radius-errorMsg", this.secondStepHtml).slideUp(300);
+    
+    $.post(jsRoutes.placeWizardRoutes.validation.secondStep({'longitude': longitude , 'latitude': latitude, 'radius': radius}), function(data)
+    {
+        this.displayThirdStep();
+    }.bind(this)
+    ).error(
+        function(data)
+        {
+            var errors = jQuery.parseJSON(data.responseText);
+            
+            if(typeof errors.longitude != "undefined")
+            {
+                $("#place-wizard-second-step-longitude-errorMsg", this.secondStepHtml).html(errors.longitude);
+                $("#place-wizard-second-step-longitude-errorMsg", this.secondStepHtml).slideDown(300);
+            }
+            
+            if(typeof errors.latitude != "undefined")
+            {
+                $("#place-wizard-second-step-latitude-errorMsg", this.secondStepHtml).html(errors.latitude);
+                $("#place-wizard-second-step-latitude-errorMsg", this.secondStepHtml).slideDown(300);
+            }
+            
+            if(typeof errors.radius != "undefined")
+            {
+                $("#place-wizard-second-step-radius-errorMsg", this.secondStepHtml).html(errors.radius);
+                $("#place-wizard-second-step-radius-errorMsg", this.secondStepHtml).slideDown(300);
+            }
+        }.bind(this)
+    );
 };
 
 PlaceWizard.prototype.onShapeModified = function(feature)
 {
-	var bounds = feature.geometry.getBounds();
-	var center = bounds.getCenterLonLat();
-	var left = bounds.toArray()[0];
-	var radius = Math.round(center.lon - left);
-	
-	var dupCenter = new OpenLayers.LonLat(center.lon, center.lat);
-	dupCenter.transform(this.mapBox.googleProj, this.mapBox.standardProj);
-	
-	if(typeof $("#place-wizard-second-step-longitude", this.secondStepHtml).attr("disabled") != "undefined")
-	{
-		$("#place-wizard-second-step-longitude", this.secondStepHtml).removeAttr("disabled");
-	    $("#place-wizard-second-step-latitude", this.secondStepHtml).removeAttr("disabled");
-	    $("#place-wizard-second-step-radius", this.secondStepHtml).removeAttr("disabled");
-	}
-	
-	$("#place-wizard-second-step-longitude", this.secondStepHtml).val(dupCenter.lon);
-	$("#place-wizard-second-step-latitude", this.secondStepHtml).val(dupCenter.lat);
-	$("#place-wizard-second-step-radius", this.secondStepHtml).val(radius);
-	
-	if(this.transformButton.hasClass('disabled'))
+    var bounds = feature.geometry.getBounds();
+    var center = bounds.getCenterLonLat();
+    var left   = bounds.toArray()[0];
+    var radius = Math.round(center.lon - left);
+    
+    var dupCenter = new OpenLayers.LonLat(center.lon, center.lat);
+    dupCenter.transform(this.mapBox.googleProj, this.mapBox.standardProj);
+    
+    if(typeof $("#place-wizard-second-step-longitude", this.secondStepHtml).attr("disabled") != "undefined")
+    {
+        $("#place-wizard-second-step-longitude", this.secondStepHtml).removeAttr("disabled");
+        $("#place-wizard-second-step-latitude", this.secondStepHtml).removeAttr("disabled");
+        $("#place-wizard-second-step-radius", this.secondStepHtml).removeAttr("disabled");
+    }
+    
+    $("#place-wizard-second-step-longitude", this.secondStepHtml).val(dupCenter.lon);
+    $("#place-wizard-second-step-latitude", this.secondStepHtml).val(dupCenter.lat);
+    $("#place-wizard-second-step-radius", this.secondStepHtml).val(radius);
+    
+    if(this.transformButton.hasClass('disabled'))
     {
         this.transformButton.removeClass('disabled');
         this.transformButton.bind('click', this.onTransformButtonClicked.bind(this));
@@ -409,29 +498,29 @@ PlaceWizard.prototype.onTransformButtonClicked = function()
 
 PlaceWizard.prototype.onLongitudeChanged = function()
 {
-	var longitude = $("#place-wizard-second-step-longitude").val();
-	if(isNumber(longitude))
-	{
-		this.mapBox.setShapeLongitude(longitude);
-	}
+    var longitude = $("#place-wizard-second-step-longitude").val();
+    if(isNumber(longitude))
+    {
+        this.mapBox.setShapeLongitude(longitude);
+    }
 };
 
 PlaceWizard.prototype.onLatitudeChanged = function()
 {
-	var latitude = $("#place-wizard-second-step-latitude").val();
-	if(isNumber(latitude))
-	{
-		this.mapBox.setShapeLatitude(latitude);
-	}
+    var latitude = $("#place-wizard-second-step-latitude").val();
+    if(isNumber(latitude))
+    {
+        this.mapBox.setShapeLatitude(latitude);
+    }
 };
 
 PlaceWizard.prototype.onRadiusChanged = function()
 {
-	var radius = $("#place-wizard-second-step-radius").val();
-	if(isNumber(radius) && radius > 0)
-	{
-		this.mapBox.setShapeRadius(radius);
-	}
+    var radius = $("#place-wizard-second-step-radius").val();
+    if(isNumber(radius) && radius > 0)
+    {
+        this.mapBox.setShapeRadius(radius);
+    }
 };
 
 /*
@@ -439,7 +528,7 @@ PlaceWizard.prototype.onRadiusChanged = function()
  */
 PlaceWizard.prototype.displayThirdStep = function()
 {
-    if(this.thirdStepView == null)
+    if(this.thirdStepView === null)
     {
         $.get(jsRoutes.placeWizardRoutes.thirdStep(), function(data)
         {
@@ -450,7 +539,7 @@ PlaceWizard.prototype.displayThirdStep = function()
         return;
     }
     
-    if(this.thirdStepHtml == null)
+    if(this.thirdStepHtml === null)
     {
         this.thirdStepHtml = $(this.thirdStepView);
     }
@@ -460,7 +549,6 @@ PlaceWizard.prototype.displayThirdStep = function()
     $(".custom-breadcrumb li.third", this.templateHtml).addClass("current");
     
     $("#place-wizard-step-content").html(this.thirdStepHtml);
-    
     this.thirdStepAlert = $("#place-wizard-third-step-alert");
     this.thirdStepAlert.remove();
     
@@ -474,40 +562,37 @@ PlaceWizard.prototype.displayThirdStep = function()
     $("#place-wizard-third-step-radius").html(this.data.radius);
     
     $.post(jsRoutes.tag.getArray({'json': JSON.stringify(this.data.tags)}),
-            function(data)
+        function(data)
+        {
+            console.log(data);
+            
+            var content = "";
+            for(var i = 0; i < data.length; i++)
             {
-                console.log(data);
-                
-                var content = "";
-                for(var i=0; i < data.length; i++)
-                {
-                    var tag = data[i];
-                    
-                    if(tag.id == this.data.mainTag)
-                    {
-                        $("#place-wizard-third-step-mainTag-container").html("<span class='label' style='background: "+tag.color+";'>"+tag.name+"</span>");
-                    }
-                    
-                    content += "<span class='label' style='background: "+tag.color+";'>"+tag.name+"</span> ";
+                var tag = data[i];
+                if(tag.id == this.data.mainTag) {
+                    $("#place-wizard-third-step-mainTag-container").html("<span class='label' style='background:#"+tag.color+";'>"+tag.name+"</span>");
                 }
-                $("#place-wizard-third-step-tags-container").html(content);
-            }.bind(this)).error(
-            function(data)
-            {
-                console.log("error : " + data);
+                content += "<span class='label' style='background:#"+tag.color+";'>"+tag.name+"</span> ";
             }
-    )
+            $("#place-wizard-third-step-tags-container").html(content);
+        }.bind(this)).error(
+        function(data)
+        {
+            console.log("error : " + data);
+            // TODO: Handles error
+        }
+        );
 
-    if(this.thirdStepMap != null)
+    if(this.thirdStepMap !== null)
     {
         this.thirdStepMap.destroy();
     }
     
     this.thirdStepMap = new OpenLayers.Map("place-wizard-third-step-map-container");
-    var standardProj = new OpenLayers.Projection("EPSG:4326");
-    var googleProj = new OpenLayers.Projection("EPSG:900913");
-    
-    var drawLayer = new OpenLayers.Layer.Vector("draw");
+    var standardProj  = new OpenLayers.Projection("EPSG:4326");
+    var googleProj    = new OpenLayers.Projection("EPSG:900913");
+    var drawLayer     = new OpenLayers.Layer.Vector("draw");
     
     // Get center and radius in variables
     var center = new OpenLayers.LonLat(this.data.longitude, this.data.latitude);
@@ -519,11 +604,11 @@ PlaceWizard.prototype.displayThirdStep = function()
     var i;
     for(i = 0; i < 99; ++i)
     {
-        var a = i * (2 * Math.PI) / 100;
-        var x = center.lon + (this.data.radius * Math.cos(a));
-        var y = center.lat + (this.data.radius * Math.sin(a));
+        var a        = i * (2 * Math.PI) / 100;
+        var x        = center.lon + (this.data.radius * Math.cos(a));
+        var y        = center.lat + (this.data.radius * Math.sin(a));
         var position = new OpenLayers.LonLat(x, y);
-        point = new OpenLayers.Geometry.Point(position.lon, position.lat);
+        point        = new OpenLayers.Geometry.Point(position.lon, position.lat);
         
         points.push(point);
     }
@@ -531,8 +616,8 @@ PlaceWizard.prototype.displayThirdStep = function()
     
     // Construct the circle from points
     var linearRing = new OpenLayers.Geometry.LinearRing(points);
-    var polygon = new OpenLayers.Geometry.Polygon([linearRing]);
-    var circle = new OpenLayers.Feature.Vector(polygon);
+    var polygon    = new OpenLayers.Geometry.Polygon([linearRing]);
+    var circle     = new OpenLayers.Feature.Vector(polygon);
     
     drawLayer.addFeatures([circle]);
     
@@ -548,16 +633,26 @@ PlaceWizard.prototype.displayThirdStep = function()
 
 PlaceWizard.prototype.initThirdStepHandlers = function()
 {
-    $("#place-wizard-third-step-previous-btn").bind('click', function(){
+    /* Remove old handlers */
+    $("#place-wizard-previous-btn", this.templateHtml).unbind('click');
+    $("#place-wizard-cancel-btn", this.templateHtml).unbind('click');
+    $("#place-wizard-next-btn", this.templateHtml).unbind('click');
+    $("#place-wizard-validate-btn", this.templateHtml).unbind('click');
+
+    $("#place-wizard-next-btn", this.templateHtml).hide();
+    $("#place-wizard-validate-btn", this.templateHtml).show();
+    
+    /* Add new handlers */
+    $("#place-wizard-previous-btn", this.templateHtml).bind('click', function(){
         this.displaySecondStep();
     }.bind(this));
     
-    $("#place-wizard-third-step-cancel-btn").bind('click', function()
+    $("#place-wizard-cancel-btn", this.templateHtml).bind('click', function()
     {
         this.close();
     }.bind(this));
     
-    $("#place-wizard-third-step-next-btn").bind('click', function()
+    $("#place-wizard-validate-btn", this.templateHtml).bind('click', function()
     {
         this.savePlace();
     }.bind(this));
@@ -593,84 +688,86 @@ PlaceWizard.prototype.savePlace = function()
  * POPUP METHODS
  */
 
-PlaceWizard.prototype.show = function(_place)
+PlaceWizard.prototype.show = function(place)
 {
-    if(typeof _place != "undefined")
+    if(typeof place != "undefined")
     {
-        this.data.id = _place.id;
-        this.data.name = _place.name;
-        this.data.accuracy = _place.accuracy;
-        this.data.expiration = _place.expiration;
+        this.data.id         = place.id;
+        this.data.name       = place.name;
+        this.data.accuracy   = place.accuracy;
+        this.data.expiration = place.expiration;
         
         this.data.tags = [];
-        for(var i = 0; i < _place.tags.length; i++)
+        for(var i = 0; i < place.tags.length; i++)
         {
-            this.data.tags[i] = _place.tags[i].id;
+            this.data.tags[i] = place.tags[i].id;
         }
-        this.data.mainTag = _place.mainTag.id;
-        this.data.longitude = _place.longitude;
-        this.data.latitude = _place.latitude;
-        this.data.radius = _place.radius;
+        this.data.mainTag   = place.mainTag.id;
+        this.data.longitude = place.longitude;
+        this.data.latitude  = place.latitude;
+        this.data.radius    = place.radius;
         
-        getMessage("place.wizard.title.edit", function(data){ $("#place-wizard-title").html(data) });
+        getMessage("place.wizard.title.edit", function(data){ $("#place-wizard-title").html(data); });
     }
     
-    if(this.templateView == null)
+    if(this.templateView === null)
     {
         $.get(jsRoutes.placeWizardRoutes.getTemplate(), function(data)
         {
             this.templateView = data;
-            this.show(_place);
+            this.show(place);
         }.bind(this));
         
         return;
     }
     
-    if(this.templateHtml == null)
+    if(this.templateHtml === null)
     {
         this.templateHtml = $(this.templateView);
+        $("body").append(this.templateHtml);
     }
-    $("body").append(this.templateHtml);
-    $("#place-wizard-container").css("visibility", "visible");
     
-//    this.initBreadCrumbHandlers();
     this.displayFirstStep();
-    
-    $("#place-wizard-content-container").center();
+    this.templateHtml.modal({'show': true, 'backdrop': 'static'});
 };
 
 PlaceWizard.prototype.close = function()
 {
-    this.templateHtml.remove();
-    this.data = {};
-    
-    this.templateHtml = null;
-    this.firstStepHtml = null;
+    this.templateHtml.modal('hide');
+    this.data           = {};
+    this.firstStepHtml  = null;
     this.secondStepHtml = null;
-    this.thirdStepHtml = null;
-    this.thirdStepMap = null;
-    this.mapBox = null;
+    this.thirdStepHtml  = null;
+    this.thirdStepMap   = null;
+    this.mapBox         = null;
 };
 
 PlaceWizard.prototype.geocode = function(query)
 {
-	$.get(jsRoutes.geocoding.geocode({"query": query}), function(data)
-	{
-	    if(data.length > 0)
+    $("#place-wizard-second-step-geocoding-loader").show();
+    $.get(jsRoutes.geocoding.geocode({"query": query}), function(data)
+    {
+        $("#place-wizard-second-step-geocoding-loader").hide();
+        if(data.length > 0)
         {
-	        var position = data[0];
-	        var lonlat = new OpenLayers.LonLat(position.lon, position.lat);
-	        var bounds = new OpenLayers.Bounds(position.boundingbox[0], position.boundingbox[2], position.boundingbox[1], position.boundingbox[3]);
-	        bounds.transform(this.mapBox.standardProj, this.mapBox.googleProj);
-	        var zoom = this.mapBox.osmMap.getZoomForExtent(bounds, false);
-	        
-	        this.mapBox.goTo(lonlat, zoom);
+            $("#place-wizard-second-step-geocoding-alert").hide();
+            var position = data[0];
+            var lonlat   = new OpenLayers.LonLat(position.lon, position.lat);
+            var bounds   = new OpenLayers.Bounds(position.boundingbox[0], position.boundingbox[2], position.boundingbox[1], position.boundingbox[3]);
+            bounds.transform(this.mapBox.standardProj, this.mapBox.googleProj);
+            var zoom     = this.mapBox.osmMap.getZoomForExtent(bounds, false);
+            
+            this.mapBox.goTo(lonlat, zoom);
         }
-	}.bind(this)).error(
-	function(data)
-	{
-		console.log(data);
-	});
+        else
+        {
+            $("#place-wizard-second-step-geocoding-alert").show();
+        }
+    }.bind(this)).error(
+    function(data)
+    {
+        console.log(data);
+    });
 };
 
 PlaceWizard.prototype.initBreadCrumbHandlers = function()
@@ -678,22 +775,6 @@ PlaceWizard.prototype.initBreadCrumbHandlers = function()
     this.activateStep(1);
     this.activateStep(2);
     this.activateStep(3);
-//    this.deactivateStep(2);
-//    this.deactivateStep(3);
-//    $(".custom-breadcrumb li.first", this.templateHtml).bind('click', function()
-//    {
-//        this.displayFirstStep();
-//    }.bind(this));
-//    
-//    $(".custom-breadcrumb li.second", this.templateHtml).bind('click', function()
-//    {
-//        this.displaySecondStep();
-//    }.bind(this));
-//    
-//    $(".custom-breadcrumb li.third", this.templateHtml).bind('click', function()
-//    {
-//        this.displayThirdStep();
-//    }.bind(this));
 };
 
 PlaceWizard.prototype.activateStep = function(number)
@@ -702,24 +783,24 @@ PlaceWizard.prototype.activateStep = function(number)
     {
         case 1:
             $(".custom-breadcrumb li.first", this.templateHtml).bind('click', function()
-                    {
-                        this.displayFirstStep();
-                    }.bind(this));
+            {
+                this.displayFirstStep();
+            }.bind(this));
             break;
             
         case 2:
             $(".custom-breadcrumb li.second", this.templateHtml).bind('click', function()
-                    {
-                        this.validateFirstStepForm();
-                    }.bind(this));
+            {
+                this.validateFirstStepForm();
+            }.bind(this));
             break;
             
         case 3:
             $(".custom-breadcrumb li.third", this.templateHtml).bind('click', function()
-                    {
-                        this.validateSecondStepForm();
-                    }.bind(this));
-    };
+            {
+                this.validateSecondStepForm();
+            }.bind(this));
+    }
 };
 
 PlaceWizard.prototype.deactivateStep = function(number)
@@ -737,6 +818,29 @@ PlaceWizard.prototype.deactivateStep = function(number)
         case 3:
             $(".custom-breadcrumb li.third", this.templateHtml).unbind('click');
             break;
-    };
+    }
 };
 
+PlaceWizard.prototype.onTagClicked = function(element)
+{
+    if(typeof element.attr("selected") == "undefined")
+    {
+        this.selectTag(element);
+    }
+    else
+    {
+        this.unselectTag(element);
+    }
+};
+
+PlaceWizard.prototype.selectTag = function(element)
+{
+    element.css("background-color", element.attr("data-color"));
+    element.attr("selected", "selected");
+};
+
+PlaceWizard.prototype.unselectTag = function(element)
+{
+    element.removeAttr("selected");
+    element.css("background-color", "");
+};

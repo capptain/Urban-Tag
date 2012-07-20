@@ -2,44 +2,58 @@
 jsRoutes = new Object();
 jsRoutes.getLoginFormAction = #{jsAction @Secure.login() /};
 jsRoutes.getPlaceListAction = #{jsAction @PlacesApi.getPlaceList() /};
+jsRoutes.getPlaceDescription = #{jsAction @InfoApi.getPlaceDescription(':placeId') /};
+jsRoutes.getPlaceEvents = #{jsAction @InfoApi.getPlaceEvents(':idPlace') /};
 jsRoutes.getPlaceInfosAction = #{jsAction @InfoApi.getPlaceInfos(':idPlace', ':from', ':to') /};
 jsRoutes.showInfo = #{jsAction @Application.showInfo(':id') /};
 
 jsRoutes.place = {};
-jsRoutes.place.list = {};
-jsRoutes.place.list.view = {};
-jsRoutes.place.list.view.item = #{jsAction @PlaceList.item() /};
+jsRoutes.place.get = #{jsAction @PlacesApi.getPlace(':id') /};
+jsRoutes.place.sheet = {
+    'template': #{jsAction @PlaceSheet.getTemplate() /}
+};
+
+jsRoutes.place.list = {
+  'view': {
+    'item': #{jsAction @PlaceList.item() /}
+  }  
+};
+
+jsRoutes.place.summary = {};
+jsRoutes.place.summary.getTemplate = #{jsAction @PlaceSummary.getTemplate() /};
+jsRoutes.place.summary.emptyView = #{jsAction @PlaceSummary.getEmptyMessage() /};
 
 jsRoutes.place.add = #{jsAction @PlacesApi.savePlace(':json') /};
 jsRoutes.place.remove = #{jsAction @PlacesApi.deletePlace(':id') /};
 
+//      Infos
 jsRoutes.info = {};
 jsRoutes.info.list = {};
 jsRoutes.info.list.view = {};
-jsRoutes.info.list.view.item = #{jsAction @InfoList.item(':info') /};
+jsRoutes.info.list.view.item = #{jsAction @InfoList.item() /};
 jsRoutes.info.list.view.getTemplate = #{jsAction @InfoList.getTemplate() /};
 jsRoutes.info.list.view.empty = #{jsAction @InfoList.empty() /};
 jsRoutes.info.add = #{jsAction @InfoApi.add(':json') /};
 jsRoutes.info.remove = #{jsAction @InfoApi.deleteInfo(':id') /};
+jsRoutes.info.webView = #{jsAction @InfoApi.webView(':id') /};
 
 jsRoutes.tag = {};
 jsRoutes.tag.getById = #{jsAction @TagApi.getTag(':id') /};
 jsRoutes.tag.getArray = #{jsAction @TagApi.getTags(':json') /};
 
 
-//     Place Wizard
+//     Place Wizard 
 jsRoutes.placeWizardRoutes = {};
 jsRoutes.placeWizardRoutes.getTemplate = #{jsAction @PlaceWizard.getTemplate() /};
 jsRoutes.placeWizardRoutes.firstStep = #{jsAction @PlaceWizard.firstStep() /};
 jsRoutes.placeWizardRoutes.secondStep = #{jsAction @PlaceWizard.secondStep() /};
 jsRoutes.placeWizardRoutes.thirdStep = #{jsAction @PlaceWizard.thirdStep() /};
 jsRoutes.placeWizardRoutes.validation = {};
-jsRoutes.placeWizardRoutes.validation.firstStep = #{jsAction @PlaceWizard.validateFirstStep(':id', ':name', ':accuracy', ':expiration', ':tags', ':mainTag') /};
+jsRoutes.placeWizardRoutes.validation.firstStep = #{jsAction @PlaceWizard.validateFirstStep(':json') /};
 jsRoutes.placeWizardRoutes.validation.secondStep = #{jsAction @PlaceWizard.validateSecondStep(':longitude', ':latitude', ':radius') /};
 
 
-//     Info Wizard
-
+//     Info Wizard 
 jsRoutes.infoWizard = {};
 jsRoutes.infoWizard.getTemplate = #{jsAction @InfoWizard.getTemplate() /};
 jsRoutes.infoWizard.firstStep = #{jsAction @InfoWizard.firstStep() /};
