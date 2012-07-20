@@ -148,7 +148,7 @@ public class TagsListActivity extends SherlockActivity implements OnClickListene
       @Override
       public long getItemId(int position)
       {
-        return position % 3;
+        return position;
       }
 
       @Override
