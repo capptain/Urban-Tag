@@ -8,21 +8,24 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockListActivity;
+import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.MenuItem;
 import com.ubikod.urbantag.model.DatabaseHelper;
 import com.ubikod.urbantag.model.Tag;
 import com.ubikod.urbantag.model.TagManager;
 
-public class TagsListActivity extends SherlockListActivity implements OnClickListener
+public class TagsListActivity extends SherlockActivity implements OnClickListener
 {
   public static final int CODE = 2;
 
   private DatabaseHelper mDbHelper;
   private TagManager mTagManager = null;
   private LayoutInflater mInflater;
+
+  private ListView tagsList;
 
   private static class ViewHolder
   {
@@ -40,6 +43,7 @@ public class TagsListActivity extends SherlockListActivity implements OnClickLis
   public void onCreate(Bundle savedInstanceState)
   {
     super.onCreate(savedInstanceState);
+    setContentView(R.layout.tags_list);
     setTitle(R.string.menu_tags);
     com.actionbarsherlock.app.ActionBar actionBar = this.getSupportActionBar();
     actionBar.setDisplayHomeAsUpEnabled(true);
@@ -48,7 +52,9 @@ public class TagsListActivity extends SherlockListActivity implements OnClickLis
     mTagManager = new TagManager(mDbHelper);
     mInflater = LayoutInflater.from(this);
 
-    setListAdapter(createAdapter());
+    tagsList = (ListView) this.findViewById(R.id.tagsList);
+
+    tagsList.setAdapter(createAdapter());
 
   }
 
@@ -142,7 +148,7 @@ public class TagsListActivity extends SherlockListActivity implements OnClickLis
       @Override
       public long getItemId(int position)
       {
-        return position;
+        return position % 3;
       }
 
       @Override

@@ -4,6 +4,20 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
+    <TextView
+        android:id="@+id/tagExplain"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/select_your_tags"
+        android:padding="15dp"
+        android:paddingLeft="15dp" />
+    
+    <View
+    android:layout_width="fill_parent"
+    android:layout_height="1dp"
+    android:background="@android:color/background_dark"/>
+    
     <ListView
         android:id="@+id/tagsList"
         android:layout_width="match_parent"
