@@ -40,7 +40,7 @@
     <string name="category_needed">Vous devez sélectionner au moins une catégorie.</string>
     <string name="events">Evènements</string>
     <string name="is_running"> est activé</string>
-    <string name="new_content">Il y a du neuf !</string>
+    <string name="new_place">Nouveau lieu !</string>
     <string name="error_occured">Une erreur a eu lieu.</string>
     <string name="no_matching_place">Il n\'y a pas de lieu correspondant.</string>
     <string name="no_matching_content">Il n\'y a pas de contenu correspondant.</string>
@@ -48,5 +48,6 @@
     <string name="error_loading_content">Impossible de charger les informations.</string>
     <string name="loading_content">Chargements des informations...</string>
     <string name="select_your_tags">Sélectionnez les catégories qui vous intéressent.</string>
+    <string name="description">Description</string>
 
 </resources>

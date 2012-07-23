@@ -146,7 +146,12 @@ public class DataPushHandler extends CapptainReachDataPushReceiver
 
           /* Notify */
           NotificationHelper notificationHelper = new NotificationHelper(context);
-          notificationHelper.notifyNewContent(c.getId());
+          if (c.getEndDate() == -1 || c.getStartDate() == -1)
+          {
+            notificationHelper.notifyNewPlace(c.getId(), c.getName());
+          }
+          else
+            notificationHelper.notifyNewContent(c.getId(), c.getName(), p.getName());
 
         }
         else

@@ -49,10 +49,7 @@
         <activity android:name=".ContentsListActivity" />
         <activity android:name=".ContentViewerActivity" />
         <activity android:name=".SearchActivity" />
-       <!--  <activity android:name=".SearchPlaceResultActivity" /> -->
-     <!--   <activity android:name=".SearchContentResultActivity" /> -->
 
-        <!-- 
         <service
             android:name="com.ubikod.capptain.android.service.CapptainService"
             android:label="UrbanTagService"
@@ -72,7 +69,7 @@
                 android:name="capptain:log:test"
                 android:value="true" />
         </service>
- -->
+        
         <activity
             android:name="com.ubikod.capptain.android.sdk.reach.activity.CapptainTextAnnouncementActivity"
             android:theme="@android:style/Theme.Light" >
