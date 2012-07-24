@@ -7,11 +7,22 @@ import com.ubikod.urbantag.PlaceOverlayItem;
 
 public class Place
 {
+  /** Place id */
   private int mId;
+
+  /** Place name */
   private String mName;
+
+  /** Place main tag */
   private Tag mMainTag;
+
+  /** Place position */
   private GeoPoint mPos;
+
+  /** Place tags */
   private List<Tag> mAllTags;
+
+  /** Place associated overlay item */
   private PlaceOverlayItem mOverlayItem;
 
   public Place(int id, String name, Tag mainTag, GeoPoint position, List<Tag> allTags)
@@ -66,6 +77,7 @@ public class Place
     if (o instanceof Place)
     {
       Place p = (Place) o;
+      /* Place equality is defined by id equality */
       return this.mId == p.mId;
     }
     return false;
@@ -76,7 +88,7 @@ public class Place
     if (o instanceof Place)
     {
       Place p = (Place) o;
-
+      /* A place has changed if one of its attributes(except id) has changed */
       return !this.mName.equals(p.mName) || !this.mPos.equals(p.mPos)
         || !this.mMainTag.equals(p.mMainTag) || !this.mAllTags.equals(p.mAllTags);
     }

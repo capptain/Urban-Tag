@@ -11,17 +11,35 @@ import android.database.sqlite.SQLiteDatabase;
 public class ContentManager
 {
 
+  /**
+   * Database
+   */
   private SQLiteDatabase mDB;
 
+  /**
+   * DatabaseHelper
+   */
   private DatabaseHelper mDbHelper;
 
+  /**
+   * Hashmap containing all contents already used. Key is id, value is content
+   */
   private HashMap<Integer, Content> mContents = new HashMap<Integer, Content>();
 
+  /**
+   * Constructor
+   * @param databaseHelper
+   */
   public ContentManager(DatabaseHelper databaseHelper)
   {
     mDbHelper = databaseHelper;
   }
 
+  /**
+   * Get content with specified id
+   * @param id
+   * @return
+   */
   public Content get(int id)
   {
     if (mContents.containsKey(id))
@@ -37,6 +55,11 @@ public class ContentManager
     }
   }
 
+  /**
+   * Get contents with specified ids
+   * @param ids
+   * @return
+   */
   public List<Content> get(int[] ids)
   {
     this.getAll();
@@ -50,12 +73,21 @@ public class ContentManager
     return res;
   }
 
+  /**
+   * Get all contents
+   * @return
+   */
   public List<Content> getAll()
   {
     mContents = this.dbGetAll();
     return new ArrayList<Content>(mContents.values());
   }
 
+  /**
+   * Get all contents tagged with given tags id
+   * @param ids
+   * @return
+   */
   public List<Content> getAllForTags(int[] ids)
   {
     List<Content> res = this.dbGetAllForTags(ids);
@@ -66,6 +98,11 @@ public class ContentManager
     return res;
   }
 
+  /**
+   * Get all content for place id
+   * @param id
+   * @return
+   */
   public List<Content> getAllForPlace(int id)
   {
     List<Content> res = this.dbGetAllForPlace(id);
@@ -76,11 +113,20 @@ public class ContentManager
     return res;
   }
 
+  /**
+   * Test if a content exists
+   * @param c
+   * @return True if exists, false otherwise
+   */
   public boolean exists(Content c)
   {
     return mContents.containsKey(c.getId()) || this.get(c.getId()) != null;
   }
 
+  /**
+   * Save a content. If content exists update it, if new add it.
+   * @param c
+   */
   public void save(Content c)
   {
     if (this.exists(c))
@@ -93,6 +139,10 @@ public class ContentManager
     }
   }
 
+  /**
+   * Insert a content. If content already exists does nothing
+   * @param c
+   */
   public void insert(Content c)
   {
     if (!this.exists(c))
@@ -102,6 +152,10 @@ public class ContentManager
     }
   }
 
+  /**
+   * Supress a content
+   * @param c
+   */
   public void supress(Content c)
   {
     if (this.exists(c))
@@ -111,6 +165,10 @@ public class ContentManager
     }
   }
 
+  /**
+   * Alter a content
+   * @param c
+   */
   public void alter(Content c)
   {
     if (this.exists(c))
@@ -120,11 +178,19 @@ public class ContentManager
     }
   }
 
+  /**
+   * Suppress all contents
+   */
   public void clear()
   {
     this.dbClear();
   }
 
+  /**
+   * Get content with id from db
+   * @param id
+   * @return
+   */
   private Content dbGet(int id)
   {
     this.open();
@@ -148,6 +214,10 @@ public class ContentManager
     return p;
   }
 
+  /**
+   * Delete a content on db
+   * @param c
+   */
   private void dbDelete(Content c)
   {
     this.open();
@@ -159,6 +229,10 @@ public class ContentManager
     this.close();
   }
 
+  /**
+   * Update a content on db
+   * @param c
+   */
   private void dbUpdate(Content c)
   {
     this.open();
@@ -190,6 +264,10 @@ public class ContentManager
     this.close();
   }
 
+  /**
+   * Insert a content on db
+   * @param c
+   */
   private void dbInsert(Content c)
   {
     this.open();
@@ -217,6 +295,10 @@ public class ContentManager
 
   }
 
+  /**
+   * Get all contents from db
+   * @return
+   */
   private HashMap<Integer, Content> dbGetAll()
   {
     open();
@@ -247,6 +329,11 @@ public class ContentManager
     return contents;
   }
 
+  /**
+   * Get all contents for a specified place from db
+   * @param placeId
+   * @return
+   */
   private List<Content> dbGetAllForPlace(int placeId)
   {
     List<Content> res = new ArrayList<Content>();
@@ -277,6 +364,11 @@ public class ContentManager
     return res;
   }
 
+  /**
+   * Get all contents tagged with specified tags from db
+   * @param tagsId
+   * @return
+   */
   private List<Content> dbGetAllForTags(int[] tagsId)
   {
     List<Content> res = new ArrayList<Content>();
@@ -316,6 +408,9 @@ public class ContentManager
     return res;
   }
 
+  /**
+   * Suppress all contents on db
+   */
   private void dbClear()
   {
     this.open();
@@ -324,16 +419,27 @@ public class ContentManager
     this.close();
   }
 
+  /**
+   * Open connection with db
+   */
   private void open()
   {
     mDB = mDbHelper.getWritableDatabase();
   }
 
+  /**
+   * Close connection with db
+   */
   private void close()
   {
     mDB.close();
   }
 
+  /**
+   * Converta cursor to a content
+   * @param c
+   * @return
+   */
   private Content cursorToContent(Cursor c)
   {
     TagManager tagManager = new TagManager(mDbHelper);
@@ -348,6 +454,12 @@ public class ContentManager
     return res;
   }
 
+  /**
+   * Prepare a content for update or insert
+   * @param c
+   * @param update true if it's an update, false otherwise
+   * @return
+   */
   private ContentValues prepare(Content c, boolean update)
   {
     ContentValues values = new ContentValues();

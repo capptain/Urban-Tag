@@ -13,17 +13,28 @@ import com.google.android.maps.GeoPoint;
 
 public class PlaceManager
 {
+  /** The Database */
   private SQLiteDatabase mDB;
 
+  /** DatabaseHelper */
   private DatabaseHelper mDbHelper;
 
+  /** Hashmap containing all place already accessed. Key is id, value is place */
   private static HashMap<Integer, Place> mPlaces = new HashMap<Integer, Place>();
 
+  /**
+   * Cosntructor
+   * @param databaseHelper
+   */
   public PlaceManager(DatabaseHelper databaseHelper)
   {
     mDbHelper = databaseHelper;
   }
 
+  /**
+   * Get places we have to show on map
+   * @return visible places
+   */
   public Vector<Place> getVisiblePlaces()
   {
     Vector<Place> res = new Vector<Place>();
@@ -35,6 +46,11 @@ public class PlaceManager
     return res;
   }
 
+  /**
+   * Get specified
+   * @param id
+   * @return Place with specified id or null
+   */
   public Place get(int id)
   {
     if (mPlaces.containsKey(id))
@@ -50,6 +66,11 @@ public class PlaceManager
     }
   }
 
+  /**
+   * Get specified places
+   * @param ids Array of places id
+   * @return A list of specified places
+   */
   public List<Place> get(int[] ids)
   {
     this.getAll();
@@ -63,17 +84,30 @@ public class PlaceManager
     return res;
   }
 
+  /**
+   * Get all places
+   * @return List of all places
+   */
   public List<Place> getAll()
   {
     mPlaces = this.dbGetAll();
     return new ArrayList<Place>(mPlaces.values());
   }
 
+  /**
+   * Test if a place exists
+   * @param p a place to test
+   * @return True if place exists, false otherwise
+   */
   public boolean exists(Place p)
   {
     return mPlaces.containsKey(p.getId()) || this.get(p.getId()) != null;
   }
 
+  /**
+   * Save a place. Add it if new, update if already existing
+   * @param p the place to save
+   */
   public void save(Place p)
   {
     if (this.exists(p))
@@ -86,6 +120,10 @@ public class PlaceManager
     }
   }
 
+  /**
+   * Insert a place
+   * @param p a place. If place already exists(id already allocated) does nothing
+   */
   public void insert(Place p)
   {
     if (!this.exists(p))
@@ -95,6 +133,10 @@ public class PlaceManager
     }
   }
 
+  /**
+   * Suppres a place
+   * @param p the place to suppress
+   */
   public void supress(Place p)
   {
     if (this.exists(p))
@@ -104,6 +146,10 @@ public class PlaceManager
     }
   }
 
+  /**
+   * Alter a place
+   * @param p Place to alter
+   */
   public void alter(Place p)
   {
     if (this.exists(p))
@@ -113,11 +159,19 @@ public class PlaceManager
     }
   }
 
+  /**
+   * Suppress all places
+   */
   public void clear()
   {
     this.dbClear();
   }
 
+  /**
+   * Get all the places containing specified tags ids
+   * @param ids Ids of tags we want
+   * @return list of places
+   */
   public List<Place> getAllForTags(int[] ids)
   {
     List<Place> res = this.dbGetAllForTags(ids);
@@ -128,6 +182,11 @@ public class PlaceManager
     return res;
   }
 
+  /**
+   * Get a place in db
+   * @param id Place id
+   * @return Place
+   */
   private Place dbGet(int id)
   {
     int a[] = { id };
@@ -137,6 +196,11 @@ public class PlaceManager
     return null;
   }
 
+  /**
+   * Get places on db
+   * @param placeId Array of places id we want to retrieve from db
+   * @return List of places
+   */
   private List<Place> dbGet(int[] placeId)
   {
     open();
@@ -180,6 +244,10 @@ public class PlaceManager
     return places;
   }
 
+  /**
+   * Insert a place on db
+   * @param p
+   */
   private void dbInsert(Place p)
   {
     this.open();
@@ -206,6 +274,10 @@ public class PlaceManager
     this.close();
   }
 
+  /**
+   * Update a place on db
+   * @param p
+   */
   private void dbUpdate(Place p)
   {
     this.open();
@@ -237,6 +309,10 @@ public class PlaceManager
     this.close();
   }
 
+  /**
+   * delete a place on db
+   * @param p
+   */
   private void dbDelete(Place p)
   {
     this.open();
@@ -248,6 +324,10 @@ public class PlaceManager
     this.close();
   }
 
+  /**
+   * Get all places stocked on db as a hashmap
+   * @return hashmap of places. Key is id, value is place.
+   */
   private HashMap<Integer, Place> dbGetAll()
   {
     open();
@@ -277,6 +357,9 @@ public class PlaceManager
     return places;
   }
 
+  /**
+   * Suppress all places on db
+   */
   private void dbClear()
   {
     this.open();
@@ -285,6 +368,11 @@ public class PlaceManager
     this.close();
   }
 
+  /**
+   * Fetch places for specified tags id on db
+   * @param tagsId
+   * @return List of places
+   */
   private List<Place> dbGetAllForTags(int[] tagsId)
   {
     List<Place> res = new ArrayList<Place>();
@@ -323,16 +411,28 @@ public class PlaceManager
     return res;
   }
 
+  /**
+   * Open connection with db
+   */
   private void open()
   {
     mDB = mDbHelper.getWritableDatabase();
   }
 
+  /**
+   * Close connection with db
+   */
   private void close()
   {
     mDB.close();
   }
 
+  /**
+   * Prepare value for db update or insert
+   * @param p Place
+   * @param update True if doing an update, false otheirwise
+   * @return ContentValues
+   */
   private ContentValues prepare(Place p, boolean update)
   {
     ContentValues values = new ContentValues();
@@ -347,6 +447,11 @@ public class PlaceManager
     return values;
   }
 
+  /**
+   * Convert a cursor to a place
+   * @param c
+   * @return place
+   */
   private Place cursorToPlace(Cursor c)
   {
     TagManager tagManager = new TagManager(mDbHelper);

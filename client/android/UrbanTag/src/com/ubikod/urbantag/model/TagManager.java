@@ -15,19 +15,34 @@ import android.util.Log;
 
 public class TagManager
 {
+  /** Database */
   private SQLiteDatabase mDB;
 
+  /** DatabaseHelper */
   private DatabaseHelper mDbHelper;
 
+  /** Store if we made an request to retrieve all tags from db */
   private boolean madeAllRequest = false;
 
+  /**
+   * Hashmap containing all place already accessed. Key is id, value is tag
+   */
   private static HashMap<Integer, Tag> sTags = new HashMap<Integer, Tag>();
 
+  /**
+   * Constructor
+   * @param databaseHelper
+   */
   public TagManager(DatabaseHelper databaseHelper)
   {
     mDbHelper = databaseHelper;
   }
 
+  /**
+   * Create a tag from json
+   * @param json
+   * @return Tag
+   */
   public static Tag createTag(JSONObject json)
   {
     Tag t = null;
@@ -46,6 +61,11 @@ public class TagManager
     return t;
   }
 
+  /**
+   * Do update on stocked tags. If tag is new insert it, if already existing update it if needed.
+   * Caution : If a already existing tag is missing it will be deleted.
+   * @param list
+   */
   public void update(List<Tag> list)
   {
     // Tags maj ou ajoutes
@@ -70,18 +90,22 @@ public class TagManager
     }
   }
 
+  /**
+   * Toggle notification for a specified tag
+   * @param t
+   */
   public void toggleNotification(Tag t)
   {
     t.setSelected(!t.isSelected());
     this.alter(t);
   }
 
+  /**
+   * Retrieve tag from its id
+   * @param id
+   * @return Tag if existing, null otherwise
+   */
   public Tag get(int id)
-  {
-    return this.get(id, true);
-  }
-
-  private Tag get(int id, boolean first)
   {
     if (sTags.containsKey(id))
     {
@@ -89,15 +113,8 @@ public class TagManager
     }
     else
     {
-      if (!first)
-        return null;
-
       Tag t = this.dbGet(id);
-      if (t == null)
-      {
-        t = this.get(id, false);
-      }
-      else
+      if (t != null)
       {
         sTags.put(id, t);
       }
@@ -105,6 +122,10 @@ public class TagManager
     }
   }
 
+  /**
+   * Get all tags as a hashmap
+   * @return
+   */
   public HashMap<Integer, Tag> getAllAsHashMap()
   {
     if (!madeAllRequest)
@@ -115,6 +136,10 @@ public class TagManager
     return sTags;
   }
 
+  /**
+   * Get all tags as a list
+   * @return
+   */
   public List<Tag> getAll()
   {
     if (!madeAllRequest)
@@ -125,11 +150,20 @@ public class TagManager
     return new ArrayList<Tag>(sTags.values());
   }
 
+  /**
+   * Test if tags exists
+   * @param t
+   * @return True if the tag exists, false otherwise
+   */
   public boolean exists(Tag t)
   {
     return sTags.containsKey(t.getId()) || this.get(t.getId()) != null;
   }
 
+  /**
+   * Save a tag. If tag already exists update it, if new add it
+   * @param t
+   */
   public void save(Tag t)
   {
     if (this.exists(t))
@@ -142,6 +176,10 @@ public class TagManager
     }
   }
 
+  /**
+   * Insert a tag. If tag already exists(id is allocated) does nothing
+   * @param t
+   */
   public void insert(Tag t)
   {
     if (!this.exists(t))
@@ -151,6 +189,10 @@ public class TagManager
     }
   }
 
+  /**
+   * Supress a tag
+   * @param t
+   */
   public void supress(Tag t)
   {
     if (this.exists(t))
@@ -160,6 +202,10 @@ public class TagManager
     }
   }
 
+  /**
+   * Alter a tag
+   * @param t
+   */
   public void alter(Tag t)
   {
     if (this.exists(t))
@@ -170,18 +216,32 @@ public class TagManager
     }
   }
 
+  /**
+   * Get all tags for content id
+   * @param id content id
+   * @return List of tags
+   */
   public List<Tag> getAllForContent(int id)
   {
     return this.dbGetAllFor(DatabaseHelper.TABLE_CONTENTS_TAGS,
       DatabaseHelper.CONTENT_TAG_COL_CONTENT, id);
   }
 
+  /**
+   * Gets all tags for place id
+   * @param id place id
+   * @return List of tags
+   */
   public List<Tag> getAllForPlace(int id)
   {
     return this.dbGetAllFor(DatabaseHelper.TABLE_PLACES_TAGS, DatabaseHelper.PLACE_TAG_COL_PLACE,
       id);
   }
 
+  /**
+   * Insert tag on db
+   * @param t
+   */
   private void dbInsert(Tag t)
   {
     this.open();
@@ -195,6 +255,10 @@ public class TagManager
     this.close();
   }
 
+  /**
+   * Delete tag on db
+   * @param t
+   */
   private void dbDelete(Tag t)
   {
     this.open();
@@ -203,6 +267,11 @@ public class TagManager
     this.close();
   }
 
+  /**
+   * Fetch tag from db
+   * @param id tag id
+   * @return
+   */
   private Tag dbGet(int id)
   {
     this.open();
@@ -223,6 +292,10 @@ public class TagManager
     return t;
   }
 
+  /**
+   * Update a tag on db
+   * @param t
+   */
   private void dbUpdate(Tag t)
   {
     this.open();
@@ -236,6 +309,10 @@ public class TagManager
     this.close();
   }
 
+  /**
+   * Get all tags from db
+   * @return
+   */
   private HashMap<Integer, Tag> dbGetAll()
   {
     open();
@@ -265,6 +342,13 @@ public class TagManager
     return tags;
   }
 
+  /**
+   * Get all tags from a pivot table
+   * @param pivotTable pivot table name
+   * @param pivotColumn pivot table column
+   * @param id
+   * @return
+   */
   private List<Tag> dbGetAllFor(String pivotTable, String pivotColumn, int id)
   {
     open();
@@ -297,6 +381,11 @@ public class TagManager
     return tags;
   }
 
+  /**
+   * Convert a cursor to a tag
+   * @param c
+   * @return
+   */
   private Tag cursorToTag(Cursor c)
   {
     Tag t = new Tag(c.getInt(DatabaseHelper.TAG_NUM_COL_ID),
@@ -305,11 +394,17 @@ public class TagManager
     return t;
   }
 
+  /**
+   * Open database connection
+   */
   private void open()
   {
     mDB = mDbHelper.getWritableDatabase();
   }
 
+  /**
+   * Close database connection
+   */
   private void close()
   {
     mDB.close();

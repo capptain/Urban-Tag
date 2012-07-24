@@ -1,11 +1,17 @@
 package com.ubikod.urbantag.model;
 
-
 public class Tag
 {
+  /** Tag id */
   private int mId;
+
+  /** Tag value */
   private String mValue;
+
+  /** Tag color */
   private int mColor;
+
+  /** Tag selected */
   private boolean mSelected;
 
   public Tag(int id, String value, int color)
@@ -46,7 +52,8 @@ public class Tag
     if (o instanceof Tag)
     {
       Tag t = (Tag) o;
-      return t.getId() == this.mId;
+      /* Tag equality is defined by id equality */
+      return t.mId == this.mId;
     }
     else
       return false;
@@ -57,6 +64,7 @@ public class Tag
     if (o instanceof Tag)
     {
       Tag t = (Tag) o;
+      /* A tag has changed if one of its attributes(except id) has changed */
       return !t.getValue().equals(this.mValue) || t.getColor() != this.mColor
         || t.mSelected != this.mSelected;
     }
