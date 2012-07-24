@@ -17,27 +17,60 @@ public class MultipleSelection<T> extends Spinner implements OnMultiChoiceClickL
   OnCancelListener
 {
 
+  /**
+   * List containing all items to display
+   */
   private List<T> items;
+
+  /**
+   * Boolean array which marks which item are selected or not
+   */
   private boolean[] selected;
+
+  /**
+   * Text to display on spinner
+   */
   private String defaultText;
+
+  /**
+   * Listener we have to notify when validating choices
+   */
   private MultiSpinnerListener<T> listener;
 
+  /**
+   * Constructor
+   * @param context
+   */
   public MultipleSelection(Context context)
   {
     super(context);
   }
 
+  /**
+   * Constructor
+   * @param arg0
+   * @param arg1
+   */
   public MultipleSelection(Context arg0, AttributeSet arg1)
   {
     super(arg0, arg1);
   }
 
+  /**
+   * Constructor
+   * @param arg0
+   * @param arg1
+   * @param arg2
+   */
   public MultipleSelection(Context arg0, AttributeSet arg1, int arg2)
   {
     super(arg0, arg1, arg2);
   }
 
   @Override
+  /**
+   * Method reacting when clicking on item. Toggle selection for clicked item.
+   */
   public void onClick(DialogInterface dialog, int which, boolean isChecked)
   {
     if (isChecked)
@@ -47,6 +80,9 @@ public class MultipleSelection<T> extends Spinner implements OnMultiChoiceClickL
   }
 
   @Override
+  /**
+   * Action to perform when clicking back button
+   */
   public void onCancel(DialogInterface dialog)
   {
     ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(),
@@ -64,6 +100,9 @@ public class MultipleSelection<T> extends Spinner implements OnMultiChoiceClickL
   }
 
   @Override
+  /**
+   * Action to perform when clicking on spinner
+   */
   public boolean performClick()
   {
     String[] itemsNames = new String[items.size()];
@@ -87,6 +126,14 @@ public class MultipleSelection<T> extends Spinner implements OnMultiChoiceClickL
     return true;
   }
 
+  /**
+   * Set elements for view
+   * @param items List of items to display
+   * @param selectedItems Mark which item are selected. If array's length is lower than items list
+   *          size missing elements will be marked as unselected.
+   * @param allText Text to display on spinner
+   * @param listener Listener we notify after closing dialog box
+   */
   public void setItems(List<T> items, boolean[] selectedItems, String allText,
     MultiSpinnerListener<T> listener)
   {
@@ -104,6 +151,12 @@ public class MultipleSelection<T> extends Spinner implements OnMultiChoiceClickL
     setAdapter(adapter);
   }
 
+  /**
+   * Interface for listeners
+   * @author cdesneuf
+   * @param <T> Type of objects which will be passed to dialog box. They need to implement a valid
+   *          toString method !
+   */
   public interface MultiSpinnerListener<T>
   {
     public void onItemsSelected(List<T> selectedItems);
