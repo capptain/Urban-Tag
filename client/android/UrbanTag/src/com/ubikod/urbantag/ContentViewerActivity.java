@@ -26,7 +26,7 @@ public class ContentViewerActivity extends SherlockActivity
 {
   private static final String ACTION_GET_CONTENT = "info/%/content";
   private final String mimeType = "text/html";
-  private final String encoding = "US-ASCII";
+  private final String encoding = "UTF-8";
   private static final int TIMEOUT = 60000;
   public static final String CONTENT_ID = "contentid";
 
@@ -94,7 +94,8 @@ public class ContentViewerActivity extends SherlockActivity
         try
         {
           String responseBody = httpClient.execute(new HttpGet(URL), new BasicResponseHandler());
-          webView.loadData(responseBody, mimeType, encoding);
+          webView.loadDataWithBaseURL("fake://url/for/encoding/hack...", responseBody, mimeType,
+            encoding, "");
           timeOutHandler.interrupt();
           if (progress.isShowing())
             progress.dismiss();
