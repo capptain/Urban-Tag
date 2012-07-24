@@ -46,7 +46,7 @@
     <string name="no_matching_content">Il n\'y a pas de contenu correspondant.</string>
     <string name="no_matching_event">Il n\'y a pas d\'évènement correspondant.</string>
     <string name="error_loading_content">Impossible de charger les informations.</string>
-    <string name="loading_content">Chargements des informations...</string>
+    <string name="loading_content">Chargement des informations...</string>
     <string name="select_your_tags">Sélectionnez les catégories qui vous intéressent.</string>
     <string name="description">Description</string>
 
