@@ -184,7 +184,7 @@ public class ContentsListActivity extends SherlockListActivity
       @Override
       protected View getHeaderView(String caption, int index, View convertView, ViewGroup parent)
       {
-        if (convertView == null)
+        if ((convertView == null || !(convertView instanceof TextView)) && caption != null)
         {
           convertView = new TextView(getApplicationContext());
           ((TextView) convertView).setTextColor(0xff000000);
@@ -194,8 +194,13 @@ public class ContentsListActivity extends SherlockListActivity
             android.R.style.TextAppearance_Medium);
           ((TextView) convertView).setBackgroundColor(android.R.style.Widget_ActionBar);
         }
+        else
+        {
+          convertView = new View(getApplicationContext());
+        }
 
-        ((TextView) convertView).setText(caption);
+        if (caption != null)
+          ((TextView) convertView).setText(caption);
 
         return convertView;
       }
@@ -204,12 +209,20 @@ public class ContentsListActivity extends SherlockListActivity
     if (extras != null && extras.getInt(DISPLAY, -1) != DISPLAY_ONLY_EVENT
       && placesDescriptions.size() > 0)
     {
-      adapter.addSection("Description", createAdapter(placesDescriptions));
+      if (placesDescriptions.size() == 1)
+      {
+        adapter.addSection(null, createAdapter(placesDescriptions, true));
+      }
+      else
+      {
+        adapter.addSection(getResources().getString(R.string.description),
+          createAdapter(placesDescriptions, true));
+      }
     }
 
     if (mContents.size() > 0)
     {
-      adapter.addSection("Event", createAdapter(mContents));
+      adapter.addSection(getResources().getString(R.string.events), createAdapter(mContents));
     }
 
     setListAdapter(adapter);
