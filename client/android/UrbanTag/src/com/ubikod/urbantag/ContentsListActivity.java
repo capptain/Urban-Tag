@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockListActivity;
 import com.actionbarsherlock.view.MenuItem;
+import com.commonsware.android.listview.SectionedAdapter;
 import com.ubikod.urbantag.layout.FlowLayout;
 import com.ubikod.urbantag.model.Content;
 import com.ubikod.urbantag.model.ContentManager;
@@ -152,8 +153,7 @@ public class ContentsListActivity extends SherlockListActivity
     com.actionbarsherlock.app.ActionBar actionBar = this.getSupportActionBar();
     actionBar.setDisplayHomeAsUpEnabled(true);
 
-    /* Ensure places descriptions are always on top */
-    /* Fetch them */
+    /* Fetch places descriptions */
     List<Content> placesDescriptions = new ArrayList<Content>();
     for (Content content : mContents)
     {
@@ -162,16 +162,13 @@ public class ContentsListActivity extends SherlockListActivity
         placesDescriptions.add(content);
       }
     }
-    /* Remove them and then Add them on top */
-    /* If DISPLAY_ONLY_EVENT specified don't add them */
+    /* Remove them places descriptions */
     for (Content content : placesDescriptions)
     {
       mContents.remove(content);
-      if (extras != null && extras.getInt(DISPLAY, -1) != DISPLAY_ONLY_EVENT)
-        mContents.add(0, content);
     }
 
-    if (this.mContents.size() == 0)
+    if (this.mContents.size() == 0 && placesDescriptions.size() == 0)
     {
       if (extras != null && extras.getInt(DISPLAY, -1) != DISPLAY_ONLY_EVENT)
         Toast.makeText(this, R.string.no_matching_content, Toast.LENGTH_SHORT).show();
@@ -181,7 +178,42 @@ public class ContentsListActivity extends SherlockListActivity
       return;
     }
 
-    setListAdapter(createAdapter());
+    SectionedAdapter adapter = new SectionedAdapter()
+    {
+
+      @Override
+      protected View getHeaderView(String caption, int index, View convertView, ViewGroup parent)
+      {
+        if (convertView == null)
+        {
+          convertView = new TextView(getApplicationContext());
+          ((TextView) convertView).setTextColor(0xff000000);
+          ((TextView) convertView).setPadding(
+            (int) (15 * getResources().getDisplayMetrics().density + 0.5f), 0, 0, 0);
+          ((TextView) convertView).setTextAppearance(ContentsListActivity.this,
+            android.R.style.TextAppearance_Medium);
+          ((TextView) convertView).setBackgroundColor(android.R.style.Widget_ActionBar);
+        }
+
+        ((TextView) convertView).setText(caption);
+
+        return convertView;
+      }
+    };
+
+    if (extras != null && extras.getInt(DISPLAY, -1) != DISPLAY_ONLY_EVENT
+      && placesDescriptions.size() > 0)
+    {
+      adapter.addSection("Description", createAdapter(placesDescriptions));
+    }
+
+    if (mContents.size() > 0)
+    {
+      adapter.addSection("Event", createAdapter(mContents));
+    }
+
+    setListAdapter(adapter);
+
   }
 
   @Override
@@ -196,7 +228,12 @@ public class ContentsListActivity extends SherlockListActivity
     return false;
   }
 
-  private BaseAdapter createAdapter()
+  private BaseAdapter createAdapter(final List<Content> contents)
+  {
+    return createAdapter(contents, false);
+  }
+
+  private BaseAdapter createAdapter(final List<Content> contents, final boolean isDescription)
   {
     return new BaseAdapter()
     {
@@ -207,7 +244,7 @@ public class ContentsListActivity extends SherlockListActivity
         ViewHolder holder;
         TagBundle tagBundle;
 
-        Content c = mContents.get(position);
+        Content c = contents.get(position);
 
         if (convertView == null)
         {
@@ -229,8 +266,15 @@ public class ContentsListActivity extends SherlockListActivity
         }
 
         tagBundle.content = c;
-        holder.nameView.setText(c.getName());
 
+        if (isDescription && contents.size() == 1)
+        {
+          holder.nameView.setText(R.string.description);
+        }
+        else
+          holder.nameView.setText(c.getName());
+
+        holder.tagContainer.removeAllViews();
         for (Tag t : c.getAllTags())
         {
           TextView tag = new TextView(getApplicationContext());
@@ -253,13 +297,13 @@ public class ContentsListActivity extends SherlockListActivity
       @Override
       public Object getItem(int position)
       {
-        return mContents.get(position);
+        return contents.get(position);
       }
 
       @Override
       public int getCount()
       {
-        return mContents.size();
+        return contents.size();
       }
     };
 
