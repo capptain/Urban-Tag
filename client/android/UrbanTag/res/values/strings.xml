@@ -38,7 +38,7 @@
     <string name="search_a">Rechercher :</string>
     <string name="select_tags">Selectionner des catégories</string>
     <string name="category_needed">Vous devez sélectionner au moins une catégorie.</string>
-    <string name="events">Evènements</string>
+    <string name="events">Evénements</string>
     <string name="is_running"> est activé</string>
     <string name="new_place">Nouveau lieu !</string>
     <string name="error_occured">Une erreur a eu lieu.</string>
