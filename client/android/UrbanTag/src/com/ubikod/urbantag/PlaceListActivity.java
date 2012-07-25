@@ -21,26 +21,71 @@ import com.ubikod.urbantag.model.Place;
 import com.ubikod.urbantag.model.PlaceManager;
 import com.ubikod.urbantag.model.Tag;
 
+/**
+ * Activity displaying several places after a "big finger" tap on map
+ * @author cdesneuf
+ */
 public class PlaceListActivity extends SherlockListActivity
 {
+  /**
+   * Key for bundle extra in order to specify mode.
+   */
   public static final String MODE = "mode";
+
+  /**
+   * Display places with specified ids. PLACES_ID int array must be associated.
+   */
   public static final int MODE_PLACES_IDS = 0;
+
+  /**
+   * Display places containing specifieds tags. TAGS_ID int array must be associated.
+   */
   public static final int MODE_TAGS_IDS = 1;
+
+  /**
+   * Key for bundle extra for int array containing place ids.
+   */
   public static final String PLACES_IDS = "places_ids";
+
+  /**
+   * Key for bundle extra for int array containing tags ids.
+   */
   public static final String TAGS_IDS = "tags_ids";
 
+  /**
+   * Database helper
+   */
   private DatabaseHelper mDbHelper;
+
+  /**
+   * Place manager
+   */
   private PlaceManager mPlaceManager;
+
+  /**
+   * Layout inflater
+   */
   private LayoutInflater mInflater;
 
+  /**
+   * List of places we have to display
+   */
   private List<Place> mPlaces;
 
+  /**
+   * View holder
+   * @author cdesneuf
+   */
   private static class ViewHolder
   {
     FlowLayout tagContainer;
     TextView nameView;
   }
 
+  /**
+   * Tag bundle
+   * @author cdesneuf
+   */
   private static class TagBundle
   {
     ViewHolder viewHolder;
@@ -61,6 +106,7 @@ public class PlaceListActivity extends SherlockListActivity
 
     Bundle extras = getIntent().getExtras();
 
+    /* Select mode and load place data */
     if (extras != null && extras.getInt(MODE, -1) == MODE_PLACES_IDS)
     {
       int[] ids;
@@ -97,6 +143,7 @@ public class PlaceListActivity extends SherlockListActivity
       return;
     }
 
+    /* If we don't have any place data toast and finish activity */
     if (this.mPlaces.size() == 0)
     {
       Toast.makeText(this, R.string.no_matching_place, Toast.LENGTH_SHORT).show();
@@ -118,6 +165,10 @@ public class PlaceListActivity extends SherlockListActivity
     return false;
   }
 
+  /**
+   * Create a list adapter
+   * @return
+   */
   private BaseAdapter createAdapter()
   {
     return new BaseAdapter()
@@ -200,6 +251,10 @@ public class PlaceListActivity extends SherlockListActivity
   }
 
   @Override
+  /**
+   * Listen for a click on a list item
+   * Open ContentListActivity for selected place
+   */
   public void onListItemClick(ListView l, View v, int position, long id)
   {
     Intent intent = new Intent(this, ContentsListActivity.class);

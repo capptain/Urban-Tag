@@ -22,17 +22,50 @@ import com.ubikod.urbantag.model.Content;
 import com.ubikod.urbantag.model.ContentManager;
 import com.ubikod.urbantag.model.DatabaseHelper;
 
+/**
+ * Activity displaying content on webview
+ * @author cdesneuf
+ */
 public class ContentViewerActivity extends SherlockActivity
 {
+  /**
+   * Action we have to perform on API to fetch webview content
+   */
   private static final String ACTION_GET_CONTENT = "info/%/content";
+
+  /**
+   * mimeType of webview content
+   */
   private final String mimeType = "text/html";
+
+  /**
+   * Webview content encoding
+   */
   private final String encoding = "UTF-8";
+
+  /**
+   * Maximal time for webview content loading
+   */
   private static final int TIMEOUT = 60000;
+
+  /**
+   * Key for bundle extra to sepcify content we want to display
+   */
   public static final String CONTENT_ID = "contentid";
 
+  /**
+   * Thread handling timeOut
+   */
   private Thread timeOutHandler;
+
+  /**
+   * Thread fetching webview content
+   */
   private Thread contentFetcher;
 
+  /**
+   * Content we want to display
+   */
   private Content content = null;
 
   @Override
@@ -40,11 +73,20 @@ public class ContentViewerActivity extends SherlockActivity
   {
     super.onCreate(savedInstanceState);
     Bundle extras = getIntent().getExtras();
-    if (extras.getBoolean(NotificationHelper.FROM_NOTIFICATION, false))
+
+    /* If we are coming from Notification delete notification */
+    if (extras.getInt(NotificationHelper.FROM_NOTIFICATION, -1) == NotificationHelper.NEW_CONTENT_NOTIF)
     {
       NotificationHelper notificationHelper = new NotificationHelper(this);
       notificationHelper.closeContentNotif();
     }
+    else if (extras.getInt(NotificationHelper.FROM_NOTIFICATION, -1) == NotificationHelper.NEW_PLACE_NOTIF)
+    {
+      NotificationHelper notificationHelper = new NotificationHelper(this);
+      notificationHelper.closePlaceNotif();
+    }
+
+    /* Fetch content info */
     ContentManager contentManager = new ContentManager(new DatabaseHelper(this, null));
     Log.i(UrbanTag.TAG, "View content : " + extras.getInt(CONTENT_ID));
     this.content = contentManager.get(extras.getInt(CONTENT_ID));
@@ -57,8 +99,9 @@ public class ContentViewerActivity extends SherlockActivity
     setTitle(content.getName());
     com.actionbarsherlock.app.ActionBar actionBar = this.getSupportActionBar();
     actionBar.setDisplayHomeAsUpEnabled(true);
-
     setContentView(R.layout.content_viewer);
+
+    /* Find webview and create url for content */
     final WebView webView = (WebView) findViewById(R.id.webview);
     final String URL = UrbanTag.API_URL
       + ACTION_GET_CONTENT.replaceAll("%", "" + this.content.getId());
@@ -149,7 +192,6 @@ public class ContentViewerActivity extends SherlockActivity
           for (int time = 0; time < TIMEOUT; time += INCREMENT)
           {
             Thread.sleep(INCREMENT);
-
           }
 
           Log.i(UrbanTag.TAG, "TimeOut !");

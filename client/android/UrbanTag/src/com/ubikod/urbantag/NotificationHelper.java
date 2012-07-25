@@ -8,18 +8,52 @@ import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+/**
+ * Class helper for notifications
+ * @author cdesneuf
+ */
 public class NotificationHelper
 {
+  /**
+   * Key for bundle extra specifying new activity is started from a click on a notification Type of
+   * notification(NEW_CONTENT_NOTIF or NEW_PLACE_NOTIF) is associated to this key.
+   */
   public static final String FROM_NOTIFICATION = "from_notification";
-  private static final int NEW_CONTENT_NOTIF = 1;
-  private static final int NEW_PLACE_NOTIF = 2;
 
+  /**
+   * Notification key for a new content(new event).
+   */
+  public static final int NEW_CONTENT_NOTIF = 1;
+
+  /**
+   * Notification key for a new place description
+   */
+  public static final int NEW_PLACE_NOTIF = 2;
+
+  /**
+   * Icon for place notification
+   */
   private static final int place_icon = android.R.drawable.ic_dialog_map;
+
+  /**
+   * Icon for event notification
+   */
   private static final int content_icon = android.R.drawable.ic_lock_idle_alarm;
 
+  /**
+   * Context
+   */
   private Context mContext;
+
+  /**
+   * Notification Manager
+   */
   private NotificationManager mNotificationManager;
 
+  /**
+   * Cosntructor
+   * @param context
+   */
   public NotificationHelper(Context context)
   {
     this.mContext = context;
@@ -27,6 +61,13 @@ public class NotificationHelper
 
   }
 
+  /**
+   * Notify a new content(place or event)
+   * @param contentId Id of content
+   * @param content Content name
+   * @param placeName Place name it will happend
+   * @param type type of notification
+   */
   private void notify(int contentId, String content, String placeName, int type)
   {
 
@@ -45,7 +86,7 @@ public class NotificationHelper
     intent.putExtra(ContentViewerActivity.CONTENT_ID, contentId);
 
     /* Add the from notification extra info and create the pending intent */
-    intent.putExtra(FROM_NOTIFICATION, true);
+    intent.putExtra(FROM_NOTIFICATION, type);
     PendingIntent activity = PendingIntent.getActivity(mContext, 0, intent,
       PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -65,6 +106,12 @@ public class NotificationHelper
     mNotificationManager.notify(type, newNotification);
   }
 
+  /**
+   * Notify a new content(event)
+   * @param contentId content id
+   * @param contentTitle Event name
+   * @param placeName Place it will happend
+   */
   public void notifyNewContent(int contentId, String contentTitle, String placeName)
   {
     Log.i(UrbanTag.TAG, "Notification : Received for contentId " + contentId);
@@ -72,6 +119,11 @@ public class NotificationHelper
     notify(contentId, contentTitle, placeName, NEW_CONTENT_NOTIF);
   }
 
+  /**
+   * Notify a new place
+   * @param contentId content id
+   * @param placeName Place name
+   */
   public void notifyNewPlace(int contentId, String placeName)
   {
     Log.i(UrbanTag.TAG, "Notification : Received for contentId " + contentId);
@@ -79,11 +131,17 @@ public class NotificationHelper
     notify(contentId, null, placeName, NEW_PLACE_NOTIF);
   }
 
+  /**
+   * Close new content(event) notification
+   */
   public void closeContentNotif()
   {
     mNotificationManager.cancel(NEW_CONTENT_NOTIF);
   }
 
+  /**
+   * Close new place notification
+   */
   public void closePlaceNotif()
   {
     mNotificationManager.cancel(NEW_PLACE_NOTIF);

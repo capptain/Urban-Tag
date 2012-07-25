@@ -28,34 +28,79 @@ import com.ubikod.urbantag.model.Tag;
 public class ContentsListActivity extends SherlockListActivity
 {
 
+  /**
+   * Key for bundle extra in order to specify mode
+   */
   public static final String MODE = "mode";
+
+  /**
+   * Display contents for a given place. Need to specify PLACE_ID int
+   */
   public static final int MODE_PLACE = 0;
+
+  /**
+   * Display contents for given contents id. Need to specify CONTENTS_ID array
+   */
   public static final int MODE_CONTENTS_LIST = 1;
+
+  /**
+   * Display contents for given tags. Need to specify TAGS_ID array
+   */
   public static final int MODE_TAG_LIST = 2;
+
+  /**
+   * Key for bundle extra in order to specify display
+   */
   public static final String DISPLAY = "display";
+
+  /**
+   * Display events and place descriptions
+   */
   public static final int DISPLAY_ALL = 0;
+
+  /**
+   * Display only events
+   */
   public static final int DISPLAY_ONLY_EVENT = 1;
+
+  /**
+   * Key for bundle extra for a place id
+   */
   public static final String PLACE_ID = "place_id";
+
+  /**
+   * Key for bundle extra for several contents id
+   */
   public static final String CONTENTS_IDS = "contents_ids";
+
+  /**
+   * Key for bundle extra for several tags id
+   */
   public static final String TAGS_IDS = "tags_ids";
 
-  /* Contents list for place */
+  /** List of contents */
   private List<Content> mContents = new ArrayList<Content>();
 
+  /** DatabaseHelper */
   private DatabaseHelper mDbHelper;
 
+  /** PlaceManager */
   private PlaceManager mPlaceManager;
 
+  /** ContentManager */
   private ContentManager mContentManager;
 
+  /** Layout inflater */
   private LayoutInflater mInflater;
 
+  /** ViewHolder */
   private static class ViewHolder
   {
     FlowLayout tagContainer;
     TextView nameView;
   }
 
+  /** TagBundle : Store data in view tag */
   private static class TagBundle
   {
     ViewHolder viewHolder;
@@ -67,19 +112,15 @@ public class ContentsListActivity extends SherlockListActivity
   {
     super.onCreate(savedInstanceState);
     Bundle extras = getIntent().getExtras();
-
-    if (extras.getBoolean(NotificationHelper.FROM_NOTIFICATION, false))
-    {
-      NotificationHelper notificationHelper = new NotificationHelper(this);
-      notificationHelper.closeContentNotif();
-    }
+    com.actionbarsherlock.app.ActionBar actionBar = this.getSupportActionBar();
+    actionBar.setDisplayHomeAsUpEnabled(true);
 
     mDbHelper = new DatabaseHelper(this, null);
     mPlaceManager = new PlaceManager(mDbHelper);
     mContentManager = new ContentManager(mDbHelper);
     mInflater = LayoutInflater.from(getApplicationContext());
 
-    /* Handle when is given a place id => display all contents for this place */
+    /* Handle MODE_PLACE => display all contents for this place */
     if (extras != null && extras.getInt(MODE, -1) == MODE_PLACE)
     {
       Place place = mPlaceManager.get(extras.getInt(PLACE_ID));
@@ -102,9 +143,9 @@ public class ContentsListActivity extends SherlockListActivity
         finish();
         return;
       }
-
     }
-    /* Handle when is given a array of contents ids => display selected contents */
+
+    /* Handle MODE_CONTENTS_LIST => display selected contents */
     else if (extras != null && extras.getInt(MODE, -1) == MODE_CONTENTS_LIST)
     {
       setTitle(R.string.events);
@@ -126,7 +167,8 @@ public class ContentsListActivity extends SherlockListActivity
         return;
       }
     }
-    /* Handle when is given a array of tags ids => display contents with corresponding tags */
+
+    /* Handle MODE_TAG_LIST => display contents with corresponding tags */
     else if (extras != null && extras.getInt(MODE, -1) == MODE_TAG_LIST)
     {
       setTitle(R.string.events);
@@ -141,7 +183,6 @@ public class ContentsListActivity extends SherlockListActivity
         finish();
         return;
       }
-
     }
     else
     {
@@ -150,25 +191,25 @@ public class ContentsListActivity extends SherlockListActivity
       return;
     }
 
-    com.actionbarsherlock.app.ActionBar actionBar = this.getSupportActionBar();
-    actionBar.setDisplayHomeAsUpEnabled(true);
-
-    /* Fetch places descriptions */
+    /* Get place descriptions from all contents */
     List<Content> placesDescriptions = new ArrayList<Content>();
-    for (Content content : mContents)
+    List<Content> events = mContents;
+    for (Content content : events)
     {
       if (content.getStartDate() == -1 || content.getEndDate() == -1)
       {
         placesDescriptions.add(content);
       }
     }
-    /* Remove them places descriptions */
+
+    /* Remove place descriptions from event list */
     for (Content content : placesDescriptions)
     {
-      mContents.remove(content);
+      events.remove(content);
     }
 
-    if (this.mContents.size() == 0 && placesDescriptions.size() == 0)
+    /* If we don't have description or event toast and finish activity */
+    if (events.size() == 0 && placesDescriptions.size() == 0)
     {
       if (extras != null && extras.getInt(DISPLAY, -1) != DISPLAY_ONLY_EVENT)
         Toast.makeText(this, R.string.no_matching_content, Toast.LENGTH_SHORT).show();
@@ -178,12 +219,13 @@ public class ContentsListActivity extends SherlockListActivity
       return;
     }
 
+    /* Create sectioned adapter */
     SectionedAdapter adapter = new SectionedAdapter()
     {
-
       @Override
       protected View getHeaderView(String caption, int index, View convertView, ViewGroup parent)
       {
+        /* If we don't have caption just return an empty view */
         if ((convertView == null || !(convertView instanceof TextView)) && caption != null)
         {
           convertView = new TextView(getApplicationContext());
@@ -206,6 +248,7 @@ public class ContentsListActivity extends SherlockListActivity
       }
     };
 
+    /* Load place descriptions data in adapter */
     if (extras != null && extras.getInt(DISPLAY, -1) != DISPLAY_ONLY_EVENT
       && placesDescriptions.size() > 0)
     {
@@ -220,9 +263,10 @@ public class ContentsListActivity extends SherlockListActivity
       }
     }
 
-    if (mContents.size() > 0)
+    /* Load events in adapter */
+    if (events.size() > 0)
     {
-      adapter.addSection(getResources().getString(R.string.events), createAdapter(mContents));
+      adapter.addSection(getResources().getString(R.string.events), createAdapter(events));
     }
 
     setListAdapter(adapter);
@@ -241,11 +285,23 @@ public class ContentsListActivity extends SherlockListActivity
     return false;
   }
 
+  /**
+   * Create a list adapter
+   * @param contents Contents to display on list
+   * @return
+   */
   private BaseAdapter createAdapter(final List<Content> contents)
   {
     return createAdapter(contents, false);
   }
 
+  /**
+   * Create a list adapter
+   * @param contents Contents to display on list
+   * @param isDescription true if contents are description, false otherwise. If true and contents
+   *          size is one replace content name by description
+   * @return
+   */
   private BaseAdapter createAdapter(final List<Content> contents, final boolean isDescription)
   {
     return new BaseAdapter()
@@ -337,6 +393,10 @@ public class ContentsListActivity extends SherlockListActivity
   }
 
   @Override
+  /**
+   * Handle click on a list item
+   * Start contentViewerActivity for selected content
+   */
   public void onListItemClick(ListView l, View v, int position, long id)
   {
     Intent intent = new Intent(this, ContentViewerActivity.class);

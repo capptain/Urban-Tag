@@ -20,6 +20,10 @@ import com.ubikod.urbantag.model.PlaceManager;
 import com.ubikod.urbantag.model.Tag;
 import com.ubikod.urbantag.model.TagManager;
 
+/**
+ * Class handling datapush received from Capptain plateform
+ * @author cdesneuf
+ */
 public class DataPushHandler extends CapptainReachDataPushReceiver
 {
 
@@ -30,7 +34,10 @@ public class DataPushHandler extends CapptainReachDataPushReceiver
 
     try
     {
+      /* Create a JSONObject from received string */
       JSONObject json = new JSONObject(body);
+
+      /* Create Managers */
       DatabaseHelper dbHelper = new DatabaseHelper(context, null);
       ContentManager contentManager = new ContentManager(dbHelper);
       PlaceManager placeManager = new PlaceManager(dbHelper);
@@ -139,13 +146,13 @@ public class DataPushHandler extends CapptainReachDataPushReceiver
           }
 
           /* Create content and store it */
-
           Content c = new Content(json.getInt("idInfo"), json.getString("title"),
             json.getInt("startDate"), json.getInt("endDate"), p, contentTag, contentTagsList);
           contentManager.save(c);
 
           /* Notify */
           NotificationHelper notificationHelper = new NotificationHelper(context);
+          /* if endDate or startDate equals to -1 it's a place description */
           if (c.getEndDate() == -1 || c.getStartDate() == -1)
           {
             notificationHelper.notifyNewPlace(c.getId(), c.getName());
