@@ -194,7 +194,7 @@ public class ContentViewerActivity extends SherlockActivity
             Thread.sleep(INCREMENT);
           }
 
-          Log.i(UrbanTag.TAG, "TimeOut !");
+          Log.w(UrbanTag.TAG, "TimeOut !");
           new Handler().post(new Runnable()
           {
             @Override
