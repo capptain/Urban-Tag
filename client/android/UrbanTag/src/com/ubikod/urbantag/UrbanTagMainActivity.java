@@ -9,7 +9,6 @@ import android.location.LocationManager;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockMapActivity;
@@ -23,9 +22,17 @@ import com.google.android.maps.MyLocationOverlay;
 import com.ubikod.urbantag.model.DatabaseHelper;
 import com.ubikod.urbantag.model.PlaceManager;
 
+/**
+ * Application main activity. Displays a map
+ * @author cdesneuf
+ */
 public class UrbanTagMainActivity extends SherlockMapActivity
 {
+  /**
+   * Activity instance
+   */
   private static UrbanTagMainActivity instance;
+
   /* UI Elements */
 
   /** map view */
@@ -50,24 +57,22 @@ public class UrbanTagMainActivity extends SherlockMapActivity
   /** PlaceManager */
   private PlaceManager mPlaceManager;
 
+  /** Database Helper */
   private DatabaseHelper mDbHelper;
 
   /** Called when the activity is first created. */
   @Override
   public void onCreate(Bundle savedInstanceState)
   {
+    /* Initiate activity */
     super.onCreate(savedInstanceState);
     setContentView(R.layout.main);
-
     mDbHelper = new DatabaseHelper(this, null);
-
     WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-
     boolean wifiChecked = wifiManager.isWifiEnabled()
       || wifiManager.getWifiState() == WifiManager.WIFI_STATE_ENABLING;
     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
     pref.edit().putBoolean("notifiedWifi", wifiChecked).commit();
-
     mPlaceOverlay = new PlaceOverlay(this, this.getResources().getDrawable(R.drawable.ic_launcher));
     mPlaceManager = new PlaceManager(mDbHelper);
 
@@ -98,8 +103,13 @@ public class UrbanTagMainActivity extends SherlockMapActivity
     });
   }
 
+  /**
+   * Logic when tap is performed on map
+   * @param placesId
+   */
   public void onMapTap(ArrayList<Integer> placesId)
   {
+    /* Big finger tap : several places are on the area. Go to PlaceListActivity and display them */
     if (placesId.size() > 1)
     {
       Intent intent = new Intent(this, PlaceListActivity.class);
@@ -112,6 +122,7 @@ public class UrbanTagMainActivity extends SherlockMapActivity
       intent.putExtra(PlaceListActivity.PLACES_IDS, array);
       startActivity(intent);
     }
+    /* Only one place is selected => go see it */
     else if (placesId.size() == 1)
     {
       Intent intent = new Intent(this, ContentsListActivity.class);
@@ -127,10 +138,12 @@ public class UrbanTagMainActivity extends SherlockMapActivity
   {
     switch (requestCode)
     {
+    /* Coming from PreferencesActivity */
       case PreferencesActivity.CODE:
         switch (resultCode)
         {
           case 1:
+            /* Clear the map */
             mPlaceOverlay.clear();
             mMapView = (MapView) this.findViewById(R.id.mapView);
             mMapView.invalidate();
@@ -141,6 +154,7 @@ public class UrbanTagMainActivity extends SherlockMapActivity
         switch (resultCode)
         {
           case 1:
+            /* Display only places for selected tags */
             mPlaceOverlay.setPlaces(mPlaceManager.getVisiblePlaces());
             break;
         }
@@ -210,20 +224,29 @@ public class UrbanTagMainActivity extends SherlockMapActivity
     return false;
   }
 
+  /**
+   * Draw places on map
+   */
   private void drawPlaces()
   {
-    Log.i(UrbanTag.TAG, "drawing places");
     /* Show places */
     mPlaceOverlay.clear();
     mPlaceOverlay.setPlaces(mPlaceManager.getVisiblePlaces());
   }
 
+  /**
+   * Notify activity for a new place
+   */
   public static void notifyNewPlace()
   {
     if (instance != null)
       instance.drawPlaces();
   }
 
+  /**
+   * Test if the activity is currently displayed
+   * @return
+   */
   public static boolean isDisplayed()
   {
     return instance == null;
