@@ -5,13 +5,11 @@
     <string name="menu_preferences">Préférences</string>
     <string name="menu_tags">Catégories</string>
     <string name="menu_search">Rechercher</string>
-    <string name="notify_me_for_tags">Me notifier pour les catégories :</string>
     <string name="parameters_explain">Pour améliorer le positionnement nous vous conseillons d\'activer le Wi-Fi et le GPS.</string>
     <string name="active_wifi">Activer géoloc Wi-Fi</string>
     <string name="active_wifi_summary">Active la géolocalisation Wi-Fi pour améliorer le positionnement</string>
     <string name="active_gps">Activer le GPS</string>
     <string name="active_gps_summary">Active le GPS pour améliorer le positionnement</string>
-    <string name="menu_quit">Quitter</string>
     <string name="preferences_localisation">Localisation</string>
     <string name="active_network">Activer géoloc réseau</string>
     <string name="active_network_summary">Active la géolocalisation réseau pour le positionnement</string>
@@ -21,7 +19,6 @@
     <string name="delete_history_confirm">Etes-vous sûr de vouloir supprimer l\'historique ?</string>
     <string name="yes">Oui</string>
     <string name="no">Non</string>
-    <string name="static_preference">Cette préférence ne peut pas être modifiée.</string>
     <string name="activate_geoloc">Activer la géolocalisation</string>
     <string name="activate_geoloc_confirm">Vous devez activer la géolocalisation réseau pour utiliser cette application.</string>
     <string name="ok">Ok</string>
@@ -36,10 +33,9 @@
     <string name="place_dashed">Lieu :</string>
     <string name="an_event">un évènement</string>
     <string name="search_a">Rechercher :</string>
-    <string name="select_tags">Selectionner des catégories</string>
+    <string name="select_tags">Sélectionner des catégories</string>
     <string name="category_needed">Vous devez sélectionner au moins une catégorie.</string>
     <string name="events">Evénements</string>
-    <string name="is_running"> est activé</string>
     <string name="new_place">Nouveau lieu !</string>
     <string name="error_occured">Une erreur a eu lieu.</string>
     <string name="no_matching_place">Il n\'y a pas de lieu correspondant.</string>
@@ -49,5 +45,4 @@
     <string name="loading_content">Chargement des informations...</string>
     <string name="select_your_tags">Sélectionnez les catégories qui vous intéressent.</string>
     <string name="description">Description</string>
-
 </resources>
