@@ -13,9 +13,17 @@ import android.preference.PreferenceManager;
 import com.ubikod.capptain.android.sdk.CapptainAgent;
 import com.ubikod.capptain.android.sdk.CapptainAgentUtils;
 
+/**
+ * Class containing common actions made by several activities
+ * @author cdesneuf
+ */
 public class Common
 {
 
+  /**
+   * Action to perform on resume
+   * @param activity
+   */
   public static void onResume(final Activity activity)
   {
     String activityNameOnCapptain = CapptainAgentUtils.buildCapptainActivityName(activity.getClass());
@@ -79,6 +87,10 @@ public class Common
     }
   }
 
+  /**
+   * Action to perform on pause
+   * @param activity
+   */
   public static void onPause(final Activity activity)
   {
     CapptainAgent.getInstance(activity).endActivity();
