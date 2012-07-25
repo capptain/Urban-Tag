@@ -24,8 +24,15 @@ import com.ubikod.urbantag.model.DatabaseHelper;
 import com.ubikod.urbantag.model.Tag;
 import com.ubikod.urbantag.model.TagManager;
 
+/**
+ * Application start. Fetch tags list. Initiate wifi enbaling advice message
+ * @author cdesneuf
+ */
 public class UrbanTagApplication extends CapptainApplication
 {
+  /**
+   * Action to perform in order to get tag list update
+   */
   private static final String ACTION_FETCH_TAGS_LIST = "tag/get/all";
 
   @Override
@@ -33,11 +40,12 @@ public class UrbanTagApplication extends CapptainApplication
   {
     Log.i(UrbanTag.TAG, "Launching App !");
 
-    // re initiate wifi message display
+    /* re initiate wifi message display */
     SharedPreferences pref = getApplicationContext().getSharedPreferences("URBAN_TAG_PREF",
       Context.MODE_PRIVATE);
     pref.edit().putBoolean("notifiedWifi", false).commit();
 
+    /* Fetch tags list */
     AsyncTask<Void, Void, List<Tag>> updateTagList = new AsyncTask<Void, Void, List<Tag>>()
     {
 

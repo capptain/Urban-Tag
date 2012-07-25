@@ -14,29 +14,49 @@ import com.google.android.maps.OverlayItem;
 import com.google.android.maps.Projection;
 import com.ubikod.urbantag.model.Place;
 
+/**
+ * Class for a places map overlay
+ * @author cdesneuf
+ */
 public class PlaceOverlay extends ItemizedOverlay<OverlayItem>
 {
   private Vector<Place> items = new Vector<Place>();
   private UrbanTagMainActivity context;
 
+  /**
+   * Constructor
+   * @param context
+   * @param defaultMarker
+   */
   public PlaceOverlay(UrbanTagMainActivity context, Drawable defaultMarker)
   {
     super(boundCenterBottom(defaultMarker));
     this.context = context;
   }
 
+  /**
+   * Empty overlay
+   */
   public void clear()
   {
     items.clear();
     populate();
   }
 
+  /**
+   * Add several places to overlay
+   * @param places
+   */
   public void setPlaces(Vector<Place> places)
   {
     this.items = places;
     populate();
   }
 
+  /**
+   * Add a place to overlay
+   * @param p
+   */
   public void addPlace(Place p)
   {
     int index = -1;

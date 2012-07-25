@@ -11,7 +11,6 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -31,20 +30,52 @@ import com.ubikod.urbantag.model.DatabaseHelper;
 import com.ubikod.urbantag.model.Tag;
 import com.ubikod.urbantag.model.TagManager;
 
+/**
+ * Search activity
+ * @author cdesneuf
+ */
 public class SearchActivity extends SherlockActivity implements MultiSpinnerListener<Tag>
 {
+  /**
+   * All tags known
+   */
   private List<Tag> mAllTags = null;
+
+  /**
+   * Selected tags for search
+   */
   private List<Tag> mSelectedTags;
+
+  /**
+   * Tag selection spinner
+   */
   private MultipleSelection<Tag> mSpinner;
+
+  /**
+   * Submit button
+   */
   private Button mBtnSubmit;
+
+  /**
+   * Tag container. We display selected tags in this view.
+   */
   private FlowLayout mTagContainer;
+
+  /**
+   * Shared preferences
+   */
   private SharedPreferences mPrefs;
+
+  /**
+   * Shared preferences editor
+   */
   private SharedPreferences.Editor mEditor;
 
   @SuppressWarnings("unchecked")
   @Override
   public void onCreate(Bundle savedInstanceState)
   {
+    /* Initiate activity */
     super.onCreate(savedInstanceState);
     setContentView(R.layout.search_form);
     setTitle(R.string.menu_search);
@@ -68,10 +99,12 @@ public class SearchActivity extends SherlockActivity implements MultiSpinnerList
         mSelectedTags.add(t);
     }
 
+    /* Find views */
     mSpinner = (MultipleSelection<Tag>) findViewById(R.id.spinner);
     mTagContainer = (FlowLayout) findViewById(R.id.tag_container);
     mBtnSubmit = (Button) findViewById(R.id.submit);
 
+    /* Logic when submit button clicked */
     mBtnSubmit.setOnClickListener(new OnClickListener()
     {
 
@@ -86,14 +119,15 @@ public class SearchActivity extends SherlockActivity implements MultiSpinnerList
         }
         else
         {
+          /* Create an int array with selected tag ids */
           int[] array = new int[mSelectedTags.size()];
           for (int i = 0; i < mSelectedTags.size(); i++)
           {
             array[i] = mSelectedTags.get(i).getId();
           }
 
+          /* Create intent accordingly to search type(event or place) */
           Intent intent = new Intent();
-
           if (placeButton.isChecked())
           {
             intent = new Intent(SearchActivity.this, PlaceListActivity.class);
@@ -108,7 +142,6 @@ public class SearchActivity extends SherlockActivity implements MultiSpinnerList
             /* Specify we only want event and no description */
             intent.putExtra(ContentsListActivity.DISPLAY, ContentsListActivity.DISPLAY_ONLY_EVENT);
           }
-
           startActivity(intent);
         }
       }
@@ -118,13 +151,15 @@ public class SearchActivity extends SherlockActivity implements MultiSpinnerList
 
   }
 
+  /**
+   * Update tag list. Communicate selected tags to spinner and tagcontainer View
+   */
   private void updateTagList()
   {
     boolean[] sel = new boolean[mAllTags.size()];
     for (int i = 0; i < sel.length; i++)
     {
       sel[i] = mSelectedTags.contains(mAllTags.get(i));
-      Log.i("isSelected", sel[i] + " " + i + " " + mAllTags.get(i).getValue());
     }
 
     mSpinner.setItems(mAllTags, sel, getResources().getString(R.string.select_tags), this);
@@ -139,6 +174,11 @@ public class SearchActivity extends SherlockActivity implements MultiSpinnerList
     }
   }
 
+  /**
+   * Create a text view for tag
+   * @param t
+   * @return
+   */
   private TextView createViewTag(Tag t)
   {
     TextView tag = new TextView(getApplicationContext());
@@ -199,6 +239,7 @@ public class SearchActivity extends SherlockActivity implements MultiSpinnerList
   @Override
   public void onSaveInstanceState(Bundle outState)
   {
+    /* Remember selected tags when rotating screen */
     int[] array = new int[mSelectedTags.size()];
     int i = 0;
 
@@ -214,6 +255,7 @@ public class SearchActivity extends SherlockActivity implements MultiSpinnerList
   @Override
   public void onRestoreInstanceState(Bundle savedInstanceState)
   {
+    /* Get selected tags after a rotation */
     super.onRestoreInstanceState(savedInstanceState);
     int[] selectedTagsArray = savedInstanceState.getIntArray("selectedTags");
     TagManager tagManager = new TagManager(new DatabaseHelper(this, null));

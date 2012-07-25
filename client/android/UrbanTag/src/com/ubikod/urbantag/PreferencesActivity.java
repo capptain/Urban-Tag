@@ -19,6 +19,10 @@ import com.ubikod.urbantag.model.ContentManager;
 import com.ubikod.urbantag.model.DatabaseHelper;
 import com.ubikod.urbantag.model.PlaceManager;
 
+/**
+ * Preferences Activity
+ * @author cdesneuf
+ */
 public class PreferencesActivity extends SherlockPreferenceActivity
 {
 
@@ -47,7 +51,7 @@ public class PreferencesActivity extends SherlockPreferenceActivity
     Preference active_gps = (Preference) findPreference("active_gps");
     active_gps.setOnPreferenceChangeListener(goToSettings);
 
-    // Enable/Disable Wifi
+    /* Enable or disable WIFI on click */
     Preference active_wifi = (Preference) findPreference("active_wifi");
     active_wifi.setOnPreferenceClickListener(new OnPreferenceClickListener()
     {
@@ -65,7 +69,7 @@ public class PreferencesActivity extends SherlockPreferenceActivity
       }
     });
 
-    // Delete history
+    /* Delete history */
     Preference delete_history = (Preference) findPreference("delete_history");
     delete_history.setOnPreferenceClickListener(new OnPreferenceClickListener()
     {
@@ -99,21 +103,20 @@ public class PreferencesActivity extends SherlockPreferenceActivity
   }
 
   @Override
+  @SuppressWarnings("deprecation")
   public void onResume()
   {
     super.onResume();
     Common.onResume(this);
 
-    // Display preference accordingly to current system state
+    /* Display preference accordingly to current system state */
     final CheckBoxPreference active_wifi = (CheckBoxPreference) findPreference("active_wifi");
     final CheckBoxPreference active_gps = (CheckBoxPreference) findPreference("active_gps");
     WifiManager wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
     LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-
     boolean wifiChecked = wifiManager.isWifiEnabled()
       || wifiManager.getWifiState() == WifiManager.WIFI_STATE_ENABLING;
     boolean gpsChecked = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-
     active_wifi.setChecked(wifiChecked);
     active_gps.setChecked(gpsChecked);
   }

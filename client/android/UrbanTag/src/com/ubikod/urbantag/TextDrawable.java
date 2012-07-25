@@ -8,13 +8,32 @@ import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 
+/**
+ * Class helper to create a drawable in order to display data on the map
+ * @author cdesneuf
+ */
 public class TextDrawable extends Drawable
 {
-
+  /**
+   * text of the drawable
+   */
   private final String text;
+
+  /**
+   * Paint for text
+   */
   private final Paint paint;
+
+  /**
+   * Paint for background
+   */
   private final Paint backgroundPaint;
 
+  /**
+   * Constructor
+   * @param text
+   * @param backgroundColor
+   */
   public TextDrawable(String text, int backgroundColor)
   {
 

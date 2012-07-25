@@ -17,22 +17,47 @@ import com.ubikod.urbantag.model.DatabaseHelper;
 import com.ubikod.urbantag.model.Tag;
 import com.ubikod.urbantag.model.TagManager;
 
+/**
+ * Activity displaying tags for selection
+ * @author cdesneuf
+ */
 public class TagsListActivity extends SherlockActivity implements OnClickListener
 {
   public static final int CODE = 2;
 
+  /**
+   * Database helper
+   */
   private DatabaseHelper mDbHelper;
+
+  /**
+   * Tag manager
+   */
   private TagManager mTagManager = null;
+
+  /**
+   * Layout inflater
+   */
   private LayoutInflater mInflater;
 
+  /**
+   * Listview on which we display tags
+   */
   private ListView tagsList;
 
+  /**
+   * View holder
+   * @author cdesneuf
+   */
   private static class ViewHolder
   {
     TextView label;
     TextView colorBar;
   }
 
+  /**
+   * Tag bundle
+   */
   private static class TagBundle
   {
     Tag tag;
@@ -101,6 +126,10 @@ public class TagsListActivity extends SherlockActivity implements OnClickListene
     setResult(1);
   }
 
+  /**
+   * Create adapter for tag list
+   * @return
+   */
   private BaseAdapter createAdapter()
   {
     return new BaseAdapter()
