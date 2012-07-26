@@ -14,6 +14,13 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
+
+<!--  <meta-data
+      android:name="capptain:gcm:sender"
+      android:value="849613601720\n" />
+      
+     
+       -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.ubikod.urbantag"
     android:versionCode="1"
@@ -77,12 +84,13 @@
                 <data android:scheme="capptain" />
             </intent-filter>
 
-                   
+            <meta-data android:name="capptain:api:id" android:value="b6a5b1113175bf391e442a8653876b84" />
             <meta-data android:name="capptain:api:level" android:value="15" />
 
-            <meta-data
+       <!-- Activate log with adb   
+          <meta-data
                 android:name="capptain:log:test"
-                android:value="true" />
+                android:value="true" /> --> 
         </service>
         
         <activity
@@ -162,24 +170,23 @@
 
         <uses-permission android:name="android.permission.VIBRATE" />
         
-        <receiver android:name="com.ubikod.capptain.android.sdk.c2dm.CapptainC2DMEnabler" >
-            <intent-filter>
-                <action android:name="com.ubikod.capptain.intent.action.AGENT_CREATED" />
-            </intent-filter>
-        </receiver>
+        <receiver android:name="com.ubikod.capptain.android.sdk.gcm.CapptainGCMEnabler">
+		 <intent-filter>
+		   <action android:name="com.ubikod.capptain.intent.action.AGENT_CREATED" />
+		 </intent-filter>
+		</receiver>
 
         <meta-data
-            android:name="capptain:c2dm:sender"
-            android:value="capptain_app@ubikod.com" />
+         android:name="capptain:gcm:sender"
+         android:value="849613601720\n" />
         
-        <receiver android:name="com.ubikod.capptain.android.sdk.c2dm.CapptainC2DMReceiver" android:permission="com.google.android.c2dm.permission.SEND">
-            <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-
-                <category android:name="com.ubikod.urbantag" />
-            </intent-filter>
-        </receiver>
+		<receiver android:name="com.ubikod.capptain.android.sdk.gcm.CapptainGCMReceiver" android:permission="com.google.android.c2dm.permission.SEND">
+		 <intent-filter>
+		   <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+		   <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+		   <category android:name="com.ubikod.urbantag" />
+		 </intent-filter>
+		</receiver>
 
     </application>
 
