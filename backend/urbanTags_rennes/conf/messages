@@ -50,8 +50,11 @@ view.place.list.noChange=Aucun changement
 
 #### Info list ####
 view.info.list.title=Liste des infos
+view.info.list.event.name=Nom de l'événement
 view.info.list.add.description=Définir la description
 view.info.list.add.event=Ajouter un événement
+view.info.list.edit.description=Modifier la description
+view.info.list.delete.description=Supprimer la description
 
 
 ##### Top Bar #####
@@ -65,7 +68,7 @@ place.wizard.title.add=Ajouter un lieu
 views.wizard.presentation.title=Présentation
 views.wizard.place.firstStep.title=Première étape: informations générales
 views.wizard.place.firstStep.name=1. Informations
-views.wizard.place.secondStep.name=2. Dessin
+views.wizard.place.secondStep.name=2. Localisation
 views.wizard.place.thirdStep.name=3. Résumé
 
 #### Info Wizard ####

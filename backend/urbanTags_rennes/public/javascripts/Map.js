@@ -1,8 +1,14 @@
-(function(){
-    "use strict";
-})();
+    // "use strict";
 
-function Map(_placeManager, name, options)
+/**
+* This class represents the object asociated to the map of the homepage (must be merged with MapBox soon)
+*
+* @class Map
+* @constructor
+* @param {Object} placeManager Place manager which contains place objects informations.
+* @param {String} name Id of the map's container.
+*/
+function Map(placeManager, name)
 {
     // Constants
     this.LONLAT_ANIMATION_DURATION = 500;
@@ -11,7 +17,7 @@ function Map(_placeManager, name, options)
     this.ZOOM_DURATION = 500;
     
     // Link the map to the place manager
-    this.placeManager = _placeManager;
+    this.placeManager = placeManager;
     this.name = name;
     
     // Data structures
@@ -78,41 +84,23 @@ function Map(_placeManager, name, options)
         }
     }.bind(this)
     );
+
+    $("#homepage-geocoding-field").bind('change', function()
+    {
+        this.geocode($("#homepage-geocoding-field").val());
+    }.bind(this));
     
     $("#homepage-geocoding-loader").hide();
     $("#homepage-geocoding-alert").hide();
-    
-    /*
-    $("#"+name).bind('mouseout', function()
-    {
-        if(this.placeManager.selectedPlace !== null)
-        {
-            this.reduceMap();
-        }
-    }.bind(this));
-    
-    $("#"+name).bind('mouseover', function()
-    {
-        this.growMap();
-    }.bind(this));
-    */
-    
-    document.getElementById(name).addEventListener("webkitTransitionEnd", function(e)
-    {
-        this.osmMap.updateSize();
-    }.bind(this), false);
 }
 
-Map.prototype.growMap = function()
-{
-    $("#"+this.name).css("height", "500px");
-};
-
-Map.prototype.reduceMap = function()
-{
-    $("#"+this.name).css("height", "250px");
-};
-
+/**
+* This method makes the map centering on a specific longitude, latitude with a specific zoom level.
+*
+* @method goTo
+* @param {Object} lonLat OpenLayers.LonLat object corresponding to the new map's center.
+* @param {Integer} zoom New zoom level.
+*/
 Map.prototype.goTo = function(lonLat, zoom)
 {
     var currentCenter = this.osmMap.center;
@@ -170,6 +158,12 @@ Map.prototype.goTo = function(lonLat, zoom)
     runUnzoomAnimation();
 };
 
+/**
+* Handler when a vector feature (here a circle) is unselected.
+*
+* @method unselectFeatureHandler
+* @param {Object} feature Unselected circle.
+*/
 Map.prototype.unselectFeatureHandler = function(feature)
 {
     // Change style
@@ -179,6 +173,12 @@ Map.prototype.unselectFeatureHandler = function(feature)
     this.placeManager.unselectPlace();
 };
 
+/**
+* Handler when a vector feature (here a circle) is selected.
+*
+* @method selectFeatureHandler
+* @param {Object} feature Selected circle.
+*/
 Map.prototype.selectFeatureHandler = function(feature)
 {
     // Change style
@@ -192,8 +192,11 @@ Map.prototype.selectFeatureHandler = function(feature)
 };
 
 /**
- * Handles PlaceSelected event. select the shape corresponding to the place and centers the map on it.
- */
+* Handles PlaceSelected event. select the shape corresponding to the place and centers the map on it.
+*
+* @method onPlaceSelected
+* @param {Object} place Selected place object
+*/
 Map.prototype.onPlaceSelected = function(place)
 {
     // Retrieve the shape corresponding to the selected place
@@ -224,8 +227,22 @@ Map.prototype.onPlaceSelected = function(place)
 };
 
 /**
- * Handles PlaceAdded event. Draw the shape corresponding to the selected place and push datastructures.
- */
+* Handles a PlaceUnselected event. Grows the map container.
+*
+* @method onPlaceUnselected
+* @param {Object} place Unselected place object.
+*/
+Map.prototype.onPlaceUnselected = function(place)
+{
+    focusOnTop();
+};
+
+/**
+* Handles PlaceAdded event. Draw the shape corresponding to the selected place and push datastructures.
+*
+* @method onPlaceAdded
+* @param {Object} place Added place object.
+*/
 Map.prototype.onPlaceAdded = function(place)
 {
   // Draw the place
@@ -236,6 +253,12 @@ Map.prototype.onPlaceAdded = function(place)
   this.places[circle.id] = place;
 };
 
+/**
+* Handles PlaceEditedEvent. Remove the circle corresponding to the old place information. Draw the circle corresponding to the new data
+*
+* @method onPlaceEdited
+* @param {Object} place Edited place object.
+*/
 Map.prototype.onPlaceEdited = function(place)
 {
     var circle = this.shapes[place.id];
@@ -248,6 +271,12 @@ Map.prototype.onPlaceEdited = function(place)
     this.onPlaceSelected(place);
 };
 
+/**
+* Handles PlaceDeletedEvent. Remove the circle corresponding to the deleted place.
+*
+* @method onPlaceDeleted
+* @param {Object} place Deleted place object.
+*/
 Map.prototype.onPlaceDeleted = function(place)
 {
 	var circle = this.shapes[place.id];
@@ -257,13 +286,11 @@ Map.prototype.onPlaceDeleted = function(place)
 	delete this.shapes[place.id];
 };
 
-Map.prototype.onPlaceUnselected = function(place)
-{
-    this.growMap();
-};
-
 /**
  * Draw a place as a circle and return the related Polygon.
+ *
+ * @method drawPlace
+ * @param {Object} place Place object which must be drawn.
  */
 Map.prototype.drawPlace = function(place)
 {
@@ -311,6 +338,12 @@ Map.prototype.drawPlace = function(place)
     return circle;
 };
 
+/**
+* Apply a selected style to a circle.
+*
+* @method applySelectStyle
+* @param {Object} feature Circle concerned by the selected style
+*/
 Map.prototype.applySelectStyle = function(feature)
 {
     var style = feature.style;
@@ -324,6 +357,12 @@ Map.prototype.applySelectStyle = function(feature)
     this.placeLayer.redraw();
 };
 
+/**
+* Apply the blur style to a circle.
+*
+* @method applyDefaultStyle
+* @param {Object} feature Circle concerned by the blur style
+*/
 Map.prototype.applyDefaultStyle = function(feature)
 {
     var style = feature.style;
@@ -337,6 +376,12 @@ Map.prototype.applyDefaultStyle = function(feature)
     this.placeLayer.redraw();
 };
 
+/**
+* Look for a place
+*
+* @method geocode
+* @param {String} query Place name.
+*/
 Map.prototype.geocode = function(query)
 {
     $("#homepage-geocoding-loader").show();

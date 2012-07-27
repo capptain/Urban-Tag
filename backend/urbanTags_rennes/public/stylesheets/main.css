@@ -2,22 +2,48 @@
 *            GENERIC
 *************************************/
 body{
-  padding-top: 60px;  
+  padding-top: 60px;
 }
 
-#main-container{
+.modal{
+    position: absolute !important;
+}
+
+.main-container{
 	padding-left: 10px;
 	padding-right: 10px;
 }
 
-.background-div{
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.5);
+.place-sheet-container{
+    padding-top: 15px;
 }
+
+.resizablePanel{
+    -webkit-transition-duration: 300ms;
+    -moz-transition-duration: 300ms;
+    -o-transition-duration: 300ms;
+    -ms-transition-duration: 300ms;
+    transition-duration: 300ms;
+    -webkit-transition-property: height;
+    -moz-transition-property: height;
+    -o-transition-property: height;
+    -ms-transition-property: height;
+    transition-property: height;
+}
+
+/*************************************
+*            SCROLLS
+*************************************/
+#scrollbar1 { width: 520px; clear: both; margin: 20px 0 10px; }
+#scrollbar1 .viewport { width: 500px; height: 200px; overflow: hidden; position: relative; }
+#scrollbar1 .overview { list-style: none; position: absolute; left: 0; top: 0; }
+#scrollbar1 .thumb .end,
+#scrollbar1 .thumb { background-color: #003D5D; }
+#scrollbar1 .scrollbar { position: relative; float: right; width: 15px; }
+#scrollbar1 .track { background-color: #D8EEFD; height: 100%; width:13px; position: relative; padding: 0 1px; }
+#scrollbar1 .thumb { height: 20px; width: 13px; cursor: pointer; overflow: hidden; position: absolute; top: 0; }
+#scrollbar1 .thumb .end { overflow: hidden; height: 5px; width: 13px; }
+#scrollbar1 .disable{ display: none; }
 
 
 /*************************************
@@ -33,5 +59,16 @@ input.button
 .list-container .button-container
 {
     text-align: center;
-    padding: 5px 0px 5px 0px;
+    padding: 5px 0 5px 0;
+}
+
+.loader{
+    display: none;
+}
+
+.loader.show{
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    background: url("/public/images/loader.gif") no-repeat;
 }

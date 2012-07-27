@@ -1,12 +1,12 @@
 <link rel="stylesheet" type="text/css" href="@{'/public/stylesheets/map.css'}" />
 
 <div>
-  <form class="form-search">
+  <form class="form-search" action="#">
     <input type="text" id="homepage-geocoding-field" value="Rechercher un lieu" class="hint" />
     <input type="button" class="btn" id="homepage-geocoding-button" value="Rechercher" />
     <img src="@{'/public/images/loader.gif'}" id="homepage-geocoding-loader" />
     <span class="alert alert-danger" id="homepage-geocoding-alert">Aucun lieu n'a été trouvé</span>
   </form>
 </div>
-<div id="map" class="map">
+<div id="map" class="map resizablePanel">
 </div>

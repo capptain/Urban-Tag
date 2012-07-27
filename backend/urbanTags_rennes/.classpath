@@ -82,5 +82,6 @@
 	<classpathentry kind="lib" path="/home/guillaume/play-1.2.4/framework/lib/jj-imaging.jar"/>
 	<classpathentry kind="lib" path="lib/httpclient-4.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/httpcore-4.1.jar"/>
+	<classpathentry kind="lib" path="lib/kefir-bb-0.6.jar"/>
 	<classpathentry kind="output" path="eclipse/classes"/>
 </classpath>

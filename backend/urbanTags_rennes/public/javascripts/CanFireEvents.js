@@ -1,5 +1,11 @@
-"use strict";
+        // "use strict";
 
+/**
+* This class provides a pattern for object that can fire events
+* @class CanFireEvents
+* @contructor
+* @param {String[]} eventTypes Types of possible fired events
+*/
 function CanFireEvents(eventTypes)
 {
     this.listeners = {};
@@ -7,10 +13,18 @@ function CanFireEvents(eventTypes)
     for(var i = 0; i < eventTypes.length; i++)
     {
         var type = eventTypes[i];
-        this.listeners[type] = new Array();
-    };
+        this.listeners[type] = [];
+    }
 }
 
+/**
+* This method associate an event type to an action.
+*
+* @method register
+* @param {String} eventType Event type at which we associate a new action/handler
+* @param {Function} action Handler associated to the event type
+* @return {EventRegistration} Return the EventRegistration corresponding to the association between the event type and the handler
+*/
 CanFireEvents.prototype.register = function(eventType, action)
 {
     if(typeof this.listeners[eventType] != "undefined")
@@ -20,8 +34,15 @@ CanFireEvents.prototype.register = function(eventType, action)
     }
 };
 
+/**
+* This method remove a handler associated to an event type
+*
+* @method unregister
+* @param {String} eventType Type of event at which the handler must be associated
+* @param{Function} handler Handler associated to the event type
+*/
 CanFireEvents.prototype.unregister = function(eventType, handler)
-{           
+{
     var found = false;
     var handlers = this.listeners[eventType];
     var cptHandler = 0;
@@ -40,7 +61,7 @@ CanFireEvents.prototype.unregister = function(eventType, handler)
             }
             else
             {
-                this.listeners[eventType] = new Array();
+                this.listeners[eventType] = [];
             }
         }
     }
@@ -48,6 +69,10 @@ CanFireEvents.prototype.unregister = function(eventType, handler)
 
 /**
  * Fire an event of the given name with the given param
+ *
+ * @method fireEvent
+ * @param {String} eventType Type of fired event
+ * @param {Object} param Object associated to the event
  */
 CanFireEvents.prototype.fireEvent = function(eventType, param)
 {

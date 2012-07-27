@@ -1,7 +1,11 @@
-(function(){
-    "use strict";
-})();
+    // "use strict";
 
+/**
+* Class corresponding to the Description/Event adding/editing wizard
+*
+* @constructor
+* @param {Object} info Description of Event that must be edited
+*/
 function InfoWizard(info)
 {
     CanFireEvents.call(this, ["infoAdded", "infoEdited"]);
@@ -42,11 +46,15 @@ function InfoWizard(info)
     this.previousMainTag = null;
 }
 
+/* Make extension of the prototype */
 extend(InfoWizard.prototype, CanFireEvents.prototype);
 
-/*
- * WIZARD
- */
+/**
+* Prepare the wizard to start creating an event. Set the mode, the place and show the view.
+*
+* @method startCreatingEvent
+* @param {Object} place Concerned place by the event adding
+*/
 InfoWizard.prototype.startCreatingEvent = function(place)
 {
     this.data         = {};
@@ -55,6 +63,12 @@ InfoWizard.prototype.startCreatingEvent = function(place)
     this.show();
 };
 
+/**
+* Prepare the wizard to start editing an event. Set the mode, the place, the event data and show the view.
+*
+* @method startEditingEvent
+* @method {Object} event Event which will be edited
+*/
 InfoWizard.prototype.startEditingEvent = function(event)
 {
     this.data.id      = event.id;
@@ -79,6 +93,12 @@ InfoWizard.prototype.startEditingEvent = function(event)
     this.show();
 };
 
+/**
+* Prepare the wizard to create a new description. Set the mode, the place and show the view.
+*
+* @method startCreatingDescription
+* @param {Object} place Place concerned by the description adding
+*/
 InfoWizard.prototype.startCreatingDescription = function(place)
 {
     this.data         = {};
@@ -94,6 +114,12 @@ InfoWizard.prototype.startCreatingDescription = function(place)
     this.show();
 };
 
+/**
+* Prepare the wizard for description editing. Set the mode, the place, the description data and show the view.
+*
+* @method startEditingDescription
+* @param {Object} description Description which will be edited.
+*/
 InfoWizard.prototype.startEditingDescription = function(description)
 {
     this.data.id      = description.id;
@@ -111,6 +137,11 @@ InfoWizard.prototype.startEditingDescription = function(description)
     this.show();
 };
 
+/**
+* Show the wizard view.
+*
+* @method show
+*/
 InfoWizard.prototype.show = function()
 {
     if(this.templateView === null)
@@ -121,7 +152,7 @@ InfoWizard.prototype.show = function()
             this.show();
         }.bind(this)).error(function(data)
         {
-            // TODO: handle error
+            displayAlert("Impossible de charger l'interface de l'assistant d'ajout de lieu.");
         }.bind(this));
         
         return;
@@ -156,6 +187,11 @@ InfoWizard.prototype.show = function()
     this.templateHtml.modal({'show': true, 'backdrop': 'static'});
 };
 
+/**
+* Close the wizard
+*
+* @method close
+*/
 InfoWizard.prototype.close = function()
 {
     this.templateHtml.modal('hide');
@@ -170,18 +206,27 @@ InfoWizard.prototype.close = function()
 /*
  * FIRST STEP
  */
+
+/**
+* Display the event informations step
+*
+* @method displayFirstStep
+*/
 InfoWizard.prototype.displayFirstStep = function()
 {
     // Retrieve the template if null
     if(this.firstStepView === null)
     {
+        $(".info-wizard-step-content").html("<div class='loader'></div>");
+        showLoader($(".info-wizard-step-content", this.templateHtml));
         $.get(jsRoutes.infoWizard.firstStep(), function(data)
         {
+            hideLoader($(".info-wizard-step-content", this.templateHtml));
             this.firstStepView = data;
             this.displayFirstStep();
         }.bind(this)).error(function(data)
         {
-            // TODO: handler error
+            displayAlert("Impossible de récupérer la vue de l'étape auprès du serveur", $(".info-wizard-error-container", this.templateHtml));
         }.bind(this));
         
         return;
@@ -260,12 +305,20 @@ InfoWizard.prototype.displayFirstStep = function()
     this.initFirstStepHandlers();
 };
 
+/**
+* Init handlers of the event informations' step
+*
+* @method initFirstStepHandlers
+*/
 InfoWizard.prototype.initFirstStepHandlers = function()
 {
     /* Manage buttons */
     $(".info-wizard-previous-btn", this.templateHtml).hide();
+    $(".info-wizard-validate-btn", this.templateHtml).hide();
+    $(".info-wizard-next-btn", this.templateHtml).show();
     $(".info-wizard-cancel-btn", this.templateHtml).unbind("click");
     $(".info-wizard-previous-btn", this.templateHtml).unbind("click");
+    $(".info-wizard-validate-btn", this.templateHtml).unbind("click");
     $(".info-wizard-next-btn", this.templateHtml).unbind("click");
     $(".info-wizard-next-btn", this.templateHtml).bind('click', function()
     {
@@ -322,6 +375,11 @@ InfoWizard.prototype.initFirstStepHandlers = function()
     $(".info-wizard-first-step-tags-container a[data-value='"+this.previousMainTag+"']", this.firstStepHtml).unbind('click');
 };
 
+/**
+* Validate event information form and display the next step if ok.
+*
+* @method validateFirstStep
+*/
 InfoWizard.prototype.validateFirstStep = function()
 {
     // Prepare data
@@ -355,8 +413,10 @@ InfoWizard.prototype.validateFirstStep = function()
     var json = JSON.stringify(postData);
     
     // Send data to the server
+    showLoader($(".modal-footer", this.templateHtml));
     $.post(jsRoutes.infoWizard.validation.firstStep({'json': json}), function(data)
     {
+        hideLoader($(".modal-footer", this.templateHtml));
         // Save validated data
         this.data.title     = postData.title;
         this.data.startDate = postData.startDate;
@@ -370,43 +430,55 @@ InfoWizard.prototype.validateFirstStep = function()
         this.displaySecondStep();
     }.bind(this)).error(function(data)
     {
-        var json = jQuery.parseJSON(data.responseText);
-        
-        // Display error messages
-        if(typeof json.title != "undefined")
+        hideLoader($(".modal-footer", this.templateHtml));
+        if(typeof data.status != "undefined" && data.status === 0)
         {
-            $(".info-wizard-first-step-title-errorMsg", this.firstStepHtml).html(json.title);
-            $(".info-wizard-first-step-title-errorMsg", this.firstStepHtml).slideDown(300);
+            displayAlert("Impossible de joindre le serveur pour vérifier vos données.", $(".info-wizard-error-container", this.templateHtml));
         }
-        
-        if(typeof json.infoType != "undefined")
+        else if(typeof data.status != "undefined" && data.status === 400)
         {
-            $(".info-wizard-first-step-infoType-errorMsg", this.firstStepHtml).html(json.infoType);
-            $(".info-wizard-first-step-infoType-errorMsg", this.firstStepHtml).slideDown(300);
+            var json = jQuery.parseJSON(data.responseText);
+            
+            // Display error messages
+            if(typeof json.title != "undefined")
+            {
+                $(".info-wizard-first-step-title-errorMsg", this.firstStepHtml).html(json.title);
+                $(".info-wizard-first-step-title-errorMsg", this.firstStepHtml).slideDown(300);
+            }
+            
+            if(typeof json.infoType != "undefined")
+            {
+                $(".info-wizard-first-step-infoType-errorMsg", this.firstStepHtml).html(json.infoType);
+                $(".info-wizard-first-step-infoType-errorMsg", this.firstStepHtml).slideDown(300);
+            }
+            
+            if(typeof json.startDate != "undefined")
+            {
+                $(".info-wizard-first-step-startDate-errorMsg", this.firstStepHtml).html(json.startDate);
+                $(".info-wizard-first-step-startDate-errorMsg", this.firstStepHtml).slideDown(300);
+            }
+            
+            if(typeof json.endDate != "undefined")
+            {
+                $(".info-wizard-first-step-endDate-errorMsg", this.firstStepHtml).html(json.endDate);
+                $(".info-wizard-first-step-endDate-errorMsg", this.firstStepHtml).slideDown(300);
+            }
+            
+            if(typeof json.tags != "undefined")
+            {
+                $(".info-wizard-first-step-tags-errorMsg", this.firstStepHtml).html(json.tags);
+                $(".info-wizard-first-step-tags-errorMsg", this.firstStepHtml).slideDown(300);
+            }
+            
+            if(typeof json.mainTag != "undefined")
+            {
+                $(".info-wizard-first-step-mainTag-errorMsg", this.firstStepHtml).html(json.mainTag);
+                $(".info-wizard-first-step-mainTag-errorMsg", this.firstStepHtml).slideDown(300);
+            }
         }
-        
-        if(typeof json.startDate != "undefined")
+        else
         {
-            $(".info-wizard-first-step-startDate-errorMsg", this.firstStepHtml).html(json.startDate);
-            $(".info-wizard-first-step-startDate-errorMsg", this.firstStepHtml).slideDown(300);
-        }
-        
-        if(typeof json.endDate != "undefined")
-        {
-            $(".info-wizard-first-step-endDate-errorMsg", this.firstStepHtml).html(json.endDate);
-            $(".info-wizard-first-step-endDate-errorMsg", this.firstStepHtml).slideDown(300);
-        }
-        
-        if(typeof json.tags != "undefined")
-        {
-            $(".info-wizard-first-step-tags-errorMsg", this.firstStepHtml).html(json.tags);
-            $(".info-wizard-first-step-tags-errorMsg", this.firstStepHtml).slideDown(300);
-        }
-        
-        if(typeof json.mainTag != "undefined")
-        {
-            $(".info-wizard-first-step-mainTag-errorMsg", this.firstStepHtml).html(json.mainTag);
-            $(".info-wizard-first-step-mainTag-errorMsg", this.firstStepHtml).slideDown(300);
+            displayAlert("Oups, erreur inconnue.", $(".info-wizard-error-container", this.templateHtml));
         }
     }.bind(this));
 };
@@ -414,18 +486,27 @@ InfoWizard.prototype.validateFirstStep = function()
 /*
  * SECOND STEP
  */
+
+/**
+* Display the content step.
+*
+* @method displaySecondStep
+*/
 InfoWizard.prototype.displaySecondStep = function()
 {
     // Retrieve the template if null
     if(this.secondStepView === null)
     {
+        $(".info-wizard-step-content").html("<div class='loader'></div>");
+        showLoader($(".info-wizard-step-content", this.templateHtml));
         $.get(jsRoutes.infoWizard.secondStep(), function(data)
         {
+            hideLoader($(".info-wizard-step-content", this.templateHtml));
             this.secondStepView = data;
             this.displaySecondStep();
         }.bind(this)).error(function(data)
         {
-            //TODO: handle error
+            displayAlert("Impossible de récupérer la vue de l'étape auprès du serveur", $(".info-wizard-error-container", this.templateHtml));
         }.bind(this));
         
         return;
@@ -471,10 +552,19 @@ InfoWizard.prototype.displaySecondStep = function()
     this.initSecondStepHandlers();
 };
 
+/**
+* Init handlers of the content step.
+*
+* @method initSecondStepHandlers
+*/
 InfoWizard.prototype.initSecondStepHandlers = function()
 {
+    $(".info-wizard-validate-btn", this.templateHtml).hide();
     $(".info-wizard-cancel-btn", this.templateHtml).unbind("click");
+    $(".info-wizard-previous-btn", this.templateHtml).show();
     $(".info-wizard-previous-btn", this.templateHtml).unbind("click");
+    $(".info-wizard-validate-btn", this.templateHtml).unbind("click");
+    $(".info-wizard-next-btn", this.templateHtml).show();
     $(".info-wizard-next-btn", this.templateHtml).unbind("click");
     
     if(this.mode === "event")
@@ -497,6 +587,11 @@ InfoWizard.prototype.initSecondStepHandlers = function()
     }.bind(this));
 };
 
+/**
+* Validate content step's data and display next step if ok.
+*
+* @method validateSecondStep
+*/
 InfoWizard.prototype.validateSecondStep = function()
 {
     // Prepare data
@@ -507,17 +602,31 @@ InfoWizard.prototype.validateSecondStep = function()
     $(".info-wizard-second-step-content-errorMsg", this.secondStepHtml).slideUp(300);
     
     // Send data to the server
+    showLoader($(".modal-footer", this.templateHtml));
     $.post(jsRoutes.infoWizard.validation.secondStep({'json': JSON.stringify(postData)}), function(data){
+        hideLoader($(".modal-footer", this.templateHtml));
         this.data.content = postData.content;
         this.displayThirdStep();
     }.bind(this)).error(function(data){
-        var json = jQuery.parseJSON(data.responseText);
-        
-        // Display error messages
-        if(typeof json.content != "undefined")
+        hideLoader($(".modal-footer", this.templateHtml));
+        if(typeof data.status != "undefined" && data.status === 0)
         {
-            $(".info-wizard-second-step-content-errorMsg", this.secondStepHtml).html(json.content);
-            $(".info-wizard-second-step-content-errorMsg", this.secondStepHtml).slideDown(300);
+            displayAlert("Impossible de joindre le serveur pour vérifier vos données.", $(".info-wizard-error-container", this.templateHtml));
+        }
+        else if(typeof data.status != "undefined" && data.status === 400)
+        {
+            var json = jQuery.parseJSON(data.responseText);
+            
+            // Display error messages
+            if(typeof json.content != "undefined")
+            {
+                $(".info-wizard-second-step-content-errorMsg", this.secondStepHtml).html(json.content);
+                $(".info-wizard-second-step-content-errorMsg", this.secondStepHtml).slideDown(300);
+            }
+        }
+        else
+        {
+            displayAlert("Oups, erreur inconnue", $(".info-wizard-error-container", this.templateHtml));
         }
     }.bind(this));
 };
@@ -525,18 +634,27 @@ InfoWizard.prototype.validateSecondStep = function()
 /*
  * THIRD STEP
  */
+
+/**
+* Display the preview view.
+*
+* @method displayThirdStep
+*/
 InfoWizard.prototype.displayThirdStep = function()
 {
     // Retrieve the template if null
     if(this.thirdStepView === null)
     {
+        $(".info-wizard-step-content").html("<div class='loader'></div>");
+        showLoader($(".info-wizard-step-content", this.templateHtml));
         $.get(jsRoutes.infoWizard.thirdStep(), function(data)
         {
+            hideLoader($(".info-wizard-step-content"));
             this.thirdStepView = data;
             this.displayThirdStep();
         }.bind(this)).error(function(data)
         {
-            // TODO: display error
+            displayAlert("Impossible de récupérer la vue de l'étape auprès du serveur", $(".info-wizard-error-container", this.templateHtml));
         }.bind(this));
         
         return;
@@ -567,9 +685,14 @@ InfoWizard.prototype.displayThirdStep = function()
     
     var postData = this.data.tags;
     postData.push(this.data.mainTag);
+    showLoader($(".info-wizard-third-step-mainTag-container", this.thirdStepHtml));
+    showLoader($(".info-wizard-third-step-tags-container", this.thirdStepHtml));
     $.post(jsRoutes.tag.getArray({'json': JSON.stringify(postData)}),
             function(data)
             {
+                hideLoader($(".info-wizard-third-step-tags-container", this.thirdStepHtml));
+                hideLoader($(".info-wizard-third-step-mainTag-container", this.thirdStepHtml));
+
                 var content = "";
                 for(var i=0; i < data.length; i++)
                 {
@@ -577,7 +700,8 @@ InfoWizard.prototype.displayThirdStep = function()
                     if(tag.id == this.data.mainTag){
                         $(".info-wizard-third-step-mainTag-container", this.thirdStepHtml).html("<span class='label' style='background:#"+tag.color+";'>"+tag.name+"</span>");
                     }
-                    else{
+                    else
+                    {
                         content += "<span class='label' style='background:#"+tag.color+";'>"+tag.name+"</span> ";
                     }
                 }
@@ -585,12 +709,18 @@ InfoWizard.prototype.displayThirdStep = function()
             }.bind(this)).error(
             function(data)
             {
-                console.log("error : " + data);
-                // TODO: handles error
+                displayAlert("Impossible de récupérer les tags auprès du serveur", $(".info-wizard-error-container", this.templateHtml));
             }
-    );
-    
-    $(".info-wizard-third-step-content", this.thirdStepHtml).html(this.data.content);
+        );
+
+    showLoader($(".info-wizard-third-step-content", this.thirdStepHtml));
+    $.post(jsRoutes.info.parseContent({'content': encodeURIComponent(this.data.content)}), function(data)
+    {
+        hideLoader($(".info-wizard-third-step-content", this.thirdStepHtml));
+        $(".info-wizard-third-step-content", this.thirdStepHtml).html(data);
+    }.bind(this)).error(function(data){
+        displayAlert("Impossible de récupérer le contenu auprès du serveur", $(".info-wizard-error-container", this.templateHtml));
+    });
     
     if(this.mode === "event")
     {
@@ -613,13 +743,19 @@ InfoWizard.prototype.displayThirdStep = function()
     this.initThirdStepHandlers();
 };
 
+/**
+* Init preview step GUI's handlers
+*
+* @method initThirdStepHandlers
+*/
 InfoWizard.prototype.initThirdStepHandlers = function()
 {
     $(".info-wizard-cancel-btn", this.templateHtml).unbind("click");
     $(".info-wizard-previous-btn", this.templateHtml).unbind("click");
     $(".info-wizard-next-btn", this.templateHtml).unbind("click");
+    $(".info-wizard-next-btn", this.templateHtml).hide();
     
-    $(".info-wizard-next-btn", this.templateHtml).bind('click', function(){
+    $(".info-wizard-validate-btn", this.templateHtml).bind('click', function(){
         this.save();
     }.bind(this));
     $(".info-wizard-previous-btn", this.templateHtml).bind('click', function(){
@@ -636,8 +772,15 @@ InfoWizard.prototype.initThirdStepHandlers = function()
             this.displaySecondStep();
         }.bind(this));
     }
+
+    $(".info-wizard-validate-btn", this.templateHtml).show();
 };
 
+/**
+* Save the description/event into the database. The description/event will be edited if already exists.
+*
+* @method save
+*/
 InfoWizard.prototype.save = function()
 {
     var json = JSON.stringify(this.data);
@@ -653,10 +796,28 @@ InfoWizard.prototype.save = function()
         this.close();
     }.bind(this)).error(function(data)
     {
-        $(".info-wizard-third-step-alert-container", this.thirdStepHtml).html("<div class='alert alert-error'><button type='button' class='close' data-dismiss='alert'>x</button>Les données semblent incorrectes, nous vous conseillons de revenir à l'étape 1 pour les valider.</div>");
+        hideLoader($(".modal-footer", this.templateHtml));
+        if(typeof data.status != "undefined" && data.status === 0)
+        {
+            displayAlert("Impossible de joindre le serveur pour réaliser l'enregistrement.", $(".info-wizard-error-container", this.templateHtml));
+        }
+        else if(typeof data.status != "undefined" && data.status === 400)
+        {
+            displayAlert("Erreur lors de l'enregistrement, veuillez vérifier vos données.", $(".info-wizard-error-container", this.templateHtml));
+        }
+        else
+        {
+            displayAlert("Oups, erreur inconnue.", $(".info-wizard-error-container", this.templateHtml));
+        }
     }.bind(this));
 };
 
+/**
+* Tag selection handler
+*
+* @method onTagClicked
+* @param {Dom} element Clicked element
+*/
 InfoWizard.prototype.onTagClicked = function(element)
 {
     if(typeof element.attr("selected") == "undefined"){
@@ -667,12 +828,24 @@ InfoWizard.prototype.onTagClicked = function(element)
     }
 };
 
+/**
+* Set the selected style to a tag element
+*
+* @method selectTag
+* @param {Dom} element Element to focus
+*/
 InfoWizard.prototype.selectTag = function(element)
 {
     element.css("background-color", element.attr("data-color"));
     element.attr("selected", "selected");
 };
 
+/**
+* Set the blured style to a tag element
+*
+* @method unselectTag
+* @param {Dom} element Element to blur.
+*/
 InfoWizard.prototype.unselectTag = function(element)
 {
     element.removeAttr("selected");

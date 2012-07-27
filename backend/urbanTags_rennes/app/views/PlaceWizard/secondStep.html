@@ -1,6 +1,6 @@
 <div class="row-fluid">
 	<div class="span12">
-		<form class="form-search">
+		<form class="form-search" action="#">
 			<input type="text" id="place-wizard-second-step-geocoding-field" value="Rechercher une adresse" class="hint" />
 			<input type="button" class="btn" id="place-wizard-second-step-geocoding-button" value="Rechercher" /> 
 			<img src="@{'/public/images/loader.gif'}" id="place-wizard-second-step-geocoding-loader" />
@@ -27,35 +27,29 @@
 	        </div>
 	    </div>
 	</div>
-	<div class="row-fluid">  
-	    <div class="span12" id="place-wizard-second-step-map-container" style="width: 100%; height: 300px;">
-	        
-	    </div>
-	</div>
 	<div class="row-fluid">
-		<div class="span12">
-		      <br />
-			<form class="form-horizontal">
-					<div class="control-group">
-						<label class="control-label" for="place-wizard-second-step-longitude">&{'longitude'}</label>
-						<div class="controls">
-							<input type="text" id="place-wizard-second-step-longitude" disabled="disabled" />
-							<div id="place-wizard-second-step-longitude-errorMsg" class="alert alert-error"></div>
-						</div>
-						
-						<label class="control-label" for="place-wizard-second-step-latitude">&{'latitude'}</label>
-            <div class="controls">
-                <input type="text" id="place-wizard-second-step-latitude" disabled="disabled" />
-                <div id="place-wizard-second-step-latitude-errorMsg" class="alert alert-error"></div>
-            </div>
-            
-            <label class="control-label" for="place-wizard-second-step-radius">&{'radius'}</label>
-            <div class="controls">
-                <input type="text" id="place-wizard-second-step-radius" disabled="disabled" />
-                <div id="place-wizard-second-step-radius-errorMsg" class="alert alert-error"></div>
-            </div>
-					</div>
-			</form>
-		</div>
+	    <div class="span8" id="place-wizard-second-step-map-container" style="height: 230px;"></div>
+
+		<form class="span4 form-inline" action="#">
+			<div class="control-group">
+				<label class="control-label" for="place-wizard-second-step-longitude">&{'longitude'}</label>
+				<div class="controls">
+					<input type="text" id="place-wizard-second-step-longitude" disabled="disabled" />
+					<div id="place-wizard-second-step-longitude-errorMsg" class="alert alert-error"></div>
+				</div>
+					
+				<label class="control-label" for="place-wizard-second-step-latitude">&{'latitude'}</label>
+	            <div class="controls">
+	                <input type="text" id="place-wizard-second-step-latitude" disabled="disabled" />
+	                <div id="place-wizard-second-step-latitude-errorMsg" class="alert alert-error"></div>
+	            </div>
+        
+	            <label class="control-label" for="place-wizard-second-step-radius">&{'radius'}</label>
+	            <div class="controls">
+	                <input type="text" id="place-wizard-second-step-radius" disabled="disabled" />
+	                <div id="place-wizard-second-step-radius-errorMsg" class="alert alert-error"></div>
+	            </div>
+			</div>
+		</form>
 	</div>
 </div>

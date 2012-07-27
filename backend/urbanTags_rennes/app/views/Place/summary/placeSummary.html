@@ -1,18 +1,13 @@
 <div class="span12">
-    <h1 class="place-summary-title"></h1>
-    <h4 class="place-summary-owner"></h4>
-    <p class="tag-list"></p>
-    
-    <fieldset class="row-fluid">
-      <legend>Description</legend>
-      <img src="@{'/public/images/loader.gif'}" class="place-summary-loader" />
-      <div class="place-summary-description" class="well">
-        
-      </div>
-      #{if user}
-      <input class="place-summary-button-edit-description-info btn btn-success" type="button" value="&{'view.info.list.edit.description'}" />
-      <input class="place-summary-button-add-description-info btn btn-success" type="button" value="&{'view.info.list.add.description'}" />
-      <input class="place-summary-button-delete-description-info btn btn-danger" type="button" value="&{'view.info.list.delete.description'}" />
-      #{/if}
-    </fieldset>
+    <div class="loader">
+        <img src="@{'/public/images/loader.gif'}" />
+    </div>
+    <div class="place-summary-description well"></div>
+    #{if user}
+    <div>
+        <input class="place-summary-button-edit-description-info btn btn-success" type="button" value="&{'view.info.list.edit.description'}" />
+        <input class="place-summary-button-add-description-info btn btn-success" type="button" value="&{'view.info.list.add.description'}" />
+        <input class="place-summary-button-delete-description-info btn btn-danger" type="button" value="&{'view.info.list.delete.description'}" />
+    </div>
+    #{/if}
 </div>

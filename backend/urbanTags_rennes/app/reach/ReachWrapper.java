@@ -24,8 +24,10 @@ import com.google.gson.GsonBuilder;
 
 public class ReachWrapper
 {
-  private static String apiKey = "0d2ef4edb1174bd3829c66a73d455533";
-  private static String appid = "urb789348";
+  // private static String apiKey = "0d2ef4edb1174bd3829c66a73d455533";
+  private static String apiKey = "365ef6d174f643e78442ff3e231b3982";
+  // private static String appid = "urb789348";
+  private static String appid = "urb499888";
   private static String kind = "data-push";
 
   public static long createDataPush(CampaignData data) throws Exception
@@ -52,7 +54,6 @@ public class ReachWrapper
       String line = "";
       while ((line = rd.readLine()) != null)
       {
-        System.out.println(line);
         content += line;
       }
 

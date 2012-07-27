@@ -50,6 +50,7 @@ view.place.list.noChange=Aucun changement
 
 #### Info list ####
 view.info.list.title=Liste des infos
+view.info.list.event.name=Nom de l'événement
 view.info.list.add.description=Définir la description
 view.info.list.add.event=Ajouter un événement
 view.info.list.edit.description=Modifier la description

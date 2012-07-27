@@ -7,13 +7,17 @@
             <li class="second"><a href="#">&{'views.wizard.place.secondStep.name'}</a></li>
             <li class="third"><a href="#">&{'views.wizard.place.thirdStep.name'}</a></li>
         </ul>
+        <div id="place-wizard-error-container"></div>
     </div>
     <div class="modal-body" id="place-wizard-step-content">
     </div>
-    <div class="modal-footer">  
-        <input type="button" class="btn btn-warning" value="&{'cancel'}" id="place-wizard-cancel-btn" />
-        <input type="button" class="btn btn-primary" value="< &{'previous'}" id="place-wizard-previous-btn" />
-        <input type="button" class="btn btn-primary" value="&{'next'} >" id="place-wizard-next-btn" />
-        <input type="button" class="btn btn-primary" value="&{'ok'}" id="place-wizard-validate-btn" />
+    <div class="modal-footer">
+        <div class="loader"></div>
+        <div>
+            <input type="button" class="btn btn-warning" value="&{'cancel'}" id="place-wizard-cancel-btn" />
+            <input type="button" class="btn btn-primary" value="< &{'previous'}" id="place-wizard-previous-btn" />
+            <input type="button" class="btn btn-primary" value="&{'next'} >" id="place-wizard-next-btn" />
+            <input type="button" class="btn btn-primary" value="&{'ok'}" id="place-wizard-validate-btn" />
+        <div>
     </div>
 </div>

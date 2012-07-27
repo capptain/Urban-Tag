@@ -1,7 +1,13 @@
-(function(){
-    "use strict";
-})();
+    // "use strict";
 
+/**
+* This class manages the place list behavior.
+*
+* @class PlaceList
+* @constructor
+* @param {Object} _manager Place manager which contains place data
+* @param {Object} _placeWizard Place wizard to add/edit places
+*/
 function PlaceList(_manager, _placeWizard) {
     this.manager = _manager;
     this.placeWizard = _placeWizard;
@@ -12,6 +18,7 @@ function PlaceList(_manager, _placeWizard) {
     this.placeEditedRegistration = this.manager.register("placeEdited", this.onPlaceEdited.bind(this));
     this.placeUnselectedRegistration = this.manager.register("placeUnselected", this.onPlaceUnselected.bind(this));
     this.placeDeletedRegistration = this.manager.register("placeDeleted", this.onPlaceDeleted.bind(this));
+    this.placeLoadingRegistration = this.manager.register("startLoading", this.onLoading.bind(this));
     
     $.get(jsRoutes.place.list.view.item(), function(data)
     {
@@ -25,7 +32,9 @@ function PlaceList(_manager, _placeWizard) {
 }
 
 /**
- * Load places from the server and display them
+ * Load places from the place manager and display them
+ *
+ * @method refresh
  */
 PlaceList.prototype.refresh = function()
 {
@@ -51,6 +60,12 @@ PlaceList.prototype.refresh = function()
     }.bind(this));
 };
 
+/**
+* Add an item to the place list
+*
+* @method addItem
+* @param {Object} place Place corresponding to the new item.
+*/
 PlaceList.prototype.addItem = function(place)
 {
     var html = $(this.templateView);
@@ -68,6 +83,12 @@ PlaceList.prototype.addItem = function(place)
     });
 };
 
+/**
+* Remplace an item by another one.
+*
+* @method replaceItem
+* @param {Object} place Place corresponding to the new item.
+*/
 PlaceList.prototype.replaceItem = function(place)
 {
     var html = this.placeItems[place.id];
@@ -76,23 +97,34 @@ PlaceList.prototype.replaceItem = function(place)
 };
 
 /**
- * Refresh the list's display
+ * Handles to a placeAdded event, add the item corresponding to the added place.
+ *
+ * @method onPlaceAdded
+ * @param {Object} place Added place.
  */
 PlaceList.prototype.onPlaceAdded = function(place)
 {
+    hideLoader($("#place-list-container"));
     this.addItem(place);
 };
 
-
+/**
+* Handles a placeEdited event. Replace the item of the old place by the item of the new place.
+*
+* @method onPlaceEdited
+* @param {Object} place Edited place.
+*/
 PlaceList.prototype.onPlaceEdited = function(place)
 {
     this.replaceItem(place);
 };
 
 /**
- * Change the background of the row corresponding to the selected place
+ * Handles a placeSelected event. Set the selected style to the item corresponding to the selected place.
+ *
+ * @method onPlaceSelected
+ * @param {Object} place Selected place.
  */
-
 PlaceList.prototype.onPlaceSelected = function(place)
 {
     var selectedIndex = this.manager.places.indexOf(place);
@@ -120,12 +152,18 @@ PlaceList.prototype.onPlaceSelected = function(place)
             
             $("#place-list-delete-button").bind("click", function()
             {
+                showLoader($("#place-list-container .button-container"));
                 this.manager.deletePlace(this.manager.selectedPlace);
             }.bind(this));
         }
     }
 };
 
+/**
+* Handles a placeUnselected event. Set button's css.
+*
+* @method onPlaceUnselected
+*/
 PlaceList.prototype.onPlaceUnselected = function()
 {
     $('tr.selected', "#place-list-table").removeClass('selected');
@@ -133,12 +171,32 @@ PlaceList.prototype.onPlaceUnselected = function()
     $('#place-list-edit-button').attr("disabled", "disabled");
 };
 
+/**
+* Handles a placeDeleted event. Remove the item corresponding to the deleted place.
+*
+* @method onPlaceDeleted
+* @param {Object} place Deleted place.
+*/
 PlaceList.prototype.onPlaceDeleted = function(place)
 {
-    if(typeof this.placeItems[place.id] != "undefined")
+    hideLoader($("#place-list-container .button-container"));
+    if(typeof place != "undefined")
     {
-        var html = this.placeItems[place.id];
-        html.remove();
-        delete this.placeItems[place.id];
+        if(typeof this.placeItems[place.id] != "undefined")
+        {
+            var html = this.placeItems[place.id];
+            html.remove();
+            delete this.placeItems[place.id];
+        }
     }
+};
+
+/**
+* Handles a loading event, displays the loader.
+*
+* @method onLoading
+*/
+PlaceList.prototype.onLoading = function()
+{
+    showLoader($("#place-list-container"));
 };

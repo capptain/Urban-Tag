@@ -1,22 +1,63 @@
-<div id="info-list-content">
-<table class="table table-striped table-bordered event-list-table">
-    <thead>
-    <tr>
-        <th>&{'infoName'}</th>
-        <th>&{'mainTag'}</th>
-        <th>&{'startDate'}</th>
-        <th>&{'endDate'}</th>
-    </tr>
-    </thead>
-    <tbody class="event-list-body">
-    </tbody>
-</table>
+<div class="row info-list-loader loader">
+    <img src="@{'/public/images/loader.gif'}" />
 </div>
 
-#{if user}
-<div class="button-container">
-    <input type="button" value="&{'add'}" class="btn btn-success" id="info-list-add-button" />
-    <input type="button" value="&{'edit'}" class="btn btn-warning" id="info-list-edit-button" disabled="disabled" />
-    <input type="button" value="&{'delete'}" class="btn btn-danger" id="info-list-delete-button" disabled="disabled" />
+<form class="row form-inline info-list-filters-container" action="#">
+    <div class="span12">
+        <div class="control-group">
+            <div class="controls">
+                <select class="info-list-filter-selection">
+                    <option value="none">Aucun filtre</option>
+                    <option value="createdIn">Créé dans l'interval</option>
+                    <option value="activeIn">Actif dans l'interval</option>
+                    <option value="startIn">Débutant dans l'interval</option>
+                    <option value="finishIn">Finissant dans l'interval</option>
+                </select>
+            </div>
+        </div>
+        <div class="control-group info-list-filter-content">
+            <div class="controls">
+                <label class="control-label">Du </label>
+                <input type="text" class="input-small info-list-filter-startDate" value="" />
+                <input type="text" class="input-mini info-list-filter-startTime" value="" />
+            </div>
+
+            <div class="controls">
+                <label class="control-label">Au </label>
+                <input type="text" class="input-small info-list-filter-endDate" value=""/>
+                <input type="text" class="input-mini info-list-filter-endTime" value="" />
+                <input type="button" value="Filtrer" class="btn btn-primary info-list-filter-button" />
+            </div>
+        </div>
+    </div>
+</form>
+
+<div class='row info-list-no-info'>
+    <div class="span12 well">
+        Aucun événement
+    </div>
 </div>
-#{/if}
+
+<div class="row event-list-table">
+
+    <table class="table table-striped table-bordered">
+        <thead>
+        <tr>
+            <th>&{'view.info.list.event.name'}</th>
+            <th>&{'mainTag'}</th>
+            <th>&{'startDate'}</th>
+            <th>&{'endDate'}</th>
+        </tr>
+        </thead>
+        <tbody class="event-list-body">
+        </tbody>
+    </table>
+
+    #{if user}
+    <div class="button-container">
+        <input type="button" value="&{'add'}" class="btn btn-success" id="info-list-add-button" />
+        <input type="button" value="&{'edit'}" class="btn btn-warning" id="info-list-edit-button" disabled="disabled" />
+        <input type="button" value="&{'delete'}" class="btn btn-danger" id="info-list-delete-button" disabled="disabled" />
+    </div>
+    #{/if}
+</div>

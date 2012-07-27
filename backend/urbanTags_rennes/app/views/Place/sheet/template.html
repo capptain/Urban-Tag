@@ -1,13 +1,28 @@
-<div class="place-sheet-container">
-  <div class="span4 place-sheet-info-list-container"></div>
-  <div class="fluid-container span8 hero-unit">
+<div class="place-sheet-container span12 hero-unit">
   <div class="row-fluid">
-    <div class="span12 place-sheet-summary-container"></div>
+    <div class="span12">
+      <h1 class="place-title"></h1>
+      <h4 class="place-owner"></h4>
+      <p class="tag-list"></p>
+    </div>
   </div>
-      <fieldset class="row-fluid" style="margin-top: 30px;">
-        <legend>Evénements</legend>
-        <div class="span7 well place-sheet-info-content-container"></div>
-      </fieldset>
+  <div class="row-fluid">
+    <ul class="nav nav-tabs span12">
+        <li class="description-tab-button active">
+          <a href="#">Description</a>
+        </li>
+        <li class="events-tab-button">
+          <a href="#">Evénements</a>
+        </li>
+      </ul>
+  </div>
+  <div class="row-fluid place-sheet-summary-container"></div>
+
+  <div class="row-fluid place-sheet-events-container">
+    <div class="span7 place-sheet-info-list-container"></div>
+    <div class="span5 well place-sheet-info-content-container">
+      <div class="loader"></div>
+      <div class="place-sheet-info-content"></div>
     </div>
   </div>
 </div>

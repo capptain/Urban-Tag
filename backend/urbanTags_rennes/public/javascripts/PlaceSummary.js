@@ -1,3 +1,12 @@
+// "use strict";
+
+/**
+* The place summary object displays the description of a place.
+*
+* @class PlaceSummary
+* @constructor
+* @param {Object} data Optional data to parametrize the PlaceSummary.
+*/
 function PlaceSummary(data)
 {
     this.container = $("body");
@@ -5,12 +14,6 @@ function PlaceSummary(data)
 
     if(typeof data != "undefined")
     {
-        if(typeof data.placeManager != "undefined"){
-            this.placeManager = data.placeManager;
-            // this.placeSelectedRegistration   = this.placeManager.register("placeSelected", this.onPlaceSelected.bind(this));
-            // this.placeUnselectedRegistration = this.placeManager.register("placeUnselected", this.onPlaceUnselected.bind(this));
-        }
-
         if(typeof data.container != "undefined"){
             this.container = data.container;
         }
@@ -30,6 +33,11 @@ function PlaceSummary(data)
     this.description = null;
 }
 
+/**
+* Show the place summary view
+*
+* @method show
+*/
 PlaceSummary.prototype.show = function()
 {
    if(this.templateView === null)
@@ -55,47 +63,50 @@ PlaceSummary.prototype.show = function()
    this.loadPlaceSummary();
 };
 
+/**
+* Hide the place summary view
+*
+* @method hide
+*/
 PlaceSummary.prototype.hide = function()
 {
     if(this.templateHtml !== null)
         this.templateHtml.hide();
 };
 
+/**
+* Display the message indicating there is no description for the current place
+*
+* @method displayEmptyDescriptionMessage
+*/
 PlaceSummary.prototype.displayEmptyDescriptionMessage = function()
 {
     if(this.emptyMessage === null)
     {
-        $(".place-summary-loader", this.templateHtml).show();
+        showLoader(this.templateHtml);
         $.get(jsRoutes.place.summary.emptyView(), function(data)
         {
-            $(".place-summary-loader", this.templateHtml).hide();
             this.emptyMessage = $(data);
             this.displayEmptyDescriptionMessage();
         }.bind(this));
         return;
     }
     
+    hideLoader(this.templateHtml);
     $(".place-summary-description", this.templateHtml).html(this.emptyMessage);
 };
 
+/**
+* Load the place description from the server and display it.
+*
+* @method loadPlaceSummary
+*/
 PlaceSummary.prototype.loadPlaceSummary = function()
 {
     if(this.place !== null)
     {
-        /*
-         * Fill in template with place informations
-         */
-        var titleContainer = $(".place-summary-title", this.templateHtml);
-        $(".place-summary-title", this.templateHtml).html(this.place.name);
-        $(".place-summary-owner", this.templateHtml).html("créé par " + this.place.owner.username);
-        var tagsHtml = "";
-        for(var i = 0; i < this.place.tags.length; i++)
-        {
-            var tag = this.place.tags[i];
-            tagsHtml += "<span class='label' style='background:#"+tag.color+";'>"+tag.name+"</span> ";
-        }
-        $("p.tag-list", this.templateHtml).html(tagsHtml);
-        
+        showLoader(this.templateHtml);
+
         /*
          * Load place description
          */
@@ -104,7 +115,7 @@ PlaceSummary.prototype.loadPlaceSummary = function()
         $(".place-summary-button-delete-description-info", this.templateHtml).hide();
         $.get(jsRoutes.getPlaceDescription({'placeId': this.place.id}), function(data)
         {
-            $(".place-summary-loader", this.templateHtml).hide();
+            hideLoader(this.templateHtml);
             if(data !== "" && typeof data.content != "undefined")
             {
                 this.description = data;
@@ -115,7 +126,12 @@ PlaceSummary.prototype.loadPlaceSummary = function()
                         $(".place-summary-button-delete-description-info", this.templateHtml).show();
                     }
                 }
-                $(".place-summary-description", this.templateHtml).html(data.content);
+                $.post(jsRoutes.info.parseContent({'content': encodeURIComponent(data.content)}), function(data)
+                {
+                    $(".place-summary-description", this.templateHtml).html(data);
+                }.bind(this)).error(function(data){
+                    
+                });
             }
             else
             {
@@ -126,7 +142,16 @@ PlaceSummary.prototype.loadPlaceSummary = function()
                 this.displayEmptyDescriptionMessage();
             }
         }.bind(this)).error(function(data){
-            // TODO: manager error
+            hideLoader(this.templateHtml);
+            
+            if(typeof data.status != "undefined" && data.status === 0)
+            {
+                displayAlert("La connexion avec le serveur a été rompue, impossible de récupérer la description");
+            }
+            else
+            {
+                displayAlert("Oups, erreur inconnue.");
+            }
         }.bind(this));
     }
     else
@@ -135,16 +160,31 @@ PlaceSummary.prototype.loadPlaceSummary = function()
     }
 };
 
+/**
+* Handles the click event on the "add description" button. Displays the description adding wizard
+*
+* @method onAddButtonClicked
+*/
 PlaceSummary.prototype.onAddButtonClicked = function()
 {
     this.infoWizard.startCreatingDescription(this.place);
 };
 
+/**
+* Handles the click event on the "edit description" button. Display the description editing wizard.
+*
+* @method onEditButtonClicked
+*/
 PlaceSummary.prototype.onEditButtonClicked = function()
 {
     this.infoWizard.startEditingDescription(this.description);
 };
 
+/**
+* Handles the click event on the "delete description" button. Delete the description.
+*
+* @method onDeleteButtonClicked
+*/
 PlaceSummary.prototype.onDeleteButtonClicked = function()
 {
     $.get(jsRoutes.info.remove({'id': this.description.id}), function(data)
@@ -155,24 +195,45 @@ PlaceSummary.prototype.onDeleteButtonClicked = function()
     }.bind(this));
 };
 
+/**
+* Executed when a place is selected. Just set the place variable.
+*
+* @method onPlaceSelected
+* @param {Object} place Selected place.
+*/
 PlaceSummary.prototype.onPlaceSelected = function(place)
 {
-    this.hide();
     this.place = place;
-    this.show();
 };
 
+/**
+* Executed when a place is unselected. Just set the place variable to null.
+*
+* @method onPlaceUnselected
+* @param {Object} place Unselected place.
+*/
 PlaceSummary.prototype.onPlaceUnselected = function(place)
 {
-    this.hide();
     this.place = null;
 };
 
+/**
+* Executed when a description is added. Show the place summary with the new description
+*
+* @method onInfoAdded
+* @param {Object} info Added description
+*/
 PlaceSummary.prototype.onInfoAdded = function(info)
 {
     this.show();
 };
 
+/**
+* Executed when a description is edited. Show the place summary with the new description
+*
+* @method onInfoEdited
+* @param {Object} info Edited description
+*/
 PlaceSummary.prototype.onInfoEdited = function(info)
 {
     this.show();

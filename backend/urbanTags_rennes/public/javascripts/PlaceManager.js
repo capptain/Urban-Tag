@@ -1,10 +1,14 @@
-(function(){
-    "use strict";
-})();
+// "use strict";
 
+/**
+* This class contains the place information. It manages places (adding, editing, removing) and dispatch events corresponding to actions made on places.
+*
+* @class PlaceManager
+* @constructor
+*/
 function PlaceManager()
 {
-    CanFireEvents.call(this, ["placeAdded", "placeEdited", "placeSelected", "placeUnselected", "placeDeleted"]);
+    CanFireEvents.call(this, ["placeAdded", "placeEdited", "placeSelected", "placeUnselected", "placeDeleted", "startLoading"]);
 	this.places        = [];
 	this.selectedPlace = null;
 }
@@ -13,11 +17,14 @@ extend(PlaceManager.prototype, CanFireEvents.prototype);
 
 /**
  * Load places from the server
+ *
+ * @method loadData
  */
 PlaceManager.prototype.loadData = function()
 {
     this.places = [];
     var obj     = this;
+    this.fireEvent("startLoading");
     $.get(jsRoutes.getPlaceListAction(), function(data){
         jQuery.each(data, function(i, place){
             obj.addPlace(this);
@@ -25,6 +32,13 @@ PlaceManager.prototype.loadData = function()
     });
 };
 
+/**
+* Get the place which has the given name
+*
+* @method getPlaceByName
+* @param {String} name Place's name
+* @return {Object} Place which has the given name.
+*/
 PlaceManager.prototype.getPlaceByName = function(name)
 {
     var found = false;
@@ -47,14 +61,23 @@ PlaceManager.prototype.getPlaceByName = function(name)
 };
 
 /**
- * Add a place to the place list and fire a placeAddedEvent
- */
+* Add a place to the place list and fire a placeAddedEvent
+*
+* @method addPlace
+* @param {Object} place Place to add
+*/
 PlaceManager.prototype.addPlace = function(place)
 {
     this.places.push(place);
     this.fireEvent("placeAdded", place);
 };
 
+/**
+* Edit a place and fire a placeEditedEvent
+*
+* @method editPlace
+* @param {Object} place Edited place
+*/
 PlaceManager.prototype.editPlace = function(place)
 {
     // Find old place
@@ -80,13 +103,24 @@ PlaceManager.prototype.editPlace = function(place)
     }
 };
 
-
+/**
+* Select the place which has the given name
+*
+* @method selectPlaceByName
+* @param {String} name Place name
+*/
 PlaceManager.prototype.selectPlaceByName = function(name)
 {
     var place = this.getPlaceByName(name);
     this.selectPlace(place);
 };
 
+/**
+* Select the given place
+*
+* @method selectPlace
+* @param {Object} place Place which must be selected.
+*/
 PlaceManager.prototype.selectPlace = function(place)
 {
     var index = this.places.indexOf(place);
@@ -97,6 +131,12 @@ PlaceManager.prototype.selectPlace = function(place)
     }
 };
 
+/**
+* Delete the given place.
+*
+* @method deletePlace
+* @param {Object} place Place to delete.
+*/
 PlaceManager.prototype.deletePlace = function(place)
 {
 	$.get(jsRoutes.place.remove({'id':place.id}), function(data)
@@ -122,9 +162,25 @@ PlaceManager.prototype.deletePlace = function(place)
 		}
 		
 		this.fireEvent("placeDeleted", place);
-	}.bind(this));
+	}.bind(this)).error(
+        function(data){
+            if(typeof data.status != "undefined" && data.status === 0){
+                displayAlert("La connexion avec le serveur a été rompue.");
+            }
+            else{
+                displayAlert("Oups, erreur inconnue.");
+            }
+
+            this.fireEvent("placeDeleted", "undefined");
+        }.bind(this)
+    );
 };
 
+/**
+* Unselect the current selected place.
+*
+* @method unselectPlace
+*/
 PlaceManager.prototype.unselectPlace = function()
 {
     this.selectedPlace = null;

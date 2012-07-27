@@ -1,5 +1,6 @@
 package controllers;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -8,9 +9,12 @@ import models.Info;
 import models.Place;
 import models.User;
 import models.data.InfoData;
+import play.Play;
 import play.data.validation.Validation;
 import play.data.validation.Validation.ValidationResult;
 import play.mvc.Controller;
+import ru.perm.kefir.bbcode.BBProcessorFactory;
+import ru.perm.kefir.bbcode.TextProcessor;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -40,16 +44,54 @@ public class InfoApi extends Controller
     badRequest();
   }
 
-  public static void getPlaceEvents(long placeId)
+  public static void getPlaceEvents(long placeId, String filter, long startDate, long endDate)
   {
     GsonBuilder gb = new GsonBuilder();
     gb.setDateFormat("dd/MM/yyyy HH:mm");
     Gson gson = gb.excludeFieldsWithoutExposeAnnotation().create();
     Place place = Place.findById(placeId);
+
+    Date objStartDate = null;
+    Date objEndDate = null;
+
+    String query = "place=? and startDate is not null and endDate is not null";
+    if (startDate != -1 && endDate != -1)
+    {
+      objStartDate = new Date();
+      objStartDate.setTime(startDate);
+      objEndDate = new Date();
+      objEndDate.setTime(endDate);
+
+      if (filter.equals("createdIn"))
+      {
+        query += " and addedAt between ? and ?";
+      }
+      else if (filter.equals("activeIn"))
+      {
+        query += " and endDate >= ?";
+        query += " and startDate <= ?";
+      }
+      else if (filter.equals("startIn"))
+      {
+        query += " and startDate between ? and ?";
+      }
+      else if (filter.equals("finishIn"))
+      {
+        query += " and endDate between ? and ?";
+      }
+    }
+
+    query += " order by startDate desc";
+
     if (place != null)
     {
-      List<Info> events = Info.find("byPlaceAndStartDateIsNotNullAndEndDateIsNotNull", place)
-        .fetch();
+      List<Info> events = null;
+
+      if (startDate != -1 && endDate != -1)
+        events = Info.find(query, place, objStartDate, objEndDate).fetch();
+      else
+        events = Info.find(query, place).fetch();
+
       String json = gson.toJson(events);
       renderJSON(json);
     }
@@ -114,12 +156,39 @@ public class InfoApi extends Controller
     Info info = Info.findById(id);
     if (info != null)
     {
-      render(info);
+      String bbCode = Play.applicationPath.getPath() + "/conf/bbCodeConfig.xml";
+      TextProcessor bbcodeParser = BBProcessorFactory.getInstance().create(new File(bbCode));
+      String parsedContent = bbcodeParser.process(info.content);
+      render(info, parsedContent);
     }
     else
     {
       notFound();
     }
+  }
+
+  public static void webContent(long id)
+  {
+    Info info = Info.findById(id);
+    if (info != null)
+    {
+      String bbCode = Play.applicationPath.getPath() + "/conf/bbCodeConfig.xml";
+      TextProcessor bbcodeParser = BBProcessorFactory.getInstance().create(new File(bbCode));
+      String parsedContent = bbcodeParser.process(info.content);
+      render(info, parsedContent);
+    }
+    else
+    {
+      notFound();
+    }
+  }
+
+  public static void getParsedContent(String content) throws Exception
+  {
+    String bbCode = Play.applicationPath.getPath() + "/conf/bbCodeConfig.xml";
+    TextProcessor bbcodeParser = BBProcessorFactory.getInstance().create(new File(bbCode));
+    String parsedContent = bbcodeParser.process(content);
+    renderText(parsedContent);
   }
 
   public static void add(String json) throws Exception

@@ -16,7 +16,7 @@ public class CampaignData
   private String body;
   private String timezone = "Europe/Paris";
 
-  // private AudienceData audience;
+  private AudienceData audience;
 
   public CampaignData(String name, String type, String deliveryTime, long startDate, long endDate,
     String body, double lon, double lat, float rad, int expiration, int accuracy)
@@ -48,7 +48,7 @@ public class CampaignData
     criteria.put(criterionName, new Criterion("geo-fencing", new POI[] { new POI("poi", expiration,
       accuracy, new Shape("circle", lon, lat, Math.round(rad))) }));
 
-    // this.audience = new AudienceData(criterionName, criteria);
+    this.audience = new AudienceData(criterionName, criteria);
   }
 
   public long getId()
@@ -111,15 +111,15 @@ public class CampaignData
     this.body = body;
   }
 
-  // public AudienceData getAudience()
-  // {
-  // return audience;
-  // }
-
-  // public void setAudience(AudienceData audience)
-  // {
-  // this.audience = audience;
-  // }
+  // // public AudienceData getAudience()
+  // // {
+  // // return audience;
+  // // }
+  //
+  // // public void setAudience(AudienceData audience)
+  // // {
+  // // this.audience = audience;
+  // // }
 
   public String getStartTime()
   {

@@ -1,6 +1,5 @@
 package models;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -11,7 +10,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 
 import models.Tag.TagNotFoundException;
 import models.check.attribute.MainTagCheck;
@@ -87,9 +85,6 @@ public class Place extends GenericModel
   @Expose
   public User owner;
 
-  @OneToMany(cascade = CascadeType.ALL)
-  public List<Info> infos;
-
   /**
    * Tags of the place.
    */
@@ -132,7 +127,6 @@ public class Place extends GenericModel
    * @param latitude {@link Place#latitude}
    * @param radius {@link Place#radius}
    * @param accuracy {@link Place#accuracy}
-   * @param expiration {@link Place#expiration}
    */
   public Place(User owner, String name, double longitude, double latitude, int radius,
     String accuracy)
@@ -239,10 +233,6 @@ public class Place extends GenericModel
     this.radius = data.getRadius();
     this.accuracy = data.getAccuracy();
     this.owner = User.findById(data.getIdOwner());
-    if (this.id != null)
-      this.infos = Info.find("byPlace", this).fetch();
-    else
-      this.infos = new ArrayList<Info>();
 
     this.removeAllTags();
     for (int i = 0; i < data.getTags().length; i++)
@@ -263,8 +253,15 @@ public class Place extends GenericModel
 
     if (id != null)
     {
+      List<Info> infos = Info.find("byPlace", this).fetch();
       for (Info info : infos)
       {
+        if (info.startDate == null && info.endDate == null)
+        {
+          info.mainTag = this.mainTag;
+          info.tags = this.tags;
+          info.title = this.name;
+        }
         info.save();
       }
     }
@@ -275,6 +272,7 @@ public class Place extends GenericModel
   @Override
   public Place delete()
   {
+    List<Info> infos = Info.find("byPlace", this).fetch();
     for (Info info : infos)
     {
       info.delete();

@@ -46,6 +46,7 @@ view.place.list.noChange=No change
 
 #### Info list ####
 view.info.list.title=Info list
+view.info.list.event.name=Event name
 view.info.list.add.description=Set the description
 view.info.list.add.event=Add an event 
 

@@ -11,16 +11,19 @@
             <li class="first"><a href="#">1. &{'views.wizard.info.secondStep.name'}</a></li>
             <li class="second"><a href="#">2. &{'views.wizard.info.thirdStep.name'}</a></li>
         </ul>
+        <div class="info-wizard-error-container"></div>
     </div>
     
     <div class="modal-body info-wizard-step-content">
     </div>
     
     <div class="modal-footer">
-      <div class="pull-right">
+        <div class="loader"></div>
+      <div>
         <input type="button" class="btn btn-warning info-wizard-cancel-btn" value="&{'cancel'}"/>
         <input type="button" class="btn btn-primary info-wizard-previous-btn" value="< &{'previous'}" />
         <input type="button" class="btn btn-primary info-wizard-next-btn" value="&{'next'} >" />
+        <input type="button" class="btn btn-primary info-wizard-validate-btn" value="&{'ok'}" />
       </div>
     </div>
 </div>

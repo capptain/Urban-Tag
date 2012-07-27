@@ -1,21 +1,29 @@
 /*************************************
 *            PLACE LIST
 *************************************/
-#place-list-content
-{
-    /*background: #F1F1F1;*/
-    overflow: auto;
+
+.place-list-container{
+/*     overflow-y: scroll; */
+/*     overflow-x: auto; */
 }
 
-#place-list-container .button-container
+.place-list-content
+{
+    overflow: auto;
+    max-height: 450px;
+    width: 250px;
+    height: 450px;
+}
+
+.place-list-container .button-container
 {
     text-align: center;
 }
 
-#place-list-container tr.place-list-item{
+.place-list-container tr.place-list-item{
     cursor: pointer;
 }
 
-#place-list-container tr.place-list-item.selected td{
+.place-list-container tr.place-list-item.selected td{
     background: #FFF7CF !important;
 }

@@ -1,20 +1,26 @@
-(function () {
-    "use strict";
-})();
+    // "use strict";
 
+/**
+* This class represents the wizard used to add/edit a place
+*
+* @class PlaceWizard
+* @constructor
+* @param {Object} placeManager Object which containts places and manages them.
+* @param {Object} place Optional place used if the wizard is used to edit a place.
+*/
 function PlaceWizard(placeManager, place)
 {
     this.placeManager    = placeManager;
     this.mapBox          = null;
     this.thirdStepMap    = null;
     this.previousMainTag = null;
+    this.isShown = false;
     
     if(typeof place != "undefined")
     {
         this.data.id         = place.id;
         this.data.name       = place.name;
         this.data.accuracy   = place.accuracy;
-        this.data.expiration = place.expiration;
         
         this.data.tags = [];
         for(var i = 0; i < place.tags.length; i++)
@@ -38,23 +44,34 @@ function PlaceWizard(placeManager, place)
     $.get(jsRoutes.placeWizardRoutes.firstStep(), function(data)
     {
         this.firstStepView = data;
-    }.bind(this));
+    }.bind(this)).error(
+        function(data){
+            displayAlert("Impossible de récupérer la vue de la première étape auprès du serveur");
+        }
+    );
     
     this.secondStepView = null;
     $.get(jsRoutes.placeWizardRoutes.secondStep(), function(data)
     {
         this.secondStepView = data;
-    }.bind(this));
+    }.bind(this)).error(
+        function(data){
+            displayAlert("Impossible de récupérer la vue de la deuxième étape auprès du serveur");
+        }
+    );
     
     this.thirdStepView = null;
     $.get(jsRoutes.placeWizardRoutes.thirdStep(), function(data)
     {
         this.thirdStepView = data;
-    }.bind(this));
+    }.bind(this)).error(
+        function(data){
+            displayAlert("Impossible de récupérer la vue de la troisième étape auprès du serveur");
+        }
+    );
     
     this.templateView   = null;
     this.templateHtml   = null;
-    this.thirdStepAlert = null;
     this.firstStepHtml  = null;
     this.secondStepHtml = null;
     this.thirdStepHtml  = null;
@@ -65,16 +82,29 @@ function PlaceWizard(placeManager, place)
  * FIRST STEP
  */
 
+/**
+* This method displays the place basic informations step.
+*
+* @method displayFirstStep
+*/
 PlaceWizard.prototype.displayFirstStep = function()
 {
     /* Get first step template if null */
     if(this.firstStepView === null)
     {
+        $("#place-wizard-step-content").html("<div class='loader'></div>");
+        showLoader($("#place-wizard-step-content"), this.templateHtml);
         $.get(jsRoutes.placeWizardRoutes.firstStep(), function(data)
         {
+            hideLoader($("#place-wizard-step-content"), this.templateHtml);
             this.firstStepView = data;
             this.displayFirstStep();
-        }.bind(this));
+        }.bind(this)).error(
+            function(data)
+            {
+                displayAlert("Impossible de récupérer l'interface de l'étape auprès du serveur.", $("place-wizard-error-container", this.templateHtml));
+            }
+        );
         
         return;
     }
@@ -124,7 +154,6 @@ PlaceWizard.prototype.displayFirstStep = function()
     
     $("#place-wizard-first-step-name-text-errorMsg", this.firstStepHtml).hide();
     $("#place-wizard-first-step-accuracy-errorMsg", this.firstStepHtml).hide();
-    $("#place-wizard-first-step-expiration-errorMsg", this.firstStepHtml).hide();
     $("#place-wizard-first-step-tags-errorMsg", this.firstStepHtml).hide();
     $("#place-wizard-first-step-mainTag-errorMsg", this.firstStepHtml).hide();
     $("#place-wizard-first-step-unknown-errorMsg").hide();
@@ -132,6 +161,11 @@ PlaceWizard.prototype.displayFirstStep = function()
     this.initFirstStepHandlers();
 };
 
+/**
+* This method initializes handlers of the first step.
+*
+* @method initFirstStepHandlers
+*/
 PlaceWizard.prototype.initFirstStepHandlers = function()
 {
     /* Remove old handlers */
@@ -145,7 +179,6 @@ PlaceWizard.prototype.initFirstStepHandlers = function()
     $("#place-wizard-next-btn", this.templateHtml).show();
     $("#place-wizard-cancel-btn", this.templateHtml).bind('click', function(){ this.close(); }.bind(this) );
     $("#place-wizard-next-btn", this.templateHtml).bind('click', function(){ this.validateFirstStepForm(); }.bind(this) );
-    
     
     var obj = this;
     /* Main tag handlers */
@@ -184,8 +217,15 @@ PlaceWizard.prototype.initFirstStepHandlers = function()
     $("#place-wizard-first-step-tags-container a[data-value='"+this.previousMainTag+"']").unbind('click');
 };
 
+/*
+* Validate data of the first step's form. Go to the next step if ok.
+*
+* @method validateFirstStepForm
+*/
 PlaceWizard.prototype.validateFirstStepForm = function()
 {
+    showLoader($(".modal-footer", this.templateHtml));
+
     var postData      = {};
     postData.name     = $("#place-wizard-first-step-name-text").val();
     postData.accuracy = $("#place-wizard-first-step-accuracy").val();
@@ -200,7 +240,6 @@ PlaceWizard.prototype.validateFirstStepForm = function()
 
     $("#place-wizard-first-step-name-text-errorMsg").slideUp(300);
     $("#place-wizard-first-step-accuracy-errorMsg").slideUp(300);
-    $("#place-wizard-first-step-expiration-errorMsg").slideUp(300);
     $("#place-wizard-first-step-tags-errorMsg").slideUp(300);
     $("#place-wizard-first-step-mainTag-errorMsg").slideUp(300);
     $("#place-wizard-first-step-unknown-errorMsg").slideUp(300);
@@ -208,17 +247,23 @@ PlaceWizard.prototype.validateFirstStepForm = function()
     postData.id = (typeof this.data.id != "undefined") ? this.data.id : -1;
     $.post(jsRoutes.placeWizardRoutes.validation.firstStep({'json':JSON.stringify(postData)}), function(errors)
     {
+        hideLoader($(".modal-footer", this.templateHtml));
+
         // If everything is ok, go to the second step
         this.data.name       = postData.name;
         this.data.accuracy   = postData.accuracy;
-        this.data.expiration = postData.expiration;
         this.data.tags       = postData.tags;
         this.data.mainTag    = postData.mainTag;
         
         this.displaySecondStep();
     }.bind(this)).error(function(data)
     {
-        if(data.responseText !== "")
+        hideLoader($(".modal-footer", this.templateHtml));
+        if(typeof data.status != "undefined" && data.status === 0)
+        {
+            displayAlert("Impossible de joindre le serveur pour vérifier vos données", $("#place-wizard-error-container"));
+        }
+        else if(typeof data.status != "undefined" && data.status === 400 && data.responseText !== "")
         {
             var errors = jQuery.parseJSON(data.responseText);
             
@@ -231,11 +276,6 @@ PlaceWizard.prototype.validateFirstStepForm = function()
             {
                 $("#place-wizard-first-step-accuracy-errorMsg").slideDown(300);
                 $("#place-wizard-first-step-accuracy-errorMsg").html(errors["accuracy"]);
-            }
-            if(typeof errors["expiration"] != "undefined")
-            {
-                $("#place-wizard-first-step-expiration-errorMsg").slideDown(300);
-                $("#place-wizard-first-step-expiration-errorMsg").html(errors["expiration"]);
             }
             if(typeof errors["tags"] != "undefined")
             {
@@ -250,7 +290,7 @@ PlaceWizard.prototype.validateFirstStepForm = function()
         }
         else
         {
-            $("#place-wizard-first-step-unknown-errorMsg").slideDown(300);
+            displayAlert("Oups, erreur inconnue.", $("#place-wizard-error-container"));
         }
     }.bind(this));
 };
@@ -259,15 +299,29 @@ PlaceWizard.prototype.validateFirstStepForm = function()
 /*
  * SECOND STEP
  */
+
+/**
+* Display the step where user draw the circle corresponding to the POI of the place.
+*
+* @method displaySecondStep
+*/
 PlaceWizard.prototype.displaySecondStep = function()
 {
     if(this.secondStepView === null)
     {
+        $("#place-wizard-step-content").html("<div class='loader'></div>");
+        showLoader($("#place-wizard-step-content"));
         $.get(jsRoutes.placeWizardRoutes.secondStep(), function(data)
         {
+            hideLoader($("#place-wizard-step-content"));
             this.secondStepView = data;
             this.displaySecondStep();
-        }.bind(this));
+        }.bind(this)).error(
+            function(data)
+            {
+                displayAlert("Impossible de récupérer l'interface de l'étape auprès du serveur.", $("place-wizard-error-container", this.templateHtml));
+            }
+        );
         
         return;
     }
@@ -323,6 +377,11 @@ PlaceWizard.prototype.displaySecondStep = function()
     $("#place-wizard-second-step-geocoding-alert").hide();
 };
 
+/**
+* Initialize handlers of the second step
+*
+* @method initSecondStepHandlers
+*/
 PlaceWizard.prototype.initSecondStepHandlers = function()
 {
     /* Remove old handlers */
@@ -375,6 +434,12 @@ PlaceWizard.prototype.initSecondStepHandlers = function()
         }
     }.bind(this)
     );
+
+    $("#place-wizard-second-step-geocoding-field").bind('change', function()
+    {
+       this.geocode($("#place-wizard-second-step-geocoding-field", this.secondStepHtml).val());
+    }.bind(this)
+    );
     
     $("#place-wizard-second-step-geocoding-loader").hide();
     
@@ -397,6 +462,11 @@ PlaceWizard.prototype.initSecondStepHandlers = function()
     $("#place-wizard-second-step-radius", this.secondStepHtml).bind('change', this.onRadiusChanged.bind(this));
 };
 
+/**
+* Validate data of the second step. Go to the next step if ok.
+*
+* @method validateSecondStepForm
+*/
 PlaceWizard.prototype.validateSecondStepForm = function()
 {
     var longitude = $("#place-wizard-second-step-longitude").val();
@@ -418,29 +488,47 @@ PlaceWizard.prototype.validateSecondStepForm = function()
     ).error(
         function(data)
         {
-            var errors = jQuery.parseJSON(data.responseText);
-            
-            if(typeof errors.longitude != "undefined")
+            hideLoader($(".modal-footer", this.templateHtml));
+            if(typeof data.status != "undefined" && data.status === 0)
             {
-                $("#place-wizard-second-step-longitude-errorMsg", this.secondStepHtml).html(errors.longitude);
-                $("#place-wizard-second-step-longitude-errorMsg", this.secondStepHtml).slideDown(300);
+                displayAlert("Impossible de joindre le serveur pour vérifier vos données", $("#place-wizard-error-container"));
             }
-            
-            if(typeof errors.latitude != "undefined")
+            else if(typeof data.status != "undefined" && data.status === 400 && data.responseText !== "")
             {
-                $("#place-wizard-second-step-latitude-errorMsg", this.secondStepHtml).html(errors.latitude);
-                $("#place-wizard-second-step-latitude-errorMsg", this.secondStepHtml).slideDown(300);
+                var errors = jQuery.parseJSON(data.responseText);
+                
+                if(typeof errors.longitude != "undefined")
+                {
+                    $("#place-wizard-second-step-longitude-errorMsg", this.secondStepHtml).html(errors.longitude);
+                    $("#place-wizard-second-step-longitude-errorMsg", this.secondStepHtml).slideDown(300);
+                }
+                
+                if(typeof errors.latitude != "undefined")
+                {
+                    $("#place-wizard-second-step-latitude-errorMsg", this.secondStepHtml).html(errors.latitude);
+                    $("#place-wizard-second-step-latitude-errorMsg", this.secondStepHtml).slideDown(300);
+                }
+                
+                if(typeof errors.radius != "undefined")
+                {
+                    $("#place-wizard-second-step-radius-errorMsg", this.secondStepHtml).html(errors.radius);
+                    $("#place-wizard-second-step-radius-errorMsg", this.secondStepHtml).slideDown(300);
+                }
             }
-            
-            if(typeof errors.radius != "undefined")
+            else
             {
-                $("#place-wizard-second-step-radius-errorMsg", this.secondStepHtml).html(errors.radius);
-                $("#place-wizard-second-step-radius-errorMsg", this.secondStepHtml).slideDown(300);
+                displayAlert("Oups, erreur inconnue.", $("#place-wizard-error-container"));
             }
         }.bind(this)
     );
 };
 
+/**
+* Executed when a shape is modified on the map. Refresh forms.
+*
+* @method onShapeModified
+* @param {Object} feature Modified circle.
+*/
 PlaceWizard.prototype.onShapeModified = function(feature)
 {
     var bounds = feature.geometry.getBounds();
@@ -469,6 +557,11 @@ PlaceWizard.prototype.onShapeModified = function(feature)
     }
 };
 
+/**
+* Put the map box in the navigation mode.
+*
+* @method onNavigateButtonClicked
+*/
 PlaceWizard.prototype.onNavigateButtonClicked = function()
 {
     this.navigateButton.addClass("btn-primary");
@@ -478,6 +571,11 @@ PlaceWizard.prototype.onNavigateButtonClicked = function()
     this.mapBox.navigationMode();
 };
 
+/**
+* Put the mapBox in the drawing mode.
+*
+* @method onDrawButtonClicked
+*/
 PlaceWizard.prototype.onDrawButtonClicked = function()
 {
     this.navigateButton.removeClass("btn-primary");
@@ -487,6 +585,11 @@ PlaceWizard.prototype.onDrawButtonClicked = function()
     this.mapBox.drawingMode();
 };
 
+/**
+* Put the mapBox in the transform mode
+*
+* @method onTransformButtonClicked
+*/
 PlaceWizard.prototype.onTransformButtonClicked = function()
 {
     this.navigateButton.removeClass("btn-primary");
@@ -496,6 +599,11 @@ PlaceWizard.prototype.onTransformButtonClicked = function()
     this.mapBox.editingMode();
 };
 
+/**
+* Executed when the longitude field value changes, redraw the circle.
+*
+* @method onLongitudeChanged
+*/
 PlaceWizard.prototype.onLongitudeChanged = function()
 {
     var longitude = $("#place-wizard-second-step-longitude").val();
@@ -505,6 +613,11 @@ PlaceWizard.prototype.onLongitudeChanged = function()
     }
 };
 
+/**
+* Executed when the latitude field value changes, redraw the circle.
+*
+* @method onLatitudeChanged
+*/
 PlaceWizard.prototype.onLatitudeChanged = function()
 {
     var latitude = $("#place-wizard-second-step-latitude").val();
@@ -514,6 +627,11 @@ PlaceWizard.prototype.onLatitudeChanged = function()
     }
 };
 
+/**
+* Executed when the radius field value changes, redraw the circle.
+*
+* @method onRadiusChanged
+*/
 PlaceWizard.prototype.onRadiusChanged = function()
 {
     var radius = $("#place-wizard-second-step-radius").val();
@@ -526,6 +644,12 @@ PlaceWizard.prototype.onRadiusChanged = function()
 /*
  * THIRD STEP
  */
+
+/**
+* Display the preview step.
+*
+* @method displayThirdStep
+*/
 PlaceWizard.prototype.displayThirdStep = function()
 {
     if(this.thirdStepView === null)
@@ -534,7 +658,12 @@ PlaceWizard.prototype.displayThirdStep = function()
         {
             this.thirdStepView = data;
             this.displayThirdStep();
-        }.bind(this));
+        }.bind(this)).error(
+            function(data)
+            {
+                displayAlert("Impossible de récupérer l'interface de l'étape auprès du serveur.", $("place-wizard-error-container", this.templateHtml));
+            }
+        );
         
         return;
     }
@@ -549,17 +678,30 @@ PlaceWizard.prototype.displayThirdStep = function()
     $(".custom-breadcrumb li.third", this.templateHtml).addClass("current");
     
     $("#place-wizard-step-content").html(this.thirdStepHtml);
-    this.thirdStepAlert = $("#place-wizard-third-step-alert");
-    this.thirdStepAlert.remove();
     
     
     $("#place-wizard-third-step-name").html(this.data.name);
-    $("#place-wizard-third-step-accuracy").html(this.data.accuracy);
-    $("#place-wizard-third-step-expiration").html(this.data.expiration);
     $("#place-wizard-third-step-maintag").html(this.data.mainTag);
     $("#place-wizard-third-step-longitude").html(this.data.longitude);
     $("#place-wizard-third-step-latitude").html(this.data.latitude);
     $("#place-wizard-third-step-radius").html(this.data.radius);
+
+    var accuracy;
+    switch(this.data.accuracy)
+    {
+        case "high":
+        accuracy = "Forte";
+        break;
+
+        case "medium":
+        accuracy = "Moyenne";
+        break;
+
+        case "low":
+        accuracy = "Faible";
+        break;
+    }
+    $("#place-wizard-third-step-accuracy").html(accuracy);
     
     $.post(jsRoutes.tag.getArray({'json': JSON.stringify(this.data.tags)}),
         function(data)
@@ -579,8 +721,7 @@ PlaceWizard.prototype.displayThirdStep = function()
         }.bind(this)).error(
         function(data)
         {
-            console.log("error : " + data);
-            // TODO: Handles error
+            displayAlert("Impossible de récupérer les tags auprès du serveur", $("place-wizard-error-container", this.templateHtml));
         }
         );
 
@@ -627,10 +768,14 @@ PlaceWizard.prototype.displayThirdStep = function()
     var zoom = this.thirdStepMap.getZoomForExtent(circle.geometry.getBounds(), false);
     
     this.thirdStepMap.setCenter(center, zoom);
-    
     this.initThirdStepHandlers();
 };
 
+/**
+* Initialize preview step handlers
+*
+* @method initThirdStepHandlers
+*/
 PlaceWizard.prototype.initThirdStepHandlers = function()
 {
     /* Remove old handlers */
@@ -658,6 +803,11 @@ PlaceWizard.prototype.initThirdStepHandlers = function()
     }.bind(this));
 };
 
+/**
+* Save the place to the server. If the place already exists, edit it.
+*
+* @method savePlace
+*/
 PlaceWizard.prototype.savePlace = function()
 {
   $.post(jsRoutes.place.add({'json': JSON.stringify(this.data)}),
@@ -678,16 +828,28 @@ PlaceWizard.prototype.savePlace = function()
     ).error(
       function(data)
       {
-          $("#place-wizard-third-step-alert-container").html("<div class='alert alert-error'><button type='button' class='close' data-dismiss='alert'>x</button>Les données semblent incorrectes, nous vous conseillons de revenir à l'étape 1 pour les valider.</div>");
+        if(typeof data.status != "undefined" && data.status === 0)
+        {
+            displayAlert("La connexion avec le serveur a été perdue.", $("place-wizard-error-container", this.templateHtml));
+        }
+        else if(typeof data.status != "undefined" && data.status === 400)
+        {
+            displayAlert("Erreur lors de la sauvegarde, merci de vérifier vos données.", $("place-wizard-error-container", this.templateHtml));
+        }
+        else
+        {
+            displayAlert("Oups, erreur inconnue.", $("place-wizard-error-container", this.templateHtml));
+        }
       }.bind(this)
     );
 };
 
-
-/*
- * POPUP METHODS
- */
-
+/**
+* Show the view of the wizard in a popup container
+*
+* @method show
+* @param {Object} place Optional place for edition mode.
+*/
 PlaceWizard.prototype.show = function(place)
 {
     if(typeof place != "undefined")
@@ -695,7 +857,6 @@ PlaceWizard.prototype.show = function(place)
         this.data.id         = place.id;
         this.data.name       = place.name;
         this.data.accuracy   = place.accuracy;
-        this.data.expiration = place.expiration;
         
         this.data.tags = [];
         for(var i = 0; i < place.tags.length; i++)
@@ -716,7 +877,9 @@ PlaceWizard.prototype.show = function(place)
         {
             this.templateView = data;
             this.show(place);
-        }.bind(this));
+        }.bind(this)).error(function(data){
+            displayAlert("Impossible de charger l'interface de l'assistant d'ajout de lieu.");
+        });
         
         return;
     }
@@ -731,6 +894,11 @@ PlaceWizard.prototype.show = function(place)
     this.templateHtml.modal({'show': true, 'backdrop': 'static'});
 };
 
+/**
+* Close the wizard and reset its data
+*
+* @method close
+*/
 PlaceWizard.prototype.close = function()
 {
     this.templateHtml.modal('hide');
@@ -742,6 +910,12 @@ PlaceWizard.prototype.close = function()
     this.mapBox         = null;
 };
 
+/**
+* Look for a place with the given name
+*
+* @method geocode
+* @param {String} query Place name
+*/
 PlaceWizard.prototype.geocode = function(query)
 {
     $("#place-wizard-second-step-geocoding-loader").show();
@@ -770,6 +944,11 @@ PlaceWizard.prototype.geocode = function(query)
     });
 };
 
+/**
+* Initialize the breadcrumb handlers
+*
+* @method initBreadCrumbHandlers
+*/
 PlaceWizard.prototype.initBreadCrumbHandlers = function()
 {
     this.activateStep(1);
@@ -777,6 +956,12 @@ PlaceWizard.prototype.initBreadCrumbHandlers = function()
     this.activateStep(3);
 };
 
+/**
+* Activate the given step in the breadcrumb
+*
+* @method activateStep
+* @param {Integer} number Step number
+*/
 PlaceWizard.prototype.activateStep = function(number)
 {
     switch(number)
@@ -803,6 +988,12 @@ PlaceWizard.prototype.activateStep = function(number)
     }
 };
 
+/**
+* Deactivate the given step in the breadcrumb
+*
+* @method deactivateStep
+* @param {Integer} number Step number
+*/
 PlaceWizard.prototype.deactivateStep = function(number)
 {
     switch(number)
@@ -821,6 +1012,12 @@ PlaceWizard.prototype.deactivateStep = function(number)
     }
 };
 
+/**
+* Executed when a tag label is clicked (toggle its selection)
+*
+* @method onTagClicked
+* @param {Dom} element Clicked element
+*/
 PlaceWizard.prototype.onTagClicked = function(element)
 {
     if(typeof element.attr("selected") == "undefined")
@@ -833,12 +1030,24 @@ PlaceWizard.prototype.onTagClicked = function(element)
     }
 };
 
+/**
+* Select a tag by applying a specific style to the element
+*
+* @method selectTag
+* @param {Dom} element Tag container
+*/
 PlaceWizard.prototype.selectTag = function(element)
 {
     element.css("background-color", element.attr("data-color"));
     element.attr("selected", "selected");
 };
 
+/**
+* Unselect a tag by applying a default style to the element
+*
+* @method unselectTag
+* @param {Dom} element Tag container
+*/
 PlaceWizard.prototype.unselectTag = function(element)
 {
     element.removeAttr("selected");
